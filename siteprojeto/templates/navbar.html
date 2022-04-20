@@ -1,0 +1,53 @@
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(24, 21, 26);">
+        <div class="container-fluid container">
+          <a class="navbar-brand" href="#">Site Projeto</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('usuarios') }}">Usuarios</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#">Seção</a></li>
+                  <li><a class="dropdown-item" href="#">Seção2</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{{ url_for('contato') }}">Contato</a></li>
+                </ul>
+              </li>
+            </ul>
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="procurando algo?" aria-label="button">
+              <button class="btn btn-outline-dark" type="submit">Buscar</button>
+            </form>
+            <ul class="d-flex navbar-nav">
+              {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('criar_post') }}">Criar Post</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('perfil') }}">Perfil</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('sair') }}">Sair</a>
+                </li>
+              {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('cadastro') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('cadastro') }}">Criar Conta</a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </nav>
