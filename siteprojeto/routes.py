@@ -1,14 +1,17 @@
 #to import PIL: $pip install Pillow
 
 from ast import For
+from pydoc import describe
 import secrets
 from siteprojeto import app, database, bcrypt
 from flask import Flask, render_template, url_for, request, flash, redirect, abort
-from siteprojeto.forms import FormCriarConta, FormLogin, FormEditarPerfil, FormCriarPost
+from siteprojeto.forms import FormCriarConta, FormLogin, FormEditarPerfil, FormCriarPost, FormSearch
 from siteprojeto.models import Usuario, Post
 from flask_login import login_user, logout_user, current_user, login_required
 import os
 from PIL import Image
+from flask_mail import Mail, Message
+from siteprojeto import database
 
 @app.route("/")
 def home():
@@ -171,16 +174,23 @@ def excluir_post(post_id):
     else:
         abort(403)
 
-'''
-Para o erro Invalid salt:
+@app.route('/search',methods=['GET','POST'])
+def search():
+    form_search = FormSearch()
+    palavra_buscada = form_search.searched.data
+    search = "%{}%".format(palavra_buscada)
+    search_posts = Post.query.filter(Post.descricao.like(search)).all()
+    return render_template('search.html', form_search=form_search, search_posts=search_posts, palavra_buscada=palavra_buscada)
 
+
+#Para o erro Invalid salt:
+'''
 Em if usuario and bcrypt.... troque por if usuario and bcrypt.check_password_hash(usuario.senha.decode('utf-8'), form_login.senha.data):
 Na criação de conta troque senha_crypt = ... por senha_crypt = bcrypt.generate_password_hash(form_criarconta.senha.data).encode('utf-8')
 '''
 
+#Teste para avaliar se a criptografia na criação da senha funcionou:
 '''
-Teste para avaliar se a criptografia na criação da senha funcionou:
-
 $ python
 >> from siteprojeto import database
 >> from siteprojeto.models import Usuario, Post
@@ -195,6 +205,14 @@ b'$2b$12$vve4mzidxHLyaOLmDc5zruV13DS5i3oLh1Llx5WU/GuoKaqgyNOwu'
 >> bcrypt.check_password_hash(user1.senha,senha) ou >> bcrypt.check_password_hash(user1.senha,'123456')
 True
 '''
-    
+
+#Para consultar a base de dados:
+'''
+sqlite3 siteprojeto.db
+
+sqlite> .schema
+sqlite> .excel
+sqlite> SELECT * FROM usuario;
+'''
 
 

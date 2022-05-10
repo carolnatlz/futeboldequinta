@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container"> 
+    <div class="container mt-5 mb-5 d-flex justify-content-center">
+        <div class="card p-3" style="height: fit-content;">
+            <form method="POST" action="" class="border-0 p-4 mt-4" enctype="multipart/form-data"> 
+                {{ form_search.csrf_token }}
+                <legend>Buscar</legend>
+                <div class="form-group">
+                    {{ form_search.searched(class="form-control") }}
+                </div>
+                <br>
+                {{ form_search.submit_search(class="button-33", role="button") }}
+            </form>
+            <ul>
+                <br>
+                {% for post in search_posts %}
+                    <a href="{{ url_for('editar_post', post_id=post.id)}}">
+                        {{ post.titulo }} 
+                    </a><br/>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container mt-5 mb-5 d-flex justify-content-center">
+        <div class="card p-3" style="height: fit-content;">
+            <form method="POST" action="" class="border-0 p-4 mt-4" enctype="multipart/form-data"> 
+                {{ form_search.csrf_token }}
+                <legend>Buscar com Autocomplete</legend>
+                <div class="form-group">
+                    {{ form_search.searched(class="form-control") }}
+                    <ul></ul>
+                    
+                    <!-- o erro está no search?q=-->
+                    <script>
+                        let input = document.querySelector('input');
+                        input.addEventListener('input',async function() {
+                            let response = await fetch('/search?q=' + input.value); 
+                            let post = await response.text();
+                            document.querySelector('ul').innerHTML = post;
+                        });
+                    </script>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

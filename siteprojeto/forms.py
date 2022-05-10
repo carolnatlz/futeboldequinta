@@ -56,3 +56,7 @@ class FormCriarPost(FlaskForm):
     botao_submit = SubmitField('Criar Post')
     botao_submit_salvar = SubmitField('Salvar Edição')
     botao_submit_excluir = SubmitField('Excluir Post')
+
+class FormSearch(FlaskForm):
+    searched = StringField('Searched',validators=[DataRequired()])
+    submit_search = SubmitField('Submit')
