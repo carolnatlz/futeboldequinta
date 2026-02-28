@@ -1,59 +1,159 @@
-/*{ 
-    background-color: #e5e5f7;
-    opacity: 0.8;
-    background-image: radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px);
-    background-size: 10px 10px;
-}
+/* Para debugar o que está passando do layout:
+        * {
+        outline: 1px solid red;
+        } 
 */
+
+html, body {
+/*trava o scroll lateral*/
+  overflow-x: hidden;
+}
+
 body {  
-    background-image: url("backgg.jpg");
-    background-color: #cccccc;
-    background-size: cover;
-    font-family: "Poppins", sans-serif;
-    font-weight: 300;
+    /*{background-image: url("backgg.jpg");}*/
+  margin: 0;
+
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(255, 255, 255, 0.75) 0%,
+      rgba(255, 255, 255, 0.35) 25%,
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #eef3fb 0%,
+      #dde6f3 40%,
+      #c8d4e6 70%,
+      #b7c6dc 100%
+    );
+}
+
+.file-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+}
+
+.logo-login {
+  width: 100%;
+  max-width: 230px;
+  height: auto;
+}
+
+.foto-perfil {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 50px;
+  margin-bottom: 30px;
+  border: 5px solid white;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-login {
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+  border-radius: 40px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 30px 60px rgba(30, 60, 90, 0.15),
+    0 10px 20px rgba(30, 60, 90, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.card-login .text-muted {
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.botao-editar-perfil {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  background: linear-gradient(135deg, #c62828, #a31621);
+  color: white;
+
+  border: none;
+  border-radius: 14px;
+
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 10px 20px rgba(163, 22, 33, 0.25);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  transition: all 0.2s ease;
+}
+
+.botao-editar-perfil:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(163, 22, 33, 0.35);
+}
+
+.posicoes {
+  width: 100%;
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 3px;
+  border-radius: 40px;
+  display: flex;
+  gap: 6px;
+  box-shadow: 
+    0 15px 35px rgba(31, 58, 95, 0.18),
+    0 6px 15px rgba(31, 58, 95, 0.12);
+}
+
+.posicao-item {
+  padding: 10px 16px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.posicao-item.ativa {
+  background: linear-gradient(135deg, #1f3a5f, #162a44);
+  color: white;
+  box-shadow: 0 6px 14px rgba(22, 42, 68, 0.35);
+}
+
+.posicao-item:active {
+  transform: scale(0.86);
 }
 
 .card {
-    width: 400px;
+    width: 100%;
     flex-wrap: wrap;
     border: none;
-    border-radius: 15px;
+    border-radius: 50px;
     padding: 8px;
     background-color: #fff;
     position: relative;
-    height: 400px;
     opacity: 1;
-}
-
-.upper {
-    height: 100px
-}
-
-.upper img {
-    width: 100%;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px
 }
 
 .user {
     position: relative
-}
-
-.profile img {
-    height: 80px;
-    width: 80px;
-    margin-top: 2px
-}
-
-.profile {
-    position: absolute;
-    top: -50px;
-    left: 38%;
-    height: 90px;
-    width: 90px;
-    border: 3px solid #fff;
-    border-radius: 50%;
-    opacity: 1;
 }
 
 .follow { 
@@ -142,23 +242,6 @@ padding: 30px;
     background-color: rgba(241, 93, 7, 0.25);
     color: rgb(223, 55, 13);
 }
-
-/*{ 
-.c-card__image {
-    border-radius: .6rem;
-    flex-direction: column;
-    height: 400px;
-    width: 300px;
-    align-items: center;
-    background-color: #b5b9c1;
-    border-top-left-radius: .6rem;
-    border-top-right-radius: .6rem;
-    display: flex;
-    flex: 5;
-    justify-content: center;
-    overflow: hidden;
-    }
-}*/
 
 .c-card__content {
     background-color: #ced4da;

@@ -1,80 +1,56 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<div class="container d-flex justify-content-center align-items-center mt-5">
-    <div class="card text-center" style="height: fit-content;">
-        <div class="upper"> <img src="{{ url_for('static',filename='atela.png') }}" height="100"> </div>
-        <div class="user text-center">
-            <div class="profile"> <img src="{{ foto_perfil }}" class="rounded-circle" width="80"> </div>
+<div class="container d-flex flex-column justify-content-center align-items-center mt-5 mb-5">
+    <img src="{{ url_for('static', filename='logofdq.png') }}"
+         alt="Logo Futebol de Quinta"
+         class="mb-4 logo-login">
+
+    <div class="card-login text-center">
+    
+        <div class="card-body d-flex flex-column align-items-center">
+
+        <!-- Foto -->
+        <img src="{{ foto_perfil }}" 
+             class="foto-perfil mb-4" 
+             alt="Foto de perfil">
+
+        <!-- Nome -->
+        <h4 class="mb-1">{{ current_user.usuario }}</h4>
+
+        <!-- Email -->
+        <span class="text-muted">
+            {{ current_user.email }}
+        </span>
+
+        <!-- Botão -->
+        <a href="{{ url_for('editar_perfil') }}">
+            <button class="botao-editar-perfil">
+                <i class="bi bi-pencil"></i>
+                Editar Perfil
+            </button>
+        </a>
+
         </div>
-        <div class="mt-5 text-center">
-            <h4 class="mb-1 mt-1">{{ current_user.usuario }}</h4> 
-            <span class="text-muted d-block mb-2">{{ current_user.email }}</span>
-                <a href="{{ url_for('editar_perfil')}}">
-                    <button class="button-33" role="button">Editar Perfil</button>
-                </a>
-            <div class="d-flex justify-content-between align-items-center mt-4 px-4">
-                {% if 'não informado' in current_user.afinidades or current_user.afinidades == '' %}
-                    <div class="stats"><h6 class="mb-0">Linguagens</h6><span>0</span></div>
-                {% else %}
-                    <div class="stats"><h6 class="mb-0">Linguagens</h6><span>{{ current_user.afinidades.count(';') + 1}}</span></div>
-                {% endif %}
-                <div class="stats">
-                    <h6 class="mb-0">Projects</h6> <span>0</span>
-                </div>
-                <div class="stats">
-                    <h6 class="mb-0">Posts</h6> <span>{{ current_user.contar_posts() }}</span> 
-                    <!-- o parênteses existe pois é um método e não um atributo -->
-                </div>
-            </div>
-        </div>
-        <hr>
-        <div class="mt-2 text-center">
-            <style>
-            .column {
-            float: left;
-            width: 25%;
-            padding: 10px 10px;
-            }
-            </style>
-            <div class="row">
-                {% if 'HTML' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'CSS' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'Python' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Python.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'Java' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'C#' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/C_Sharp_wordmark.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'PHP' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/PHP-logo.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if '.NET' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a3/.NET_Logo.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'Angular' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Angular_full_color_logo.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'Ionic' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Ionic-logo-landscape.svg" height="48" width="48"></div>
-                {% endif %}
-                {% if 'Flutter' in current_user.afinidades %}
-                <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Google-flutter-logo.svg" height="48" width="48"></div>
-                {% endif %}
-            {% if current_user.afinidades == 'não informado' or current_user.afinidades == '' %}
-                <p>Não existem linguagens cadastradas.</p>
-            {% endif %}
-            </div>
-        </div>
+
+    <div class="posicoes">
+            <div class="posicao-item">🧤 Goleira</div>
+            <div class="posicao-item">🛡 Defesa</div>
+            <div class="posicao-item ativa">⚡ Ataque</div>
     </div>
+    <script>
+        const items = document.querySelectorAll('.posicao-item');
+
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('ativa'));
+            item.classList.add('ativa');
+            });
+        });
+    </script>
+
 </div>
+
 {% block form_editarperfil %}
 {% endblock %}
 {% endblock %}

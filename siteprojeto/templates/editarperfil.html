@@ -2,15 +2,15 @@
 
 {% block form_editarperfil %}
 
-<div class="container d-flex justify-content-center align-items-center mt-5 mb-5">
-    <div class="card" style="height: fit-content;">
+<div class="container d-flex flex-column justify-content-center align-items-center mt-5 mb-5">
+    <div class="card-login">
         <form method="POST" action="" class="border-0 p-4 mt-4" enctype="multipart/form-data"> 
             <!-- class="border p-4 mt-4" padding(distância interior) de 4 e margem de 4-->
             <!-- enctype é somente ao fazer upload de arquivo para que ele consiga reconhecer a extensão dele-->
             {{ form_editarperfil.csrf_token }}
             <legend>Editar Perfil</legend>
             <fieldset>
-                <div class="form-group">
+                <div class="form-group file-wrapper">
                     {{ form_editarperfil.username.label(class="form-control-label") }}
                     {% if form_editarperfil.username.errors %}
                         {{ form_editarperfil.username(class="form-control is-invalid") }}
@@ -23,7 +23,7 @@
                         {{ form_editarperfil.username(class="form-control") }}
                     {% endif %}
                 </div>
-                <div class="form-group">
+                <div class="form-group file-wrapper">
                     {{ form_editarperfil.email.label(class="form-control-label") }}
                     {% if form_editarperfil.email.errors %}
                         {{ form_editarperfil.email(class="form-control is-invalid") }}
@@ -36,7 +36,7 @@
                         {{ form_editarperfil.email(class="form-control") }}
                     {% endif %}
                 </div>
-                <div class="form-group">
+                <div class="form-group file-wrapper">
                     {{ form_editarperfil.foto_perfil.label }}
                     {{ form_editarperfil.foto_perfil(class="form-control-file") }}
                     {% if form_editarperfil.foto_perfil.errors %}
@@ -46,15 +46,6 @@
                     {% endif %}
                 </div>
                 <hr>
-                <p>Linguagens</p>
-                {% for afinidades in form_editarperfil %}
-                    {% if 'afinidade_' in afinidades.name %}
-                        <div class="form-group">
-                            {{ afinidades(class="form-check-input")}}
-                            {{ afinidades.label(class="form-check-label")}}
-                        </div>
-                    {% endif %}
-                {% endfor %}
             </fieldset>
                 {{ form_editarperfil.botao_submit_salvar(class="btn btn-primary mt-2") }}
         </form>

@@ -1,4 +1,6 @@
 #o init é o arquivo de inicialização, caso precisasse de outro bastava escrever: from siteprojeto.nomedoarquivo
+# export FLASK_APP=zmain.py
+# flask run --host=0.0.0.0 --port=8000
  
 from siteprojeto import app
 

@@ -15,8 +15,7 @@ from siteprojeto import database
 
 @app.route("/")
 def home():
-    posts = Post.query.order_by(Post.id.desc())
-    return render_template('home.html',posts=posts)
+    return render_template('home.html')
 
 @app.route("/contato")
 def contato():
@@ -67,20 +66,8 @@ def sair():
 @login_required
 def perfil():
     foto_perfil = url_for('static',filename='fotos_perfil/{}'.format(current_user.foto_perfil))
-    foto_tela = url_for('static',filename='atela.png')
-    return render_template('perfil.html',foto_perfil=foto_perfil,foto_tela=foto_tela)
+    return render_template('perfil.html',foto_perfil=foto_perfil)
 
-@app.route('/post/criar',methods=['GET','POST'])
-@login_required
-def criar_post():
-    form_criar_post = FormCriarPost()
-    if form_criar_post.validate_on_submit():
-        post = Post(titulo=form_criar_post.titulo.data,descricao=form_criar_post.descricao_post.data,autor=current_user)
-        database.session.add(post)
-        database.session.commit()
-        flash('Post criado com sucesso', 'alert-success')
-        return redirect(url_for('home'))
-    return render_template('criarpost.html',form_criar_post=form_criar_post)
 
 def salvar_imagem(imagem):
     codigo = secrets.token_hex(8)
@@ -93,14 +80,6 @@ def salvar_imagem(imagem):
     imagem_reduzida.save(caminho_completo)
     return nome_arquivo
 
-def definir_afinidades(form_editarperfil):
-    lista_afinidades = []
-    for afinidades in form_editarperfil:
-        if 'afinidade_' in afinidades.name:
-            if afinidades.data:
-                lista_afinidades.append(afinidades.label.text)
-    return ';'.join(lista_afinidades)
-
 @app.route('/perfil/editar', methods=['GET','POST'])
 @login_required
 def editar_perfil():
@@ -108,7 +87,7 @@ def editar_perfil():
     if form_editarperfil.validate_on_submit():
         current_user.email = form_editarperfil.email.data
         current_user.usuario = form_editarperfil.username.data
-        current_user.afinidades = definir_afinidades(form_editarperfil)
+        current_user.posicao = 'INSERIR ALGO ANALOGO AO FORM' #AJUSTAR 
         if form_editarperfil.foto_perfil.data:
             nome_imagem = salvar_imagem(form_editarperfil.foto_perfil.data)
             current_user.foto_perfil = nome_imagem
@@ -118,69 +97,7 @@ def editar_perfil():
     elif request.method == "GET":   #verifica se está carregando a página, ou seja, se o método é get
         form_editarperfil.email.data = current_user.email
         form_editarperfil.username.data = current_user.usuario
-        if 'HTML' in current_user.afinidades:
-            form_editarperfil.afinidade_html.data = True
-        if 'CSS' in current_user.afinidades:
-            form_editarperfil.afinidade_css.data = True
-        if 'Python' in current_user.afinidades:
-            form_editarperfil.afinidade_python.data = True
-        if 'Java' in current_user.afinidades:
-            form_editarperfil.afinidade_java.data = True
-        if 'C#' in current_user.afinidades:
-            form_editarperfil.afinidade_csharp.data = True
-        if 'PHP' in current_user.afinidades:
-            form_editarperfil.afinidade_php.data = True
-        if '.NET' in current_user.afinidades:
-            form_editarperfil.afinidade_dotnet.data = True
-        if 'Angular' in current_user.afinidades:
-            form_editarperfil.afinidade_angular.data = True
-        if 'Ionic' in current_user.afinidades:
-            form_editarperfil.afinidade_ionic.data = True
-        if 'Flutter' in current_user.afinidades:
-            form_editarperfil.afinidade_flutter.data = True
-    foto_perfil = url_for('static',filename='fotos_perfil/{}'.format(current_user.foto_perfil))
-    return render_template('editarperfil.html',foto_perfil=foto_perfil, form_editarperfil=form_editarperfil)
-
-@app.route('/post/<post_id>',methods=['GET','POST'])
-@login_required
-def editar_post(post_id):
-    post = Post.query.get(post_id)
-    if current_user == post.autor:
-        form_editar_post = FormCriarPost()
-        if request.method == "GET":
-            form_editar_post.titulo.data = post.titulo
-            form_editar_post.descricao_post.data = post.descricao
-        elif form_editar_post.validate_on_submit():
-            post.titulo = form_editar_post.titulo.data
-            post.descricao = form_editar_post.descricao_post.data
-            database.session.commit()
-            flash('post atualizado com sucesso!', 'alert-success')
-            return redirect(url_for('home'))
-    else:
-        form_editar_post = None
-        flash('você não tem permissão para editar esse post', 'alert-danger')
-        return redirect(url_for('home'))
-    return render_template('editarpost.html',post=post,form_editar_post=form_editar_post)
-
-@app.route('/post/<post_id>/excluir',methods=['GET','POST'])
-@login_required
-def excluir_post(post_id):
-    post = Post.query.get(post_id)
-    if current_user == post.autor:
-        database.session.delete(post)
-        database.session.commit()
-        flash('Post excluído com sucesso', 'alert-danger')
-        return redirect(url_for('home'))
-    else:
-        abort(403)
-
-@app.route('/search',methods=['GET','POST'])
-def search():
-    form_search = FormSearch()
-    palavra_buscada = form_search.searched.data
-    search = "%{}%".format(palavra_buscada)
-    search_posts = Post.query.filter(Post.descricao.like(search)).all()
-    return render_template('search.html', form_search=form_search, search_posts=search_posts, palavra_buscada=palavra_buscada)
+      
 
 
 #Para o erro Invalid salt:
