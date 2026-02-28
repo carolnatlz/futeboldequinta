@@ -17,10 +17,6 @@ from siteprojeto import database
 def home():
     return render_template('home.html')
 
-@app.route("/contato")
-def contato():
-    return render_template('contato.html')
-
 @app.route("/usuarios")
 @login_required
 def usuarios():
