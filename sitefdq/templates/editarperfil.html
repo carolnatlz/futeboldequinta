@@ -1,0 +1,54 @@
+{% extends 'perfil.html' %}
+
+{% block form_editarperfil %}
+
+<div class="container d-flex flex-column justify-content-center align-items-center mt-5 mb-5">
+    <div class="card-login">
+        <form method="POST" action="" class="border-0 p-4 mt-4" enctype="multipart/form-data"> 
+            <!-- class="border p-4 mt-4" padding(distância interior) de 4 e margem de 4-->
+            <!-- enctype é somente ao fazer upload de arquivo para que ele consiga reconhecer a extensão dele-->
+            {{ form_editarperfil.csrf_token }}
+            <legend>Editar Perfil</legend>
+            <fieldset>
+                <div class="form-group file-wrapper">
+                    {{ form_editarperfil.username.label(class="form-control-label") }}
+                    {% if form_editarperfil.username.errors %}
+                        {{ form_editarperfil.username(class="form-control is-invalid") }}
+                    <div class="invalid-feedback"> 
+                        {% for erro in form_editarperfil.username.errors %}
+                            {{ erro }}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                        {{ form_editarperfil.username(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group file-wrapper">
+                    {{ form_editarperfil.email.label(class="form-control-label") }}
+                    {% if form_editarperfil.email.errors %}
+                        {{ form_editarperfil.email(class="form-control is-invalid") }}
+                    <div class="invalid-feedback"> 
+                        {% for erro in form_editarperfil.email.errors %}
+                            {{ erro }}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                        {{ form_editarperfil.email(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group file-wrapper">
+                    {{ form_editarperfil.foto_perfil.label }}
+                    {{ form_editarperfil.foto_perfil(class="form-control-file") }}
+                    {% if form_editarperfil.foto_perfil.errors %}
+                        {% for erro in form_editarperfil.foto_perfil.errors %}
+                            <span class="text-danger">{{ erro }}</span><br>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <hr>
+            </fieldset>
+                {{ form_editarperfil.botao_submit_salvar(class="btn btn-primary mt-2") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

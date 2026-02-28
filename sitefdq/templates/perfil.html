@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container d-flex flex-column justify-content-center align-items-center mt-5 mb-5">
+    <img src="{{ url_for('static', filename='logofdq.png') }}"
+         alt="Logo Futebol de Quinta"
+         class="mb-4 logo-login">
+
+    <div class="card-login text-center">
+    
+        <div class="card-body d-flex flex-column align-items-center">
+
+        <!-- Foto -->
+        <img src="{{ foto_perfil }}" 
+             class="foto-perfil mb-4" 
+             alt="Foto de perfil">
+
+        <!-- Nome -->
+        <h4 class="mb-1">{{ current_user.usuario }}</h4>
+
+        <!-- Email -->
+        <span class="text-muted">
+            {{ current_user.email }}
+        </span>
+
+        <!-- Botão -->
+        <a href="{{ url_for('editar_perfil') }}">
+            <button class="botao-editar-perfil">
+                <i class="bi bi-pencil"></i>
+                Editar Perfil
+            </button>
+        </a>
+
+        </div>
+
+    <div class="posicoes">
+            <div class="posicao-item">🧤 Goleira</div>
+            <div class="posicao-item">🛡 Defesa</div>
+            <div class="posicao-item ativa">⚡ Ataque</div>
+    </div>
+    <script>
+        const items = document.querySelectorAll('.posicao-item');
+
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('ativa'));
+            item.classList.add('ativa');
+            });
+        });
+    </script>
+
+</div>
+
+{% block form_editarperfil %}
+{% endblock %}
+{% endblock %}
+
+
+
