@@ -11,7 +11,6 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import os
-from sitefdq import routes
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -29,3 +28,5 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 database = SQLAlchemy(app)
 migrate = Migrate(app, database)
+
+from sitefdq import routes

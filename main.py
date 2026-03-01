@@ -11,8 +11,10 @@ if __name__ == '__main__':
 
 '''
 pip freeze > requirements.txt
-git add requirements.txt
-git commit -m "update requirements"
-git push
 gunicorn main:app
+git status (para ver todas as mudanças que vão subir)
+
+git add .
+git commit -m "descrição"
+git push
 '''
