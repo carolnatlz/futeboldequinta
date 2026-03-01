@@ -1,37 +1,8 @@
 {% extends 'base.html' %}
 
 {% block body %}
-    <div class="l-cards">
-        {% for post in posts %}
-        <!--<article class="c-card">
-        <div class="c-card__image">
-            <img
-            src="https://upload.wikimedia.org/wikipedia/commons/3/39/C_Hello_World_Program.png"
-            width="100%">
-        </div> -->
-        <div class="c-card__content">
-            <h3>{{ post.titulo }}</h3>
-            <small class="text-muted" style="font-size: 15px; text-align: right;">{{ post.data_criacao.strftime('%d/%m/%Y') }}</small>
-            <p>{{ post.descricao }}</p>
-            <div class="row">
-                {% if current_user.usuario == post.autor.usuario %}
-                    <div class="column">
-                        <a href="{{ url_for('editar_post', post_id=post.id) }}">
-                        <button class="button-33" role="button">Editar post</button>
-                        </a>
-                    </div>
-                {% endif %}
-                <div class="column">
-                <style>
-                .blockquote-footer{text-align: right; color: #04343d; margin-bottom: 1px}    
-                </style>
-                <figcaption class="blockquote-footer">
-                   <cite title="Source Title">by <b>{{ post.autor.usuario }}</b></cite>
-                </figcaption>
-                </div>
-            </div>
-        </div>
-        <!--</article>-->
-        {% endfor %}
+    <div class="logo-wrapper">
+        <div class="line"></div>
+        <img src="{{ url_for('static', filename='logofdq.png') }}" class="logo">
     </div>
 {% endblock %}
