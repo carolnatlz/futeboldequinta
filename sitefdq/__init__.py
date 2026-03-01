@@ -4,15 +4,17 @@
 #export FLASK_APP=main
 #flask run
 
-from dotenv import load_dotenv
-load_dotenv()
+import os
+
+if os.environ.get("RENDER") is None:
+    from dotenv import load_dotenv
+    load_dotenv()
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
-import os
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
