@@ -231,3 +231,14 @@ padding: 30px;
     padding: 10px;
     z-index: 2;
 }
+
+.btn-fdq {
+    background-color: #0f2b36;  /* azul petróleo */
+    color: white;
+    border: none;
+}
+
+.btn-fdq:hover {
+    background-color: #c1121f;  /* vermelho */
+    color: white;
+}

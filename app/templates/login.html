@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+        <h3 class="text-center mb-4">Entrar no FDQ ⚽</h3>
+
+        <form method="POST">
+            {{ form.csrf_token }}
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+                {% for erro in form.email.errors %}
+                    <div class="text-danger small">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.senha.label(class="form-label") }}
+                {{ form.senha(class="form-control") }}
+                {% for erro in form.senha.errors %}
+                    <div class="text-danger small">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-check mb-3">
+                {{ form.lembrar_login(class="form-check-input") }}
+                {{ form.lembrar_login.label(class="form-check-label") }}
+            </div>
+
+            {{ form.botao_submit_login(class="btn btn-dark w-100") }}
+        </form>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+            <small>Não tem conta?</small><br>
+            <a href="{{ url_for('main.cadastro') }}" class="btn btn-outline-dark btn-sm mt-2 w-100">
+                Criar Conta
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
