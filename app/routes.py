@@ -1,5 +1,5 @@
 from app import db, bcrypt
-from flask import url_for, request, flash, redirect
+from flask import url_for, request, flash, redirect, current_app
 from app.forms import FormCriarConta, FormLogin, FormEditarPerfil
 from app.models import User, AuthProvider, UserRole
 from flask_login import login_user, logout_user, current_user, login_required
@@ -27,7 +27,7 @@ def home():
 @main.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if current_user.is_authenticated:
-        return redirect(url_for("home"))
+        return redirect(url_for("main.home"))
 
     form = FormCriarConta()
 
@@ -48,7 +48,7 @@ def cadastro():
         db.session.commit()
 
         flash("Conta criada com sucesso! Faça login.", "alert-success")
-        return redirect(url_for("login"))
+        return redirect(url_for("main.login"))
 
     return render_template("cadastro.html", form=form)
 
@@ -60,7 +60,7 @@ def cadastro():
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("home"))
+        return redirect(url_for("main.home"))
 
     form = FormLogin()
 
@@ -77,7 +77,7 @@ def login():
             login_user(user, remember=form.lembrar_login.data)
 
             next_page = request.args.get("next")
-            return redirect(next_page) if next_page else redirect(url_for("home"))
+            return redirect(next_page) if next_page else redirect(url_for("main.home"))
         else:
             flash("Email ou senha incorretos.", "alert-danger")
 
@@ -93,7 +93,7 @@ def login():
 def logout():
     logout_user()
     flash("Logout realizado com sucesso.", "alert-success")
-    return redirect(url_for("home"))
+    return redirect(url_for("main.home"))
 
 
 # ------------------------
@@ -106,7 +106,7 @@ def perfil():
     foto = (
         url_for("static", filename=f"fotos_perfil/{current_user.profile_img}")
         if current_user.profile_img
-        else url_for("static", filename="fotos_perfil/default.png")
+        else url_for("static", filename="fotos_perfil/default.jpg")
     )
     return render_template("perfil.html", foto_perfil=foto)
 
@@ -120,7 +120,7 @@ def salvar_imagem(imagem):
     nome, extensao = os.path.splitext(imagem.filename)
     nome_arquivo = nome + "_" + codigo + extensao
 
-    caminho = os.path.join(app.root_path, "static/fotos_perfil", nome_arquivo)
+    caminho = os.path.join(current_app.root_path, "static/fotos_perfil", nome_arquivo)
 
     tamanho = (300, 300)
     img = Image.open(imagem)
@@ -146,7 +146,7 @@ def editar_perfil():
         db.session.commit()
 
         flash("Perfil atualizado com sucesso!", "alert-success")
-        return redirect(url_for("perfil"))
+        return redirect(url_for("main.perfil"))
 
     elif request.method == "GET":
         form.username.data = current_user.name

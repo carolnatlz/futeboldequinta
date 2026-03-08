@@ -56,7 +56,7 @@ def create_app():
     # =========================
     # Config Login
     # =========================
-    login_manager.login_view = 'cadastro'
+    login_manager.login_view = 'main.login'
     login_manager.login_message = 'Quer ver o que está no site? primeiro faça seu cadastro ou login'
     login_manager.login_message_category = 'alert-info'
 
