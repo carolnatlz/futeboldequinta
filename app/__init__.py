@@ -21,12 +21,6 @@ mail = Mail()
 # Application Factory
 # =========================
 def create_app():
-
-    # Carregar .env apenas local
-    if os.environ.get("RENDER") is None:
-        from dotenv import load_dotenv
-        load_dotenv()
-
     app = Flask(__name__)
 
     # =========================
