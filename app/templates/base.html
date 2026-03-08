@@ -12,11 +12,20 @@
     {% endblock %}
 </head>
 
-<body>
+{% set is_auth_page = request.endpoint in ['main.login', 'main.cadastro'] %}
+<body class="{% if is_auth_page %}auth-page-body{% endif %}">
     
-    {% include 'navbar.html' %}
+    {% if not is_auth_page %}
+        {% include 'navbar.html' %}
+        <header class="top-brand-header">
+            <div class="top-brand-line"></div>
+            <a href="{{ url_for('main.home') }}" class="top-brand-logo-link" aria-label="Ir para home">
+                <img src="{{ url_for('static', filename='logofdq.png') }}" alt="Logo Futebol de Quinta" class="top-brand-logo">
+            </a>
+        </header>
+    {% endif %}
 
-    <div class="container-fluid px-3">
+    <div class="container-fluid px-3 main-content {% if is_auth_page %}auth-page-content{% endif %}">
         {% with mensagens = get_flashed_messages(with_categories=True) %}
             {% if mensagens %}
                 {% for categoria, mensagem in mensagens %}

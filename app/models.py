@@ -56,7 +56,8 @@ class User(db.Model, UserMixin):
         nullable=True
     )
     profile_img = db.Column(db.String(255), nullable=True)
-    is_active = db.Column(db.Boolean, default=True)
+    is_active = db.Column(db.Boolean, default=False)
+    is_rejected = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True),server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
     phone = db.Column(db.String(20), unique=True, nullable=True)

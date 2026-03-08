@@ -1,53 +1,154 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card shadow p-4" style="max-width: 450px; width: 100%;">
-        <h3 class="text-center mb-4">Criar Conta ⚽</h3>
+<section class="cadastro-hero auth-screen-hero">
+  <div class="auth-page-logo-wrap">
+    <a href="{{ url_for('main.home') }}" aria-label="Ir para home">
+      <img src="{{ url_for('static', filename='logofdq.png') }}" alt="Logo Futebol de Quinta" class="auth-page-logo">
+    </a>
+  </div>
+  <div class="cadastro-card-wrap">
+    <div class="cadastro-card">
+      <h2 class="cadastro-title">Entrar no Grupo</h2>
 
-        <form method="POST">
-            {{ form.csrf_token }}
+      <form method="POST" enctype="multipart/form-data" class="cadastro-form">
+        {{ form.csrf_token }}
 
-            <div class="mb-3">
-                {{ form.username.label(class="form-label") }}
-                {{ form.username(class="form-control") }}
-                {% for erro in form.username.errors %}
-                    <div class="text-danger small">{{ erro }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                {{ form.email.label(class="form-label") }}
-                {{ form.email(class="form-control") }}
-                {% for erro in form.email.errors %}
-                    <div class="text-danger small">{{ erro }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                {{ form.senha.label(class="form-label") }}
-                {{ form.senha(class="form-control") }}
-                {% for erro in form.senha.errors %}
-                    <div class="text-danger small">{{ erro }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="mb-3">
-                {{ form.confirmacao.label(class="form-label") }}
-                {{ form.confirmacao(class="form-control") }}
-            </div>
-
-            {{ form.botao_submit_criarconta(class="btn btn-dark w-100") }}
-        </form>
-
-        <hr class="my-4">
-
-        <div class="text-center">
-            <small>Já tem conta?</small><br>
-            <a href="{{ url_for('main.login') }}" class="btn btn-outline-dark btn-sm mt-2 w-100">
-                Fazer Login
-            </a>
+        <div class="fdq-field-group">
+          <i class="bi bi-person"></i>
+          {{ form.username(class="fdq-field", placeholder="Nome do usuário") }}
         </div>
+        {% for erro in form.username.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        <div class="fdq-field-group">
+          <i class="bi bi-envelope"></i>
+          {{ form.email(class="fdq-field", placeholder="Email") }}
+        </div>
+        {% for erro in form.email.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        <div class="fdq-field-group fdq-phone-group">
+          <span class="fdq-country-prefix" id="countryPrefix">
+            <span class="fdq-country-flag" id="countryFlag" aria-hidden="true"></span>
+            <span class="fdq-country-code">+55</span>
+          </span>
+          {{ form.celular(class="fdq-field", id="celular", placeholder="(11) 91234-5678", inputmode="numeric", maxlength="20", autocomplete="tel") }}
+        </div>
+        {% for erro in form.celular.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        <div class="fdq-field-group">
+          <i class="bi bi-lock"></i>
+          {{ form.senha(class="fdq-field", placeholder="Senha") }}
+        </div>
+        {% for erro in form.senha.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        <div class="fdq-field-group">
+          <i class="bi bi-shield-lock"></i>
+          {{ form.confirmacao(class="fdq-field", placeholder="Confirmação da senha") }}
+        </div>
+        {% for erro in form.confirmacao.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        <div class="fdq-photo-picker">
+          <div class="fdq-avatar-placeholder">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div class="fdq-photo-fields">
+            <label class="fdq-photo-label" for="foto_perfil">Escolher Foto</label>
+            {{ form.foto_perfil(class="fdq-photo-input", id="foto_perfil") }}
+          </div>
+        </div>
+        {% for erro in form.foto_perfil.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        <label class="fdq-position-title">Posição</label>
+        <div class="fdq-position-group">
+          {% for opcao in form.position %}
+            <label class="fdq-position-option" for="{{ opcao.id }}">
+              {{ opcao(class="fdq-position-input") }}
+              <span class="fdq-position-content">
+                {% if opcao._value() == 'gol' %}
+                  <span aria-hidden="true">🧤</span>
+                  <span>Gol</span>
+                {% elif opcao._value() == 'defesa' %}
+                  <i class="bi bi-shield-shaded"></i>
+                  <span>Defesa</span>
+                {% else %}
+                  <i class="bi bi-lightning-fill ataque-icone"></i>
+                  <span>Ataque</span>
+                {% endif %}
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        {% for erro in form.position.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        {{ form.botao_submit_criarconta(class="fdq-submit") }}
+
+        <a href="{{ url_for('main.login') }}" class="fdq-login-link">Já tem conta? Faça login</a>
+      </form>
     </div>
-</div>
+  </div>
+</section>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const celularInput = document.getElementById("celular");
+    const countryFlag = document.getElementById("countryFlag");
+    if (!celularInput || !countryFlag) return;
+
+    const formatarLocal = (numeros) => {
+      if (numeros.length <= 2) return `(${numeros}`;
+      if (numeros.length <= 6) return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+      if (numeros.length <= 10) return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
+      return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+    };
+
+    const formatarCelular = (valor) => {
+      let numeros = valor.replace(/\D/g, "");
+
+      if (numeros.startsWith("55")) {
+        numeros = numeros.slice(2);
+      }
+
+      numeros = numeros.slice(0, 11);
+      if (!numeros.length) return "";
+
+      return `+55 ${formatarLocal(numeros)}`;
+    };
+
+    const atualizarBandeira = (valor) => {
+      const codigo = valor.trim().startsWith("+55");
+      countryFlag.textContent = codigo ? "🇧🇷" : "";
+      countryFlag.classList.toggle("is-visible", codigo);
+    };
+
+    celularInput.addEventListener("input", function (event) {
+      const formatado = formatarCelular(event.target.value);
+      event.target.value = formatado;
+      atualizarBandeira(formatado);
+    });
+
+    celularInput.addEventListener("blur", function (event) {
+      if (event.target.value.trim() === "+55") {
+        event.target.value = "";
+      }
+      atualizarBandeira(event.target.value);
+    });
+
+    const valorInicial = formatarCelular(celularInput.value);
+    celularInput.value = valorInicial;
+    atualizarBandeira(valorInicial);
+  });
+</script>
 {% endblock %}

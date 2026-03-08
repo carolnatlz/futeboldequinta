@@ -21,12 +21,6 @@ mail = Mail()
 # Application Factory
 # =========================
 def create_app():
-
-    # Carregar .env apenas local
-    if os.environ.get("RENDER") is None:
-        from dotenv import load_dotenv
-        load_dotenv()
-
     app = Flask(__name__)
 
     # =========================
@@ -34,12 +28,17 @@ def create_app():
     # =========================
     app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 
-    database_url = os.environ.get("DATABASE_URL")
+    database_url = (
+        os.environ.get("DATABASE_URL")
+        or os.environ.get("SQLALCHEMY_DATABASE_URI")
+    )
     if database_url and database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
 
     if not database_url:
-        raise RuntimeError("DATABASE_URL não configurada.")
+        raise RuntimeError(
+            "DATABASE_URL (ou SQLALCHEMY_DATABASE_URI) não configurada no ambiente."
+        )
 
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

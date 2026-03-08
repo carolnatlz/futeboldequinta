@@ -1,46 +1,73 @@
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(24, 21, 26);">
-        <div class="container-fluid container">
-          <a class="navbar-brand" href="#">Futebol de Quinta</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{{ url_for('main.home') }}">Home</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Dropdown
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Seção</a></li>
-                  <li><a class="dropdown-item" href="#">Seção2</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{{ url_for('main.home') }}">Home</a></li>
-                </ul>
-              </li>
-            </ul>
-            <ul class="d-flex navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link border-end pe-3 me-3" href="{{ url_for('main.home') }}">Home</a>
-              </li>
-              {% if current_user.is_authenticated %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('main.home') }}">Home</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('main.perfil') }}">Perfil</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('main.logout') }}">Sair</a>
-                </li>
-              {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
-        </div>
-      </nav>
+<nav class="fdq-navbar" aria-label="Navegação principal">
+  <button
+    class="fdq-menu-button"
+    type="button"
+    aria-label="Abrir menu"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#fdqMenu"
+    aria-controls="fdqMenu"
+  >
+    <i class="bi bi-list"></i>
+  </button>
+</nav>
+
+<div class="offcanvas offcanvas-end fdq-offcanvas-menu" tabindex="-1" id="fdqMenu" aria-labelledby="fdqMenuLabel">
+  <div class="offcanvas-header fdq-menu-header">
+    <h5 class="offcanvas-title" id="fdqMenuLabel">Menu</h5>
+    <button type="button" class="btn-close btn-close-white text-reset fdq-close-btn" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+  </div>
+  <div class="offcanvas-body fdq-menu-body">
+    <a href="{{ url_for('main.home') }}" class="fdq-menu-link">
+      <span>Home</span>
+      <i class="bi bi-house"></i>
+    </a>
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('main.login') }}" class="fdq-menu-link">
+      <span>Login</span>
+      <i class="bi bi-box-arrow-in-right"></i>
+    </a>
+    <a href="{{ url_for('main.cadastro') }}" class="fdq-menu-link">
+      <span>Cadastro</span>
+      <i class="bi bi-person-plus"></i>
+    </a>
+    {% endif %}
+    {% if current_user.is_authenticated and current_user.role.value in ['admin', 'organizer'] %}
+    <a href="{{ url_for('main.admin_aprovacoes') }}" class="fdq-menu-link">
+      <span>Aprovações</span>
+      <i class="bi bi-check2-square"></i>
+    </a>
+    {% endif %}
+    {% if current_user.is_authenticated %}
+    <button
+      type="button"
+      class="fdq-menu-link fdq-menu-link-danger"
+      data-bs-toggle="modal"
+      data-bs-target="#logoutConfirmModal"
+      data-bs-dismiss="offcanvas"
+    >
+      <span>Logout</span>
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+    {% endif %}
+  </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content fdq-logout-modal">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="logoutConfirmModalLabel">Confirmação</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        Você deseja realmente sair?
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn fdq-modal-btn fdq-modal-btn-secondary" data-bs-dismiss="modal">Não</button>
+        <a href="{{ url_for('main.logout') }}" class="btn fdq-modal-btn fdq-modal-btn-danger">Sim</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

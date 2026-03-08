@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap">
+    <div class="cadastro-card admin-panel-card">
+      <div class="admin-panel-head">
+        <h2 class="cadastro-title admin-panel-title">Aprovações Pendentes</h2>
+        <a href="{{ url_for('main.admin_rejeitados') }}" class="fdq-secondary-link-btn admin-head-link">Ver Rejeitados</a>
+      </div>
+
+      {% if usuarios %}
+      <div class="admin-user-list">
+        {% for usuario in usuarios %}
+        <article class="admin-user-item">
+          <div class="admin-user-row">
+            <span class="admin-user-label">Nome</span>
+            <span class="admin-user-value">{{ usuario.name }}</span>
+          </div>
+          <div class="admin-user-row">
+            <span class="admin-user-label">Email</span>
+            <span class="admin-user-value admin-break">{{ usuario.email }}</span>
+          </div>
+          <div class="admin-user-row">
+            <span class="admin-user-label">Celular</span>
+            <span class="admin-user-value">{{ usuario.phone or '-' }}</span>
+          </div>
+
+          <div class="admin-user-actions">
+            <form method="POST" action="{{ url_for('main.admin_aceitar_usuario', user_id=usuario.id) }}">
+              <button type="submit" class="btn btn-success btn-sm admin-action-btn">Aceitar</button>
+            </form>
+            <form method="POST" action="{{ url_for('main.admin_rejeitar_usuario', user_id=usuario.id) }}">
+              <button type="submit" class="btn btn-outline-danger btn-sm admin-action-btn">Rejeitar</button>
+            </form>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="admin-empty">Nenhum usuário pendente de aprovação.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
