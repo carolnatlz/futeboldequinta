@@ -1,0 +1,98 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="home-agenda">
+    <div class="home-agenda-hero">
+        <div class="home-agenda-copy">
+            <div class="home-agenda-heading">
+                <i class="bi bi-calendar3"></i>
+                <h1 class="home-agenda-title">
+                    <span class="home-agenda-title-primary">Agenda</span>
+                    <span class="home-agenda-title-secondary">Oficial</span>
+                </h1>
+            </div>
+            <div class="home-agenda-divider"></div>
+            <p class="home-agenda-text">Os jogos sempre estão sujeitos às condições climáticas no dia!</p>
+        </div>
+    </div>
+
+    <div class="home-schedule-card">
+        <div class="home-schedule-card-header">
+            <div class="home-sport-icon">
+                <span aria-hidden="true">⚽</span>
+            </div>
+            <div>
+                <h2 class="home-sport-title">Futsal</h2>
+                <p class="home-sport-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Aterro do Flamengo
+                </p>
+            </div>
+        </div>
+
+        <div class="home-schedule-grid">
+            <article class="home-schedule-item">
+                <p class="home-schedule-day home-schedule-day-wide">
+                    <i class="bi bi-calendar3"></i>
+                    Segundas e Quartas
+                </p>
+                <strong class="home-schedule-time">18h30 às 22h</strong>
+                <span class="home-schedule-badge">Gratuito</span>
+            </article>
+        </div>
+    </div>
+
+    <div class="home-schedule-card home-schedule-card-secondary">
+        <div class="home-schedule-card-header">
+            <div class="home-sport-icon home-sport-icon-alt">
+                <span aria-hidden="true">🥅</span>
+            </div>
+            <div>
+                <h2 class="home-sport-title">Society</h2>
+                <p class="home-sport-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Abolição
+                </p>
+            </div>
+        </div>
+
+        <div class="home-schedule-grid home-schedule-grid-society home-schedule-grid-inline">
+            <article class="home-schedule-item">
+                <p class="home-schedule-day home-schedule-day-wide">
+                    <i class="bi bi-calendar3"></i>
+                    Sextas
+                </p>
+                <strong class="home-schedule-time">21h às 23h</strong>
+            </article>
+
+            <div class="home-price-group">
+                <div class="home-price-pill">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <strong>R$15</strong>
+                    <span>(diária)</span>
+                </div>
+                <div class="home-price-pill">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <strong>R$50</strong>
+                    <span>(mensal)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-highlight-card">
+        <div class="home-highlight-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div>
+            <h3>Vagas limitadas!</h3>
+            <p>Garanta já a sua e venha jogar com a gente.</p>
+        </div>
+    </div>
+
+    <a href="{{ url_for('main.perfil') if current_user.is_authenticated else url_for('main.cadastro') }}" class="home-cta-button">
+        <i class="bi bi-people"></i>
+        Quero participar
+    </a>
+</section>
+{% endblock %}

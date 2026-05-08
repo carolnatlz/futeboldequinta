@@ -1,0 +1,48 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="home-agenda sequence-page">
+    <div class="home-agenda-hero sequence-hero">
+        <div class="home-agenda-copy">
+            <div class="home-agenda-heading sequence-heading">
+                <i class="bi bi-calendar3"></i>
+                <h1 class="home-agenda-title sequence-title">
+                    <span class="home-agenda-title-primary">Sequência</span>
+                    <span class="home-agenda-title-secondary">de Jogos</span>
+                </h1>
+            </div>
+            <div class="home-agenda-divider"></div>
+            <p class="home-agenda-text sequence-text">Confira a ordem dos confrontos e já se prepara para cada rodada.</p>
+        </div>
+    </div>
+
+    <div class="sequence-rounds-grid">
+        {% for rodada in rodadas %}
+        <article class="sequence-round-card">
+            <div class="sequence-round-header">
+                <div class="sequence-round-icon">
+                    <i class="bi bi-trophy"></i>
+                </div>
+                <h2 class="sequence-round-title">Rodada {{ rodada.rodada }}</h2>
+            </div>
+
+            <div class="sequence-match-list">
+                {% for jogo in rodada.jogos %}
+                {% set times = jogo.split(' x ') %}
+                <div class="sequence-match-card">
+                    <span class="sequence-match-ball" aria-hidden="true">⚽</span>
+                    <strong class="sequence-match-text">{{ times[0] }} <span>x</span> {{ times[1] }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+        {% if loop.index == 2 %}
+        <article class="sequence-break-card">
+            <span class="sequence-break-icon" aria-hidden="true">📸</span>
+            <strong class="sequence-break-title">Pausa para a Foto</strong>
+        </article>
+        {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
