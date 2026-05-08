@@ -6,9 +6,6 @@ from app.models import User
 from flask_login import current_user
 from sqlalchemy import func
 
-#from django.core.exceptions import ValidationError
-#pip install django-core
-
 
 def normalize_email(value):
     if not value:

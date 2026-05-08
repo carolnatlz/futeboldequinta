@@ -62,9 +62,7 @@ def roles_required(*allowed_roles):
                 return redirect(url_for("main.home"))
 
             return func(*args, **kwargs)
-
         return wrapper
-
     return decorator
 
 
