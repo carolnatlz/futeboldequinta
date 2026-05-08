@@ -227,7 +227,7 @@ body {
   flex-direction: column;
   background-image:
     linear-gradient(180deg, rgba(5, 10, 28, 0.18), rgba(5, 10, 28, 0.58)),
-    url("bg-mobile.jpg");
+    url("../img/bg-mobile.jpg");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;

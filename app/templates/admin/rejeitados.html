@@ -1,12 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'components/base.html' %}
 
 {% block body %}
 <section class="cadastro-hero admin-panel-hero">
   <div class="cadastro-card-wrap">
     <div class="cadastro-card admin-panel-card">
       <div class="admin-panel-head">
-        <h2 class="cadastro-title admin-panel-title">Aprovações Pendentes</h2>
-        <a href="{{ url_for('main.admin_rejeitados') }}" class="fdq-secondary-link-btn admin-head-link">Ver Rejeitados</a>
+        <h2 class="cadastro-title admin-panel-title">Usuários Rejeitados</h2>
+        <a href="{{ url_for('main.admin_aprovacoes') }}" class="fdq-secondary-link-btn admin-head-link">Voltar para Aprovações</a>
       </div>
 
       {% if usuarios %}
@@ -25,20 +25,15 @@
             <span class="admin-user-label">Celular</span>
             <span class="admin-user-value">{{ usuario.phone or '-' }}</span>
           </div>
-
-          <div class="admin-user-actions">
-            <form method="POST" action="{{ url_for('main.admin_aceitar_usuario', user_id=usuario.id) }}">
-              <button type="submit" class="btn btn-success btn-sm admin-action-btn">Aceitar</button>
-            </form>
-            <form method="POST" action="{{ url_for('main.admin_rejeitar_usuario', user_id=usuario.id) }}">
-              <button type="submit" class="btn btn-outline-danger btn-sm admin-action-btn">Rejeitar</button>
-            </form>
+          <div class="admin-user-row">
+            <span class="admin-user-label">Atualizado em</span>
+            <span class="admin-user-value admin-break">{{ usuario.updated_at }}</span>
           </div>
         </article>
         {% endfor %}
       </div>
       {% else %}
-      <p class="admin-empty">Nenhum usuário pendente de aprovação.</p>
+      <p class="admin-empty">Nenhum usuário rejeitado.</p>
       {% endif %}
     </div>
   </div>

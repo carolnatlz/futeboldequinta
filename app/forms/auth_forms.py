@@ -3,7 +3,6 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, RadioField
 from wtforms.validators import DataRequired,Length,Email,EqualTo, ValidationError
 from app.models import User
-from flask_login import current_user
 from sqlalchemy import func
 
 
@@ -53,16 +52,3 @@ class FormLogin(FlaskForm):
     senha = PasswordField('Senha',validators=[DataRequired(),Length(6,20)])
     lembrar_login = BooleanField('Lembrar Dados de Acesso')
     botao_submit_login = SubmitField('Fazer Login')
-
-class FormEditarPerfil(FlaskForm):
-    username = StringField('Nome de Usuário',validators=[DataRequired()])
-    email = StringField('Email',validators=[DataRequired(),Email()], filters=[normalize_email])
-    foto_perfil = FileField('Atualizar foto de perfil',validators=[FileAllowed(['jpg','png'])])
-    botao_submit_salvar = SubmitField('Salvar')
-
-    def validate_email(self, email):
-        current_email = (current_user.email or "").strip().lower()
-        if current_email != email.data:
-            usuario = User.query.filter(func.lower(User.email) == email.data).first()
-            if usuario:
-                raise ValidationError('Já existe uma conta com esse email.')
