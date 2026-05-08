@@ -38,6 +38,12 @@
     </a>
     {% endif %}
     {% if current_user.is_authenticated %}
+    <a href="{{ url_for('main.perfil') }}" class="fdq-menu-link">
+      <span>Perfil</span>
+      <i class="bi bi-person-circle"></i>
+    </a>
+    {% endif %}
+    {% if current_user.is_authenticated %}
     <button
       type="button"
       class="fdq-menu-link fdq-menu-link-danger"

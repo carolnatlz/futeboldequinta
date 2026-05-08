@@ -1,54 +1,72 @@
-{% extends 'perfil/perfil.html' %}
+{% extends 'components/base.html' %}
 
-{% block form_editarperfil %}
+{% block body %}
+<section class="perfil-page">
+    <div class="perfil-card perfil-card-form">
+        <div class="perfil-card-header perfil-card-header-form">
+            <img src="{{ foto_perfil }}" class="perfil-avatar" alt="Foto atual de perfil">
+            <div class="perfil-main-info">
+                <span class="perfil-badge">Editar Perfil</span>
+                <h1 class="perfil-nome">Atualize seus dados</h1>
+                <p class="perfil-email">Altere as informações e salve as mudanças.</p>
+            </div>
+        </div>
 
-<div class="container d-flex flex-column justify-content-center align-items-center mt-5 mb-5">
-    <div class="card-login">
-        <form method="POST" action="" class="border-0 p-4 mt-4" enctype="multipart/form-data"> 
-            <!-- class="border p-4 mt-4" padding(distância interior) de 4 e margem de 4-->
-            <!-- enctype é somente ao fazer upload de arquivo para que ele consiga reconhecer a extensão dele-->
+        <form method="POST" enctype="multipart/form-data" class="perfil-form">
             {{ form.csrf_token }}
-            <legend>Editar Perfil</legend>
-            <fieldset>
-                <div class="form-group file-wrapper">
-                    {{ form.username.label(class="form-control-label") }}
-                    {% if form.username.errors %}
-                        {{ form.username(class="form-control is-invalid") }}
-                    <div class="invalid-feedback"> 
-                        {% for erro in form.username.errors %}
-                            {{ erro }}
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                        {{ form.username(class="form-control") }}
-                    {% endif %}
+
+            <div class="perfil-form-group">
+                {{ form.username.label(class="perfil-label") }}
+                {{ form.username(class="form-control perfil-input" + (' is-invalid' if form.username.errors else '')) }}
+                {% for erro in form.username.errors %}
+                <div class="invalid-feedback d-block">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="perfil-form-group">
+                {{ form.email.label(class="perfil-label") }}
+                {{ form.email(class="form-control perfil-input" + (' is-invalid' if form.email.errors else '')) }}
+                {% for erro in form.email.errors %}
+                <div class="invalid-feedback d-block">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="perfil-form-group">
+                {{ form.celular.label(class="perfil-label") }}
+                {{ form.celular(class="form-control perfil-input" + (' is-invalid' if form.celular.errors else '')) }}
+                {% for erro in form.celular.errors %}
+                <div class="invalid-feedback d-block">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="perfil-form-group">
+                <span class="perfil-label">{{ form.position.label.text }}</span>
+                <div class="perfil-position-group">
+                    {% for opcao in form.position %}
+                    <label class="perfil-position-option" for="{{ opcao.id }}">
+                        {{ opcao(class="perfil-position-input") }}
+                        <span class="perfil-position-text">{{ opcao.label.text }}</span>
+                    </label>
+                    {% endfor %}
                 </div>
-                <div class="form-group file-wrapper">
-                    {{ form.email.label(class="form-control-label") }}
-                    {% if form.email.errors %}
-                        {{ form.email(class="form-control is-invalid") }}
-                    <div class="invalid-feedback"> 
-                        {% for erro in form.email.errors %}
-                            {{ erro }}
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                        {{ form.email(class="form-control") }}
-                    {% endif %}
-                </div>
-                <div class="form-group file-wrapper">
-                    {{ form.foto_perfil.label }}
-                    {{ form.foto_perfil(class="form-control-file") }}
-                    {% if form.foto_perfil.errors %}
-                        {% for erro in form.foto_perfil.errors %}
-                            <span class="text-danger">{{ erro }}</span><br>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <hr>
-            </fieldset>
-                {{ form.botao_submit_salvar(class="btn btn-primary mt-2") }}
+                {% for erro in form.position.errors %}
+                <div class="invalid-feedback d-block">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="perfil-form-group">
+                {{ form.foto_perfil.label(class="perfil-label") }}
+                {{ form.foto_perfil(class="form-control perfil-input" + (' is-invalid' if form.foto_perfil.errors else '')) }}
+                {% for erro in form.foto_perfil.errors %}
+                <div class="invalid-feedback d-block">{{ erro }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="perfil-actions">
+                <a href="{{ url_for('main.perfil') }}" class="perfil-secondary-action">Cancelar</a>
+                {{ form.botao_submit_salvar(class="perfil-primary-action perfil-primary-submit") }}
+            </div>
         </form>
     </div>
-</div>
+</section>
 {% endblock %}

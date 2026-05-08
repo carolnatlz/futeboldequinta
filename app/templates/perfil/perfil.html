@@ -1,58 +1,48 @@
 {% extends 'components/base.html' %}
 
 {% block body %}
-<div class="container d-flex flex-column justify-content-center align-items-center mt-5 mb-5">
-    <img src="{{ url_for('static', filename='img/logofdq.png') }}"
-         alt="Logo Futebol de Quinta"
-         class="mb-4 logo-login">
-
-    <div class="card-login text-center">
-    
-        <div class="card-body d-flex flex-column align-items-center">
-
-        <!-- Foto -->
-        <img src="{{ foto_perfil }}" 
-             class="foto-perfil mb-4" 
-             alt="Foto de perfil">
-
-        <!-- Nome -->
-        <h4 class="mb-1">{{ current_user.name }}</h4>
-
-        <!-- Email -->
-        <span class="text-muted">
-            {{ current_user.email }}
-        </span>
-
-        <!-- Botão -->
-        <a href="{{ url_for('main.editar_perfil') }}">
-            <button class="botao-editar-perfil">
-                <i class="bi bi-pencil"></i>
-                Editar Perfil
-            </button>
-        </a>
-
+<section class="perfil-page">
+    <div class="perfil-card">
+        <div class="perfil-card-header">
+            <img src="{{ foto_perfil }}" class="perfil-avatar" alt="Foto de perfil de {{ current_user.name }}">
+            <div class="perfil-main-info">
+                <span class="perfil-badge">Meu Perfil</span>
+                <h1 class="perfil-nome">{{ current_user.name }}</h1>
+                <p class="perfil-email">{{ current_user.email }}</p>
+            </div>
         </div>
 
-    <div class="posicoes">
-            <div class="posicao-item">🧤 Goleira</div>
-            <div class="posicao-item">🛡 Defesa</div>
-            <div class="posicao-item ativa">⚡ Ataque</div>
+        <div class="perfil-info-grid">
+            <article class="perfil-info-item">
+                <span class="perfil-info-label">Celular</span>
+                <strong class="perfil-info-value">{{ current_user.phone or 'Não informado' }}</strong>
+            </article>
+            <article class="perfil-info-item">
+                <span class="perfil-info-label">Posição</span>
+                <strong class="perfil-info-value">{{ position_label }}</strong>
+            </article>
+            <article class="perfil-info-item">
+                <span class="perfil-info-label">Perfil de acesso</span>
+                <strong class="perfil-info-value">{{ current_user.role.value|capitalize }}</strong>
+            </article>
+            <article class="perfil-info-item">
+                <span class="perfil-info-label">Status</span>
+                <strong class="perfil-info-value">
+                    {% if current_user.is_active %}
+                    Aprovado
+                    {% else %}
+                    Aguardando aprovação
+                    {% endif %}
+                </strong>
+            </article>
+        </div>
+
+        <div class="perfil-actions">
+            <a href="{{ url_for('main.editar_perfil') }}" class="perfil-primary-action">
+                <i class="bi bi-pencil-square"></i>
+                Editar perfil
+            </a>
+        </div>
     </div>
-    <script>
-        const items = document.querySelectorAll('.posicao-item');
-
-        items.forEach(item => {
-            item.addEventListener('click', () => {
-            items.forEach(i => i.classList.remove('ativa'));
-            item.classList.add('ativa');
-            });
-        });
-    </script>
-
-</div>
-</div>
-
-{% block form_editarperfil %}
+</section>
 {% endblock %}
-{% endblock %}
-

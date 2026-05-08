@@ -1,0 +1,233 @@
+.perfil-page {
+  min-height: calc(100vh - 110px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 0 40px;
+}
+
+.perfil-card {
+  width: 100%;
+  max-width: 720px;
+  border-radius: 24px;
+  padding: 24px 20px;
+  background: linear-gradient(160deg, rgba(16, 33, 76, 0.96), rgba(8, 18, 44, 0.97));
+  border: 1px solid rgba(163, 189, 255, 0.18);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+  color: #f3f7ff;
+}
+
+.perfil-card-form {
+  max-width: 760px;
+}
+
+.perfil-card-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.perfil-card-header-form {
+  align-items: flex-start;
+}
+
+.perfil-avatar {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+.perfil-main-info {
+  flex: 1;
+}
+
+.perfil-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(79, 121, 214, 0.24);
+  color: #dce8ff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.perfil-nome {
+  margin: 12px 0 6px;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+}
+
+.perfil-email {
+  margin: 0;
+  color: #c2d1ee;
+  word-break: break-word;
+}
+
+.perfil-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.perfil-info-item {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.perfil-info-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #9cb1dd;
+  font-size: 0.9rem;
+}
+
+.perfil-info-value {
+  display: block;
+  color: #fff;
+  font-size: 1.02rem;
+}
+
+.perfil-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.perfil-primary-action,
+.perfil-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.perfil-primary-action {
+  border: none;
+  background: linear-gradient(120deg, #2e6fff, #4b8eff);
+  color: #fff;
+}
+
+.perfil-primary-action:hover {
+  color: #fff;
+  filter: brightness(1.05);
+}
+
+.perfil-secondary-action {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eef4ff;
+}
+
+.perfil-secondary-action:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.perfil-form {
+  display: grid;
+  gap: 18px;
+}
+
+.perfil-form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.perfil-label {
+  color: #d8e5ff;
+  font-weight: 600;
+}
+
+.perfil-input {
+  min-height: 50px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.perfil-input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(108, 156, 255, 0.8);
+  box-shadow: 0 0 0 0.2rem rgba(63, 119, 255, 0.18);
+  color: #fff;
+}
+
+.perfil-position-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.perfil-position-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.perfil-position-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.perfil-position-text {
+  min-width: 112px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #eff4ff;
+  font-weight: 600;
+}
+
+.perfil-position-input:checked + .perfil-position-text {
+  background: rgba(63, 119, 255, 0.24);
+  border-color: rgba(109, 155, 255, 0.9);
+}
+
+.perfil-primary-submit {
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .perfil-card {
+    padding: 20px 16px;
+  }
+
+  .perfil-card-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .perfil-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-actions {
+    justify-content: stretch;
+  }
+
+  .perfil-primary-action,
+  .perfil-secondary-action {
+    width: 100%;
+  }
+}

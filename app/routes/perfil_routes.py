@@ -2,9 +2,17 @@ from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app import db
+from app.models import PlayerPosition
 from app.forms import FormEditarPerfil
 
 from . import main, salvar_imagem
+
+
+POSITION_LABELS = {
+    PlayerPosition.GOL: "Gol",
+    PlayerPosition.DEFESA: "Defesa",
+    PlayerPosition.ATAQUE: "Ataque",
+}
 
 
 @main.route("/perfil")
@@ -15,7 +23,11 @@ def perfil():
         if current_user.profile_img
         else url_for("static", filename="img/fotos_perfil/default.jpg")
     )
-    return render_template("perfil/perfil.html", foto_perfil=foto)
+    return render_template(
+        "perfil/perfil.html",
+        foto_perfil=foto,
+        position_label=POSITION_LABELS.get(current_user.position, "Não informada"),
+    )
 
 
 @main.route("/perfil/editar", methods=["GET", "POST"])
@@ -26,6 +38,8 @@ def editar_perfil():
     if form.validate_on_submit():
         current_user.name = form.username.data
         current_user.email = form.email.data
+        current_user.phone = form.celular.data
+        current_user.position = PlayerPosition(form.position.data)
 
         if form.foto_perfil.data:
             nome_imagem = salvar_imagem(form.foto_perfil.data)
@@ -39,6 +53,17 @@ def editar_perfil():
     if request.method == "GET":
         form.username.data = current_user.name
         form.email.data = current_user.email
+        form.celular.data = current_user.phone
+        form.position.data = current_user.position.value if current_user.position else None
 
-    return render_template("perfil/editar_perfil.html", form=form)
+    foto = (
+        url_for("static", filename=f"img/fotos_perfil/{current_user.profile_img}")
+        if current_user.profile_img
+        else url_for("static", filename="img/fotos_perfil/default.jpg")
+    )
 
+    return render_template(
+        "perfil/editar_perfil.html",
+        form=form,
+        foto_perfil=foto,
+    )
