@@ -1,4 +1,293 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<section class="match-screen" data-can-control="{{ 'true' if state.can_control else 'false' }}">
+    <div class="match-screen-shell">
+        {% if not state.has_session %}
+        <section class="match-empty-state">
+            <span class="match-pill">Sessão atual</span>
+            <h1>Nenhuma rodada ativa no momento</h1>
+            <p>
+                Quando uma admin ou organizer abrir a noite de jogos, esta tela vai mostrar o confronto atual,
+                o cronômetro e o aviso do seu próximo jogo.
+            </p>
+
+            {% if state.can_control %}
+            <form method="POST" action="{{ url_for('main.create_demo_session_route') }}">
+                <button type="submit" class="match-admin-btn match-admin-btn-start">
+                    <i class="bi bi-magic"></i>
+                    Criar sessão demo
+                </button>
+            </form>
+            {% endif %}
+        </section>
+        {% else %}
+        <div class="match-screen-head">
+            <div>
+                <span class="match-pill">{{ state.session.weekday }}</span>
+                <h1>Sequência de jogos</h1>
+                <p>{{ state.session.title }} • {{ state.session.scheduled_date }}</p>
+            </div>
+            <div class="match-stage-summary">
+                <span>Rodada {{ state.progress.current_round_number }}/{{ state.progress.total_rounds }}</span>
+                <span>Jogo {{ state.progress.current_match_number }}/{{ state.progress.total_matches }}</span>
+            </div>
+        </div>
+
+        <section class="match-live-board">
+            <div class="match-live-status">
+                <span class="match-live-dot"></span>
+                <strong>
+                    {% if state.current_match.status == 'paused' %}
+                    Jogo pausado
+                    {% elif state.current_match.status == 'finished' %}
+                    Sessão encerrada
+                    {% elif state.current_match.status == 'pending' %}
+                    Próximo jogo pronto
+                    {% else %}
+                    Jogo atual
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="match-versus">
+                <article class="team-card team-card-blue">
+                    <span class="team-card-letter" id="current-blue-team">{{ state.current_match.blue_team.code }}</span>
+                    <span class="team-card-color">Azul</span>
+                </article>
+
+                <div class="match-versus-center">
+                    <span>VS</span>
+                </div>
+
+                <article class="team-card team-card-red">
+                    <span class="team-card-letter" id="current-red-team">{{ state.current_match.red_team.code }}</span>
+                    <span class="team-card-color">Vermelho</span>
+                </article>
+            </div>
+
+            <article class="match-clock-panel" data-match-status="{{ state.current_match.status }}">
+                <div class="match-clock-value" id="matchClock">{{ state.current_match.clock }}</div>
+                <div class="match-clock-bar">
+                    <span id="matchClockBar"></span>
+                </div>
+                <p class="match-clock-label">Tempo da partida</p>
+            </article>
+
+            <article class="match-personal-card match-personal-{{ state.personal_status.variant }}" id="personalStatusCard">
+                <span class="match-personal-icon">
+                    {% if state.personal_status.variant == 'live' %}
+                    <i class="bi bi-broadcast"></i>
+                    {% elif state.personal_status.variant == 'next' %}
+                    <i class="bi bi-hourglass-split"></i>
+                    {% elif state.personal_status.variant == 'following' %}
+                    <i class="bi bi-arrow-repeat"></i>
+                    {% else %}
+                    <i class="bi bi-person-badge"></i>
+                    {% endif %}
+                </span>
+                <div>
+                    <strong id="personalHeadline">{{ state.personal_status.headline }}</strong>
+                    <p id="personalDetail">{{ state.personal_status.detail }}</p>
+                </div>
+            </article>
+
+            <div class="match-next-grid">
+                <article class="match-next-card">
+                    <span class="match-next-title">Próxima partida</span>
+                    {% if state.next_match %}
+                    <div class="match-next-vs">
+                        <strong id="nextBlueTeam">{{ state.next_match.blue_team.code }}</strong>
+                        <span>VS</span>
+                        <strong id="nextRedTeam">{{ state.next_match.red_team.code }}</strong>
+                    </div>
+                    <p>Rodada {{ state.next_match.round_number }} • Jogo {{ state.next_match.match_number }}</p>
+                    {% else %}
+                    <div class="match-next-empty">Sem jogos pendentes</div>
+                    {% endif %}
+                </article>
+
+                <article class="match-next-card">
+                    <span class="match-next-title">Em seguida</span>
+                    {% if state.following_match %}
+                    <div class="match-next-vs">
+                        <strong id="followingBlueTeam">{{ state.following_match.blue_team.code }}</strong>
+                        <span>VS</span>
+                        <strong id="followingRedTeam">{{ state.following_match.red_team.code }}</strong>
+                    </div>
+                    <p>Rodada {{ state.following_match.round_number }} • Jogo {{ state.following_match.match_number }}</p>
+                    {% else %}
+                    <div class="match-next-empty">Aguardando avanço da fila</div>
+                    {% endif %}
+                </article>
+            </div>
+
+            <div class="match-progress-summary">
+                <article>
+                    <span>Partidas concluídas</span>
+                    <strong id="completedMatches">{{ state.progress.completed_matches }}/{{ state.progress.total_matches }}</strong>
+                </article>
+                <article>
+                    <span>Rodada</span>
+                    <strong id="currentRound">{{ state.progress.current_round_number }}/{{ state.progress.total_rounds }}</strong>
+                </article>
+                <article>
+                    <span>Status</span>
+                    <strong id="currentStatusText">{{ state.current_match.status|upper }}</strong>
+                </article>
+            </div>
+
+            {% if state.can_control %}
+            <section class="match-controls-panel">
+                <div class="match-controls-title">
+                    <i class="bi bi-shield-lock"></i>
+                    Controles da partida
+                </div>
+                <div class="match-controls-actions">
+                    <form method="POST" action="{{ url_for('main.start_current_match') }}">
+                        <button type="submit" class="match-admin-btn match-admin-btn-start">Iniciar</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('main.pause_current_match') }}">
+                        <button type="submit" class="match-admin-btn match-admin-btn-pause">Pausar</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('main.resume_current_match') }}">
+                        <button type="submit" class="match-admin-btn match-admin-btn-resume">Retomar</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('main.finish_current_match') }}">
+                        <button type="submit" class="match-admin-btn match-admin-btn-stop">Encerrar</button>
+                    </form>
+                </div>
+            </section>
+            {% endif %}
+        </section>
+        {% endif %}
+    </div>
+</section>
+
+{% if state.has_session %}
+<script>
+    (() => {
+        const initialState = {{ state|tojson }};
+        const clockEl = document.getElementById("matchClock");
+        const barEl = document.getElementById("matchClockBar");
+        const currentBlueTeamEl = document.getElementById("current-blue-team");
+        const currentRedTeamEl = document.getElementById("current-red-team");
+        const nextBlueTeamEl = document.getElementById("nextBlueTeam");
+        const nextRedTeamEl = document.getElementById("nextRedTeam");
+        const followingBlueTeamEl = document.getElementById("followingBlueTeam");
+        const followingRedTeamEl = document.getElementById("followingRedTeam");
+        const personalHeadlineEl = document.getElementById("personalHeadline");
+        const personalDetailEl = document.getElementById("personalDetail");
+        const completedMatchesEl = document.getElementById("completedMatches");
+        const currentRoundEl = document.getElementById("currentRound");
+        const currentStatusTextEl = document.getElementById("currentStatusText");
+        const personalCardEl = document.getElementById("personalStatusCard");
+        let liveState = initialState;
+        let localElapsed = initialState.current_match ? initialState.current_match.elapsed_seconds : 0;
+
+        function formatClock(totalSeconds) {
+            const safe = Math.max(0, parseInt(totalSeconds || 0, 10));
+            const minutes = String(Math.floor(safe / 60)).padStart(2, "0");
+            const seconds = String(safe % 60).padStart(2, "0");
+            return `${minutes}:${seconds}`;
+        }
+
+        function updateProgressBar(seconds) {
+            if (!barEl) {
+                return;
+            }
+            const capped = Math.min(100, (seconds / (15 * 60)) * 100);
+            barEl.style.width = `${Math.max(8, capped)}%`;
+        }
+
+        function render(state) {
+            if (!state.current_match) {
+                return;
+            }
+
+            liveState = state;
+            localElapsed = state.current_match.elapsed_seconds || 0;
+
+            if (clockEl) {
+                clockEl.textContent = formatClock(localElapsed);
+            }
+
+            updateProgressBar(localElapsed);
+
+            if (currentBlueTeamEl) {
+                currentBlueTeamEl.textContent = state.current_match.blue_team.code;
+            }
+            if (currentRedTeamEl) {
+                currentRedTeamEl.textContent = state.current_match.red_team.code;
+            }
+
+            if (nextBlueTeamEl && state.next_match) {
+                nextBlueTeamEl.textContent = state.next_match.blue_team.code;
+            }
+            if (nextRedTeamEl && state.next_match) {
+                nextRedTeamEl.textContent = state.next_match.red_team.code;
+            }
+            if (followingBlueTeamEl && state.following_match) {
+                followingBlueTeamEl.textContent = state.following_match.blue_team.code;
+            }
+            if (followingRedTeamEl && state.following_match) {
+                followingRedTeamEl.textContent = state.following_match.red_team.code;
+            }
+
+            if (personalHeadlineEl) {
+                personalHeadlineEl.textContent = state.personal_status.headline;
+            }
+            if (personalDetailEl) {
+                personalDetailEl.textContent = state.personal_status.detail;
+            }
+            if (personalCardEl) {
+                personalCardEl.className = `match-personal-card match-personal-${state.personal_status.variant}`;
+            }
+
+            if (completedMatchesEl) {
+                completedMatchesEl.textContent = `${state.progress.completed_matches}/${state.progress.total_matches}`;
+            }
+            if (currentRoundEl) {
+                currentRoundEl.textContent = `${state.progress.current_round_number}/${state.progress.total_rounds}`;
+            }
+            if (currentStatusTextEl) {
+                currentStatusTextEl.textContent = state.current_match.status.toUpperCase();
+            }
+        }
+
+        async function refreshState() {
+            try {
+                const response = await fetch("{{ url_for('main.current_session_api') }}", {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+                if (!response.ok) {
+                    return;
+                }
+                const nextState = await response.json();
+                if (nextState.has_session) {
+                    render(nextState);
+                } else {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error("Nao foi possivel atualizar a sessao atual.", error);
+            }
+        }
+
+        render(initialState);
+
+        window.setInterval(() => {
+            if (liveState.current_match && liveState.current_match.status === "running") {
+                localElapsed += 1;
+                if (clockEl) {
+                    clockEl.textContent = formatClock(localElapsed);
+                }
+                updateProgressBar(localElapsed);
+            }
+        }, 1000);
+
+        window.setInterval(refreshState, 5000);
+    })();
+</script>
+{% endif %}
 {% endblock %}

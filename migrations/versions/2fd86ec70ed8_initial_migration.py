@@ -1,8 +1,8 @@
-"""initial clean structure
+"""initial migration
 
-Revision ID: 07099972f819
+Revision ID: 2fd86ec70ed8
 Revises: 
-Create Date: 2026-03-01 23:47:01.868523
+Create Date: 2026-05-08 03:28:41.710558
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '07099972f819'
+revision = '2fd86ec70ed8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,6 +29,7 @@ def upgrade():
     sa.Column('position', sa.Enum('GOL', 'ATAQUE', 'DEFESA', name='player_position_enum'), nullable=True),
     sa.Column('profile_img', sa.String(length=255), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('is_rejected', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('phone', sa.String(length=20), nullable=True),

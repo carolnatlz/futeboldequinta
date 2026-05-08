@@ -1,18 +1,53 @@
-from app import db, bcrypt
-from flask import url_for, request, flash, redirect, current_app
-from app.forms import FormCriarConta, FormLogin, FormEditarPerfil
-from app.models import User, AuthProvider, UserRole, PlayerPosition
-from flask_login import login_user, logout_user, current_user, login_required
 import os
 import secrets
-from PIL import Image
-import uuid
-from flask import Blueprint, render_template
+from datetime import date, datetime, time, timezone
 from functools import wraps
-from datetime import datetime, timezone
+
+from PIL import Image
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy import func
 
-main = Blueprint('main', __name__)
+from app import bcrypt, db
+from app.forms import FormCriarConta, FormEditarPerfil, FormLogin
+from app.models import (
+    AuthProvider,
+    PlayerPosition,
+    User,
+    UserRole,
+)
+
+main = Blueprint("main", __name__)
+
+TEAM_CODES = ("A", "B", "C", "D", "E", "F")
+MATCH_SEQUENCE = [
+    ("A", "B"),
+    ("C", "D"),
+    ("E", "F"),
+    ("A", "C"),
+    ("B", "E"),
+    ("D", "F"),
+    ("B", "C"),
+    ("F", "A"),
+    ("E", "D"),
+    ("F", "B"),
+    ("C", "E"),
+    ("D", "A"),
+    ("A", "E"),
+    ("B", "D"),
+    ("C", "F"),
+]
+WEEKDAY_LABELS = {
+    0: "Segunda-feira",
+    1: "Terça-feira",
+    2: "Quarta-feira",
+    3: "Quinta-feira",
+    4: "Sexta-feira",
+    5: "Sábado",
+    6: "Domingo",
+}
+SESSION_START = time(hour=19, minute=0)
+SESSION_END = time(hour=22, minute=0)
 
 
 def roles_required(*allowed_roles):
@@ -27,22 +62,22 @@ def roles_required(*allowed_roles):
                 return redirect(url_for("main.home"))
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
-# ------------------------
-# HOME
-# ------------------------
+
+def now_utc():
+    return datetime.now(timezone.utc)
+
 
 @main.route("/")
 @main.route("/home")
+@login_required
 def home():
     return render_template("home.html")
 
-
-# ------------------------
-# CADASTRO
-# ------------------------
 
 @main.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
@@ -52,10 +87,7 @@ def cadastro():
     form = FormCriarConta()
 
     if form.validate_on_submit():
-        senha_hash = bcrypt.generate_password_hash(
-            form.senha.data
-        ).decode("utf-8")
-
+        senha_hash = bcrypt.generate_password_hash(form.senha.data).decode("utf-8")
         nome_imagem = salvar_imagem(form.foto_perfil.data)
 
         novo_usuario = User(
@@ -80,10 +112,6 @@ def cadastro():
     return render_template("cadastro.html", form=form)
 
 
-# ------------------------
-# LOGIN
-# ------------------------
-
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -97,9 +125,7 @@ def login():
         if (
             user
             and user.auth_provider == AuthProvider.LOCAL
-            and bcrypt.check_password_hash(
-                user.password_hash, form.senha.data
-            )
+            and bcrypt.check_password_hash(user.password_hash, form.senha.data)
         ):
             if user.role == UserRole.PLAYER and not user.is_active:
                 flash("Acesso aguardando aprovação.", "alert-warning")
@@ -109,15 +135,11 @@ def login():
 
             next_page = request.args.get("next")
             return redirect(next_page) if next_page else redirect(url_for("main.home"))
-        else:
-            flash("Email ou senha incorretos.", "alert-danger")
+
+        flash("Email ou senha incorretos.", "alert-danger")
 
     return render_template("login.html", form=form)
 
-
-# ------------------------
-# APROVAÇÕES ADMIN
-# ------------------------
 
 @main.route("/admin/aprovacoes")
 @login_required
@@ -158,7 +180,7 @@ def admin_aceitar_usuario(user_id):
     usuario = User.query.get_or_404(user_id)
     usuario.is_active = True
     usuario.is_rejected = False
-    usuario.updated_at = datetime.now(timezone.utc)
+    usuario.updated_at = now_utc()
     db.session.commit()
 
     flash(f"Usuário {usuario.name} aprovado com sucesso.", "alert-success")
@@ -172,28 +194,20 @@ def admin_rejeitar_usuario(user_id):
     usuario = User.query.get_or_404(user_id)
     usuario.is_active = False
     usuario.is_rejected = True
-    usuario.updated_at = datetime.now(timezone.utc)
+    usuario.updated_at = now_utc()
     db.session.commit()
 
     flash(f"Usuário {usuario.name} movido para rejeitados.", "alert-warning")
     return redirect(url_for("main.admin_rejeitados"))
 
 
-# ------------------------
-# LOGOUT
-# ------------------------
-
 @main.route("/logout")
 @login_required
 def logout():
     logout_user()
     flash("Logout realizado com sucesso.", "alert-success")
-    return redirect(url_for("main.home"))
+    return redirect(url_for("main.login"))
 
-
-# ------------------------
-# PERFIL
-# ------------------------
 
 @main.route("/perfil")
 @login_required
@@ -205,10 +219,6 @@ def perfil():
     )
     return render_template("perfil.html", foto_perfil=foto)
 
-
-# ------------------------
-# EDITAR PERFIL
-# ------------------------
 
 def salvar_imagem(imagem):
     codigo = secrets.token_hex(8)
@@ -243,7 +253,7 @@ def editar_perfil():
         flash("Perfil atualizado com sucesso!", "alert-success")
         return redirect(url_for("main.perfil"))
 
-    elif request.method == "GET":
+    if request.method == "GET":
         form.username.data = current_user.name
         form.email.data = current_user.email
 
