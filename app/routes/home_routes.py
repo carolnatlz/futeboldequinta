@@ -1,4 +1,5 @@
 from flask import render_template
+from flask_login import login_required
 from app.routes import main
 
 SEQUENCIA_DOS_JOGOS = [
@@ -21,6 +22,7 @@ def agenda():
 
 
 @main.route("/sequencia-dos-jogos")
+@login_required
 def sequencia_dos_jogos():
     return render_template(
         "components/sequencia_dos_jogos.html",

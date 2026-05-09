@@ -576,13 +576,14 @@
 .rules-list {
   display: grid;
   gap: 16px;
+  margin-left: -6px;
 }
 
 .rules-item {
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 4px;
 }
 
 .rules-number {
@@ -592,6 +593,7 @@
   color: transparent;
   -webkit-text-stroke: 1.9px rgba(210, 227, 255, 0.92);
   text-align: center;
+  margin-left: -14px;
   text-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
 }
 
@@ -632,8 +634,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid rgba(224, 233, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(224, 233, 255, 0.24);
+  background: rgba(10, 28, 72, 0.96);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
   font-size: 1.9rem;
 }
@@ -676,7 +678,7 @@
 }
 
 .rules-card-icon-highlight {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 1);
   color: #ff4b58;
 }
 
@@ -687,13 +689,18 @@
 @media (max-width: 720px) {
   .rules-item {
     grid-template-columns: 84px minmax(0, 1fr);
-    gap: 10px;
+    gap: 2px;
     align-items: stretch;
+  }
+
+  .rules-list {
+    margin-left: -4px;
   }
 
   .rules-number {
     font-size: clamp(4rem, 17vw, 6rem);
     padding-top: 6px;
+    margin-left: -10px;
     -webkit-text-stroke: 1.5px rgba(210, 227, 255, 0.92);
   }
 
