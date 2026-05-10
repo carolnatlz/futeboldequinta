@@ -12,7 +12,7 @@ from . import main, salvar_imagem
 @main.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if current_user.is_authenticated:
-        return redirect(url_for("main.home"))
+        return redirect(url_for("main.nossa_historia"))
 
     form = FormCriarConta()
 
@@ -45,7 +45,7 @@ def cadastro():
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("main.home"))
+        return redirect(url_for("main.nossa_historia"))
 
     form = FormLogin()
 
@@ -64,7 +64,7 @@ def login():
             login_user(user, remember=form.lembrar_login.data)
 
             next_page = request.args.get("next")
-            return redirect(next_page) if next_page else redirect(url_for("main.home"))
+            return redirect(next_page) if next_page else redirect(url_for("main.nossa_historia"))
 
         flash("Email ou senha incorretos.", "alert-danger")
 
@@ -77,4 +77,3 @@ def logout():
     logout_user()
     flash("Logout realizado com sucesso.", "alert-success")
     return redirect(url_for("main.login"))
-

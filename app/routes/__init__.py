@@ -19,7 +19,7 @@ def roles_required(*allowed_roles):
 
             if current_user.role not in allowed_roles:
                 flash("Você não tem permissão para acessar essa área.", "alert-danger")
-                return redirect(url_for("main.home"))
+                return redirect(url_for("main.nossa_historia"))
 
             return func(*args, **kwargs)
 
@@ -52,4 +52,3 @@ def salvar_imagem(imagem):
 
 
 from . import admin_routes, auth_routes, home_routes, perfil_routes
-

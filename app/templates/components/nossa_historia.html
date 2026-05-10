@@ -1,0 +1,53 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="nossa-historia-page">
+    <div class="nossa-historia-hero">
+        <img
+            src="{{ url_for('static', filename='img/nossa-historia-cover.png') }}"
+            alt="Capa da página Nossa História"
+            class="nossa-historia-cover"
+        >
+        <div class="nossa-historia-overlay">
+            <div class="nossa-historia-copy">
+                <h1>Nossa História</h1>
+                <p>Futebol de Quinta &gt; Nossa História</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="nossa-historia-content">
+        <h2>Quem Somos</h2>
+        <p>Somos um grupo de mulheres, dos mais variados perfis, que se reúne no Aterro do Flamengo, pra se divertir jogando futebol de salão e, na Abolição, pra praticar a modalidade society.</p>
+        <p>Nosso objetivo é promover e democratizar o acesso à prática desta modalidade esportiva entre as mulheres, enquanto lazer, de forma gratuita (ZS) e com um baixo valor de investimento (ZN), ajudando a quebrar inúmeras barreiras do preconceito.</p>
+        <img
+            src="{{ url_for('static', filename='img/futnoaterro.jpg') }}"
+            alt="Mulheres jogando futebol no Aterro"
+            class="nossa-historia-inline-image"
+        >
+
+        <h2>Como Surgiu</h2>
+        <p>Nascemos da vontade de movimentar os nossos corpos. Uma convidou outra, que chamou mais uma, que formou um coletivo de mulheres incríveis. Tudo isso aconteceu em agosto de 2019.</p>
+        <p>Acolhimento, diversão e respeito nos representam desde sempre. Nossa camisa é a do empoderamento, pois acreditamos que uma mulher sozinha é forte, mas várias reunidas é imensidão.</p>
+        <p>Começamos jogando as "peladas", mas em 2022 entendemos que poderíamos ir além: ensinar futebol pra mais mulheres. E, assim, surgiu a Escolinha de Quinta, onde compartilhamos um pouco da técnica e os fundamentos do futebol, de forma gratuita, no Aterro do Flamengo. Ps: No momento, a Escolinha está atualmente pausada. Só estão rolando os jogos no Aterro.</p>
+        <p>Em outubro de 2022, chegamos também à Zona Norte, na modalidade society. Por enquanto, somente com os jogos. Como pagamos pela quadra, cobramos uma taxa de R$15/jogadora em cada partida.</p>
+        <img
+            src="{{ url_for('static', filename='img/futnaabolicao.jpg') }}"
+            alt="Mulheres jogando futebol na Abolição"
+            class="nossa-historia-inline-image"
+        >
+
+        <h2>Redes Sociais</h2>
+        <div class="nossa-historia-social">
+            <i class="bi bi-instagram" aria-hidden="true"></i>
+            <a href="https://www.instagram.com/futfemdequinta/" target="_blank" rel="noopener noreferrer">Fut Fem de Quinta</a>
+        </div>
+
+        <h2>Nossos Parceiros</h2>
+        <div class="nossa-historia-social">
+            <i class="bi bi-instagram" aria-hidden="true"></i>
+            <a href="https://www.instagram.com/usejogabonita/" target="_blank" rel="noopener noreferrer">Joga Bonita</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -12,73 +12,163 @@
                 </h1>
             </div>
             <div class="home-agenda-divider"></div>
-            <p class="home-agenda-text rules-text">Nosso futebol so funciona porque todas jogam juntas e seguem as regras.</p>
+            <p class="home-agenda-text rules-text">Nosso futebol só funciona porque todas jogam juntas e seguem as regras.
+                Clique nas bolas para garantir que você compreendeu as regras direitinho!</p>
         </div>
     </div>
 
-    <div class="rules-list">
-        <article class="rules-item">
+    <div class="rules-list" data-rules-sequence>
+        <article class="rules-item is-visible" data-rule-item>
             <div class="rules-number">1<span>.</span></div>
             <div class="rules-card">
-                <div class="rules-card-icon" aria-hidden="true">👥</div>
+                <button class="rules-card-icon rules-card-trigger" type="button" aria-label="Mostrar próxima regra">
+                    <span aria-hidden="true" class="rules-icon-illustration">
+                        <svg viewBox="0 0 512 512" role="img" aria-hidden="true" focusable="false">
+                            <circle cx="206" cy="188" r="28" fill="none" stroke="#ffffff" stroke-width="9"/>
+                            <circle cx="306" cy="188" r="28" fill="none" stroke="#ffffff" stroke-width="9"/>
+                            <circle cx="256" cy="252" r="22" fill="none" stroke="#ff243d" stroke-width="9"/>
+                            <path d="M144 294c0-40 32-72 72-72h12" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+                            <path d="M368 294c0-40-32-72-72-72h-12" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+                            <path d="M144 294h70" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+                            <path d="M368 294h-70" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+                            <path d="M224 326c0-24 14-44 32-44s32 20 32 44" fill="none" stroke="#ff243d" stroke-width="10" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                </button>
                 <div class="rules-card-content">
                     <h2>Agregue</h2>
-                    <p>Futebol para <strong>todas as mulheres</strong>. Independente de cor, idade, sexualidade, religião, politica ou nivel de futebol.</p>
+                    <p>Futebol para <strong>todas as mulheres</strong>. Independente de cor, idade, sexualidade, religião, política ou nível de futebol.</p>
                 </div>
             </div>
         </article>
 
-        <article class="rules-item">
+        <article class="rules-item" data-rule-item>
             <div class="rules-number">2<span>.</span></div>
             <div class="rules-card">
-                <div class="rules-card-icon" aria-hidden="true">⚽❤️</div>
+                <button class="rules-card-icon rules-card-trigger" type="button" aria-label="Mostrar próxima regra">
+                    <span aria-hidden="true" class="rules-icon-illustration">
+                        <img src="{{ url_for('static', filename='img/regra2-escudo.png') }}" alt="" class="rules-icon-image">
+                    </span>
+                </button>
                 <div class="rules-card-content">
                     <h2>Proteja</h2>
-                    <p>Nosso futebol e "de quinta", pois o foco do grupo e sempre sera o de se <strong>divertir</strong>. Passes errados sao bem-vindos. Entradas duras e jogadas que podem machucar, nao.</p>
+                    <p>Nosso futebol é "de quinta", pois o foco do grupo sempre será o de se <strong>divertir</strong>. Passes errados são bem-vindos. Entradas duras e jogadas que podem machucar, não.</p>
                 </div>
             </div>
         </article>
 
-        <article class="rules-item">
+        <article class="rules-item" data-rule-item>
             <div class="rules-number">3<span>.</span></div>
             <div class="rules-card">
-                <div class="rules-card-icon" aria-hidden="true">👏</div>
+                <button class="rules-card-icon rules-card-trigger" type="button" aria-label="Mostrar próxima regra">
+                    <span aria-hidden="true" class="rules-icon-illustration">
+                        <img src="{{ url_for('static', filename='img/regra3-palmas.png') }}" alt="" class="rules-icon-image">
+                    </span>
+                </button>
                 <div class="rules-card-content">
                     <h2>Apoie</h2>
-                    <p>A mina acertou o passe ou fez uma jogada incrivel? Aplauda! A mina errou? <strong>Ta tudo bem</strong>, faz parte do jogo.</p>
+                    <p>A mina acertou o passe ou fez uma jogada incrível? Aplauda! A mina errou? <strong>Tá tudo bem</strong>, faz parte do jogo.</p>
                 </div>
             </div>
         </article>
 
-        <article class="rules-item">
+        <article class="rules-item" data-rule-item>
             <div class="rules-number">4<span>.</span></div>
             <div class="rules-card">
-                <div class="rules-card-icon" aria-hidden="true"><i class="bi bi-shield"></i></div>
+                <button class="rules-card-icon rules-card-trigger" type="button" aria-label="Mostrar próxima regra">
+                    <span aria-hidden="true" class="rules-icon-illustration">
+                        <img src="{{ url_for('static', filename='img/regra4-bolaecoracao.png') }}" alt="" class="rules-icon-image">
+                    </span>
+                </button>
                 <div class="rules-card-content">
                     <h2>Respeite</h2>
-                    <p>E permanentemente <strong>proibido</strong> agressao fisica ou verbal (dentro ou fora de quadra).</p>
+                    <p>É permanentemente <strong>proibido</strong> agressão física ou verbal (dentro ou fora de quadra).</p>
                 </div>
             </div>
         </article>
 
-        <article class="rules-item">
+        <article class="rules-item" data-rule-item>
             <div class="rules-number rules-number-highlight">5<span>.</span></div>
             <div class="rules-card rules-card-highlight">
-                <div class="rules-card-icon rules-card-icon-highlight" aria-hidden="true">😊</div>
+                <button class="rules-card-icon rules-card-icon-highlight rules-card-trigger" type="button" aria-label="Concluir regras">
+                    <span aria-hidden="true"><i class="bi bi-emoji-smile"></i></span>
+                </button>
                 <div class="rules-card-content">
                     <h2>Divirta-se</h2>
-                    <p>Se voce e do tipo que se estressa jogando bola, definitivamente esse <strong>ambiente nao e pra voce</strong>.</p>
+                    <p>Se você é do tipo que se estressa jogando bola, definitivamente esse <strong>ambiente não é pra você</strong>.</p>
                 </div>
             </div>
         </article>
     </div>
 
-    <article class="rules-footer-card">
-        <div class="rules-card-icon" aria-hidden="true">💌</div>
+    <article class="rules-footer-card" data-rules-footer aria-hidden="true">
+        <a href="{{ url_for('main.cadastro') }}" class="rules-card-icon rules-card-trigger" aria-label="Ir para a página de cadastro">
+            <i class="bi bi-person-plus"></i>
+        </a>
         <div class="rules-card-content">
             <h2>Concorda e quer participar?</h2>
-            <p>Envie-nos uma mensagem dizendo que esta de acordo com as regras e quer jogar.</p>
+            <p>Clique na bola ao lado para criar seu cadastro!</p>
         </div>
     </article>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const list = document.querySelector('[data-rules-sequence]');
+    const footer = document.querySelector('[data-rules-footer]');
+
+    if (!list) return;
+
+    const items = Array.from(list.querySelectorAll('[data-rule-item]'));
+
+    if (!items.length) return;
+
+    const revealRule = (index) => {
+      const item = items[index];
+      if (!item) return;
+
+      item.classList.add('is-visible');
+
+      const trigger = item.querySelector('.rules-card-trigger');
+      if (trigger) {
+        trigger.tabIndex = 0;
+      }
+    };
+
+    const completeRule = (index) => {
+      const item = items[index];
+      if (!item || item.classList.contains('is-complete')) return;
+
+      item.classList.add('is-complete');
+
+      const trigger = item.querySelector('.rules-card-trigger');
+      if (trigger) {
+        trigger.disabled = true;
+        trigger.classList.add('is-checked');
+        trigger.setAttribute('aria-label', 'Regra concluída');
+        trigger.innerHTML = '<span aria-hidden="true"><i class="bi bi-check-lg"></i></span>';
+      }
+
+      revealRule(index + 1);
+
+      if (index === items.length - 1 && footer) {
+        footer.classList.add('is-visible');
+        footer.setAttribute('aria-hidden', 'false');
+      }
+    };
+
+    revealRule(0);
+
+    items.forEach((item, index) => {
+      const trigger = item.querySelector('.rules-card-trigger');
+      if (!trigger) return;
+
+      trigger.tabIndex = item.classList.contains('is-visible') ? 0 : -1;
+
+      trigger.addEventListener('click', () => {
+        completeRule(index);
+      });
+    });
+  });
+</script>
 {% endblock %}

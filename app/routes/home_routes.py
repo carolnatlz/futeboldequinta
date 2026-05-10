@@ -12,13 +12,14 @@ SEQUENCIA_DOS_JOGOS = [
 
 @main.route("/")
 @main.route("/home")
-def home():
-    return render_template("components/home.html")
+def nossa_historia():
+    return render_template("components/nossa_historia.html")
 
 
 @main.route("/agenda")
-def agenda():
-    return render_template("components/agenda.html")
+@main.route("/locais-horarios")
+def locais_horarios():
+    return render_template("components/locais_horarios.html")
 
 
 @main.route("/sequencia-dos-jogos")
