@@ -102,12 +102,19 @@
     </div>
 
     <article class="rules-footer-card" data-rules-footer aria-hidden="true">
+        {% if not current_user.is_authenticated %}
         <a href="{{ url_for('main.cadastro') }}" class="rules-card-icon rules-card-trigger" aria-label="Ir para a página de cadastro">
             <i class="bi bi-person-plus"></i>
         </a>
+        {% endif %}
         <div class="rules-card-content">
+            {% if current_user.is_authenticated %}
+            <h2>Bem vinda Jogadora!</h2>
+            <p>Agora que você é uma de nós aproveite para reforçar as regras com as suas amigas.</p>
+            {% else %}
             <h2>Concorda e quer participar?</h2>
             <p>Clique na bola ao lado para criar seu cadastro!</p>
+            {% endif %}
         </div>
     </article>
 </section>
