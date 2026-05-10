@@ -21,7 +21,7 @@ class FormCriarConta(FlaskForm):
         'Escolher foto',
         validators=[
             FileRequired(message='Escolha uma foto de perfil.'),
-            FileAllowed(['jpg', 'jpeg', 'png'], 'Apenas JPG ou PNG.')
+            FileAllowed(['jpg', 'jpeg', 'png', 'heic'], 'Apenas JPG, PNG ou HEIC.')
         ]
     )
     position = RadioField(

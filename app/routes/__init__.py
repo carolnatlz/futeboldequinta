@@ -6,8 +6,13 @@ from functools import wraps
 from PIL import Image
 from flask import Blueprint, current_app, flash, redirect, request, url_for
 from flask_login import current_user
+from werkzeug.utils import secure_filename
+
+from pillow_heif import register_heif_opener
 
 main = Blueprint("main", __name__)
+
+register_heif_opener()
 
 
 def roles_required(*allowed_roles):
@@ -34,8 +39,13 @@ def now_utc():
 
 def salvar_imagem(imagem):
     codigo = secrets.token_hex(8)
-    nome, extensao = os.path.splitext(imagem.filename)
-    nome_arquivo = nome + "_" + codigo + extensao
+    nome_original = secure_filename(imagem.filename or "foto_perfil")
+    nome, extensao = os.path.splitext(nome_original)
+    extensao = extensao.lower()
+
+    # Converte HEIC para JPG para manter compatibilidade de exibicao no navegador.
+    extensao_destino = ".jpg" if extensao == ".heic" else extensao
+    nome_arquivo = nome + "_" + codigo + extensao_destino
 
     caminho = os.path.join(
         current_app.root_path,
@@ -45,8 +55,13 @@ def salvar_imagem(imagem):
 
     tamanho = (300, 300)
     img = Image.open(imagem)
+    if img.mode not in ("RGB", "L"):
+        img = img.convert("RGB")
     img.thumbnail(tamanho)
-    img.save(caminho)
+    if extensao_destino == ".jpg":
+        img.save(caminho, format="JPEG", quality=90)
+    else:
+        img.save(caminho)
 
     return nome_arquivo
 

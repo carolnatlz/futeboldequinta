@@ -23,7 +23,10 @@ class FormEditarPerfil(FlaskForm):
         ],
         validators=[DataRequired(message="Selecione sua posição.")],
     )
-    foto_perfil = FileField("Atualizar foto de perfil", validators=[FileAllowed(["jpg", "png"])])
+    foto_perfil = FileField(
+        "Atualizar foto de perfil",
+        validators=[FileAllowed(["jpg", "jpeg", "png", "heic"], "Apenas JPG, PNG ou HEIC.")],
+    )
     botao_submit_salvar = SubmitField("Salvar")
 
     def validate_email(self, email):
