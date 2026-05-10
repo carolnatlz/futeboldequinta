@@ -101,7 +101,7 @@
         </article>
     </div>
 
-    <article class="rules-footer-card" data-rules-footer aria-hidden="true">
+    <article class="rules-footer-card{% if current_user.is_authenticated %} rules-footer-card-logged{% endif %}" data-rules-footer aria-hidden="true">
         {% if not current_user.is_authenticated %}
         <a href="{{ url_for('main.cadastro') }}" class="rules-card-icon rules-card-trigger" aria-label="Ir para a página de cadastro">
             <i class="bi bi-person-plus"></i>

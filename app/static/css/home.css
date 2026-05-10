@@ -977,6 +977,23 @@
     transform 0.28s ease;
 }
 
+.rules-footer-card-logged {
+  padding: 22px 24px;
+  justify-content: center;
+  text-align: center;
+}
+
+.rules-footer-card-logged .rules-card-content {
+  width: 100%;
+}
+
+.rules-footer-card-logged p {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
 .rules-footer-card.is-visible {
   display: flex;
   opacity: 1;
@@ -1008,6 +1025,10 @@
     width: 100%;
     padding: 14px 14px 14px 72px;
     border-radius: 20px;
+  }
+
+  .rules-footer-card-logged {
+    padding: 18px 16px;
   }
 
   .rules-card-icon {
