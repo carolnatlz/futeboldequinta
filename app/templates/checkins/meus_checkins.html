@@ -1,0 +1,134 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap">
+    <div class="checkin-page-shell">
+      <div class="checkin-page-head">
+        <h2 class="cadastro-title checkin-page-title">Jogos da Semana</h2>
+        <span class="section-title-divider"></span>
+        <p class="checkin-panel-subtitle">Clique para fazer seu check-in e garantir sua vaga. Caso não consiga, você entrará na lista de espera.</p>
+      </div>
+
+      {% if session_cards %}
+      <div class="checkin-session-list">
+        {% for card in session_cards %}
+        <article class="checkin-session-card">
+          <div class="checkin-session-top">
+            <div class="checkin-session-icon">
+              <i class="bi bi-calendar3"></i>
+            </div>
+            <div class="checkin-session-heading">
+              <h3 class="checkin-session-title">{{ card.display_date }}</h3>
+              <p class="checkin-session-window">{{ card.window_label }}</p>
+            </div>
+          </div>
+
+          <div class="checkin-status-banner {{ card.status_badge }}">
+            <span class="checkin-status-banner-icon">
+              <i class="bi {% if card.status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif card.status_badge == 'checkin-badge-closed' %}bi-lock{% elif card.status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif card.status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
+            </span>
+            <span class="checkin-status-banner-text">{{ card.status_label }}</span>
+          </div>
+
+          <div class="checkin-stats-grid">
+            <div class="checkin-stat-box">
+              <span class="checkin-stat-label">Confirmadas</span>
+              <div class="checkin-stat-row">
+                <strong class="checkin-stat-value">{{ card.confirmed_count }}/{{ card.session.max_players }}</strong>
+                <span class="checkin-stat-icon"><i class="bi bi-people"></i></span>
+              </div>
+            </div>
+            <div class="checkin-stat-box">
+              <span class="checkin-stat-label">Fila de Espera</span>
+              <div class="checkin-stat-row">
+                <strong class="checkin-stat-value">{{ card.waitlist_count }}</strong>
+                <span class="checkin-stat-icon"><i class="bi bi-clock-history"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkin-session-actions">
+            <a href="{{ url_for('main.lista_checkins_sessao', session_id=card.session.id) }}" class="fdq-secondary-link-btn checkin-session-link">
+              Ver lista de inscrições
+            </a>
+
+            {% set current_status = card.user_checkin.status.value if card.user_checkin else None %}
+            {% set left_selected = current_status in ['reserved', 'confirmed', 'waitlist', 'attended', 'no_show'] %}
+            {% set right_selected = current_status == 'cancelled' %}
+            <div class="checkin-action-split">
+              <form method="POST" action="{{ url_for('main.entrar_checkin', session_id=card.session.id) }}" class="checkin-action-split-form">
+                <button
+                  type="submit"
+                  class="btn checkin-action-split-btn checkin-action-split-primary{% if left_selected %} is-selected{% endif %}"
+                  {% if left_selected or not card.can_checkin %}disabled{% endif %}
+                >
+                  <span class="checkin-action-split-btn-inner">
+                    <i class="bi {% if current_status == 'waitlist' %}bi-hourglass-split{% elif current_status == 'no_show' %}bi-exclamation-circle{% elif current_status == 'reserved' %}bi-shield-check{% else %}bi-check-lg{% endif %}"></i>
+                    <span>{{ card.checkin_status_label if left_selected else 'Fazer Check-In' }}</span>
+                  </span>
+                </button>
+              </form>
+
+              <div class="checkin-action-split-divider" aria-hidden="true"></div>
+
+              <div class="checkin-action-split-form">
+                <button
+                  type="button"
+                  class="btn checkin-action-split-btn checkin-action-split-secondary{% if right_selected %} is-selected is-selected-danger{% endif %}"
+                  {% if right_selected or not card.can_cancel %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelCheckinModal-{{ card.session.id }}"{% endif %}
+                >
+                  <span class="checkin-action-split-btn-inner">
+                    <i class="bi bi-x-lg"></i>
+                    <span>{{ 'Cancelado' if right_selected else card.exit_action_label }}</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {% if not card.can_checkin and not card.can_cancel and not card.user_checkin %}
+            <p class="checkin-help-text">A sessão ainda não está aceitando novos check-ins.</p>
+            {% endif %}
+
+            {% if card.user_checkin and card.user_checkin.status.value == 'cancelled' and card.can_checkin %}
+            <p class="checkin-help-text">Seu check-in foi cancelado. Clique em Confirmada para voltar para a sessão.</p>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="admin-empty">Nenhuma sessão cadastrada até o momento.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if session_cards %}
+  {% for card in session_cards %}
+    {% set current_status = card.user_checkin.status.value if card.user_checkin else None %}
+    {% set right_selected = current_status == 'cancelled' %}
+    {% if card.can_cancel and not right_selected %}
+    <div class="modal fade" id="cancelCheckinModal-{{ card.session.id }}" tabindex="-1" aria-labelledby="cancelCheckinModalLabel-{{ card.session.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content fdq-logout-modal">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="cancelCheckinModalLabel-{{ card.session.id }}">Confirmação</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            Você realmente quer sair desse jogo?
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn fdq-modal-btn fdq-modal-btn-secondary" data-bs-dismiss="modal">Não</button>
+            <form method="POST" action="{{ url_for('main.cancelar_checkin', session_id=card.session.id) }}" class="m-0">
+              <button type="submit" class="btn fdq-modal-btn fdq-modal-btn-danger">Sim</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% endblock %}

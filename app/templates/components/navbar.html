@@ -1,3 +1,5 @@
+{% set endpoint = request.endpoint or '' %}
+
 <nav class="fdq-navbar" aria-label="Navegação principal">
   <button
     class="fdq-menu-button"
@@ -11,64 +13,133 @@
   </button>
 </nav>
 
-<div class="offcanvas offcanvas-end fdq-offcanvas-menu" tabindex="-1" id="fdqMenu" aria-labelledby="fdqMenuLabel">
-  <div class="offcanvas-header fdq-menu-header">
-    <h5 class="offcanvas-title" id="fdqMenuLabel">Menu</h5>
-    <button type="button" class="btn-close btn-close-white text-reset fdq-close-btn" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
-  </div>
+<div class="offcanvas offcanvas-end fdq-offcanvas-menu" tabindex="-1" id="fdqMenu" aria-label="Menu principal">
   <div class="offcanvas-body fdq-menu-body">
-    <a href="{{ url_for('main.nossa_historia') }}" class="fdq-menu-link">
-      <span>Nossa História</span>
-      <i class="bi bi-house"></i>
-    </a>
-    <a href="{{ url_for('main.locais_horarios') }}" class="fdq-menu-link">
-      <span>Locais e Horários</span>
-      <i class="bi bi-calendar-week"></i>
-    </a>
-    <a href="{{ url_for('main.regras') }}" class="fdq-menu-link">
-      <span>Regras</span>
-      <i class="bi bi-list-check"></i>
-    </a>
-    {% if current_user.is_authenticated %}
-    <a href="{{ url_for('main.sequencia_dos_jogos') }}" class="fdq-menu-link">
-      <span>Sequência dos Jogos</span>
-      <i class="bi bi-trophy"></i>
-    </a>
-    {% endif %}
-    {% if not current_user.is_authenticated %}
-    <a href="{{ url_for('main.login') }}" class="fdq-menu-link">
-      <span>Login</span>
-      <i class="bi bi-box-arrow-in-right"></i>
-    </a>
-    <a href="{{ url_for('main.cadastro') }}" class="fdq-menu-link">
-      <span>Cadastro</span>
-      <i class="bi bi-person-plus"></i>
-    </a>
-    {% endif %}
+    <div class="fdq-menu-section">
+      <span class="fdq-menu-section-label">Principal</span>
+
+      {% if current_user.is_authenticated %}
+      <div class="fdq-menu-group">
+        <button
+          class="fdq-menu-card fdq-menu-group-toggle"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#fdqInfoMenu"
+          aria-expanded="false"
+          aria-controls="fdqInfoMenu"
+        >
+          <span class="fdq-menu-card-icon"><i class="bi bi-house-door"></i></span>
+          <span class="fdq-menu-card-text">Início</span>
+          <i class="bi bi-chevron-down fdq-menu-card-arrow"></i>
+        </button>
+
+        <div class="collapse fdq-menu-group-panel" id="fdqInfoMenu">
+          <a href="{{ url_for('main.nossa_historia') }}" class="fdq-submenu-card{% if endpoint == 'main.nossa_historia' %} is-active{% endif %}">
+            <span class="fdq-submenu-card-text">Nossa História</span>
+            <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+          </a>
+          <a href="{{ url_for('main.locais_horarios') }}" class="fdq-submenu-card{% if endpoint == 'main.locais_horarios' %} is-active{% endif %}">
+            <span class="fdq-submenu-card-text">Locais e Horários</span>
+            <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+          </a>
+          <a href="{{ url_for('main.regras') }}" class="fdq-submenu-card{% if endpoint == 'main.regras' %} is-active{% endif %}">
+            <span class="fdq-submenu-card-text">Regras</span>
+            <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+          </a>
+          <a href="{{ url_for('main.sequencia_dos_jogos') }}" class="fdq-submenu-card{% if endpoint == 'main.sequencia_dos_jogos' %} is-active{% endif %}">
+            <span class="fdq-submenu-card-text">Sequência dos Jogos</span>
+            <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+          </a>
+        </div>
+      </div>
+
+      <a href="{{ url_for('main.meus_checkins') }}" class="fdq-menu-card{% if endpoint == 'main.meus_checkins' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-calendar3"></i></span>
+        <span class="fdq-menu-card-text">Jogos da Semana</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+
+      <a href="{{ url_for('main.perfil') }}" class="fdq-menu-card{% if endpoint in ['main.perfil', 'main.editar_perfil'] %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-person-circle"></i></span>
+        <span class="fdq-menu-card-text">Perfil</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+      {% else %}
+      <a href="{{ url_for('main.locais_horarios') }}" class="fdq-menu-card{% if endpoint == 'main.locais_horarios' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-calendar-week"></i></span>
+        <span class="fdq-menu-card-text">Locais e Horários</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+
+      <a href="{{ url_for('main.regras') }}" class="fdq-menu-card{% if endpoint == 'main.regras' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-clipboard-check"></i></span>
+        <span class="fdq-menu-card-text">Regras</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+      {% endif %}
+    </div>
+
     {% if current_user.is_authenticated and current_user.role.value in ['admin', 'organizer'] %}
-    <a href="{{ url_for('main.admin_aprovacoes') }}" class="fdq-menu-link">
-      <span>Aprovações</span>
-      <i class="bi bi-check2-square"></i>
-    </a>
+    <div class="fdq-menu-section">
+      <span class="fdq-menu-section-label">Gestão</span>
+
+      <a href="{{ url_for('main.admin_aprovacoes') }}" class="fdq-menu-card{% if endpoint == 'main.admin_aprovacoes' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-check2-square"></i></span>
+        <span class="fdq-menu-card-text">Aprovações de Cadastros</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+
+      <a href="{{ url_for('main.admin_checkins') }}" class="fdq-menu-card{% if endpoint in ['main.admin_checkins', 'main.admin_checkins_sessao'] %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-card-checklist"></i></span>
+        <span class="fdq-menu-card-text">Gestão dos Jogos</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+    </div>
     {% endif %}
-    {% if current_user.is_authenticated %}
-    <a href="{{ url_for('main.perfil') }}" class="fdq-menu-link">
-      <span>Perfil</span>
-      <i class="bi bi-person-circle"></i>
-    </a>
-    {% endif %}
-    {% if current_user.is_authenticated %}
-    <button
-      type="button"
-      class="fdq-menu-link fdq-menu-link-danger"
-      data-bs-toggle="modal"
-      data-bs-target="#logoutConfirmModal"
-      data-bs-dismiss="offcanvas"
+
+    <div class="fdq-menu-section">
+      <span class="fdq-menu-section-label">Conta</span>
+
+      {% if current_user.is_authenticated %}
+      <button
+        type="button"
+        class="fdq-menu-card fdq-menu-card-danger"
+        data-bs-toggle="modal"
+        data-bs-target="#logoutConfirmModal"
+        data-bs-dismiss="offcanvas"
+      >
+        <span class="fdq-menu-card-icon fdq-menu-card-icon-danger"><i class="bi bi-box-arrow-right"></i></span>
+        <span class="fdq-menu-card-text">Logout</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </button>
+      {% else %}
+      <a href="{{ url_for('main.login') }}" class="fdq-menu-card{% if endpoint == 'main.login' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-box-arrow-in-right"></i></span>
+        <span class="fdq-menu-card-text">Login</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+
+      <a href="{{ url_for('main.cadastro') }}" class="fdq-menu-card{% if endpoint == 'main.cadastro' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-person-plus"></i></span>
+        <span class="fdq-menu-card-text">Cadastro</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+      {% endif %}
+    </div>
+
+    <a
+      href="https://www.instagram.com/futfemdequinta/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="fdq-menu-support-card"
     >
-      <span>Logout</span>
-      <i class="bi bi-box-arrow-right"></i>
-    </button>
-    {% endif %}
+      <span class="fdq-menu-support-icon"><i class="bi bi-chat-left-text"></i></span>
+      <span class="fdq-menu-support-copy">
+        <strong>Dúvidas ou sugestões?</strong>
+        <span>Fale com a gente</span>
+      </span>
+      <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+    </a>
   </div>
 </div>
 

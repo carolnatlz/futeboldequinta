@@ -1,0 +1,200 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap">
+    <div class="checkin-page-shell signup-page-shell">
+      <div class="checkin-page-head signup-page-head">
+        <h2 class="cadastro-title checkin-page-title">Lista de inscrições</h2>
+        <span class="section-title-divider"></span>
+        <p class="checkin-panel-subtitle">Acompanhe quem já confirmou presença e sua posição na lista de espera.</p>
+      </div>
+
+      <article class="checkin-session-card signup-session-card">
+        <div class="signup-session-header">
+          <div class="checkin-session-top signup-session-top">
+            <div class="checkin-session-icon">
+              <i class="bi bi-calendar3"></i>
+            </div>
+            <div class="checkin-session-heading">
+              <div class="signup-session-title-row">
+                <h3 class="checkin-session-title">{{ display_date }}</h3>
+                <div class="checkin-status-banner {{ status_badge }} signup-status-banner signup-status-banner-compact">
+                  <span class="checkin-status-banner-icon">
+                    <i class="bi {% if status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif status_badge == 'checkin-badge-closed' %}bi-lock{% elif status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
+                  </span>
+                  <span class="checkin-status-banner-text">
+                    {% if status_badge == 'checkin-badge-open' %}
+                    Check-in<br>aberto
+                    {% else %}
+                    {{ status_label }}
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="signup-stats-card">
+          <div class="signup-stat-cell">
+            <div class="signup-stat-heading">
+              <i class="bi bi-people"></i>
+              <span>Confirmadas</span>
+            </div>
+            <strong class="signup-stat-value">{{ confirmed_count }}/{{ session.max_players }}</strong>
+            <span class="signup-stat-caption">Vagas disponíveis: {{ available_spots }}</span>
+          </div>
+
+          <div class="signup-stat-cell">
+            <div class="signup-stat-heading">
+              <i class="bi bi-clock-history"></i>
+              <span>Fila de espera</span>
+            </div>
+            <strong class="signup-stat-value">{{ waitlist_count }}</strong>
+          </div>
+
+          <div class="signup-stat-cell">
+            <div class="signup-stat-heading">
+              <i class="bi bi-info-circle"></i>
+              <span>Total de inscritas</span>
+            </div>
+            <strong class="signup-stat-value">{{ total_signups }}</strong>
+          </div>
+        </div>
+
+        <section class="signup-group">
+          <div class="signup-group-head">
+            <div class="signup-group-title">
+              <span class="signup-group-title-icon signup-group-title-icon-confirmed">
+                <i class="bi bi-check-lg"></i>
+              </span>
+              <h4>Confirmadas ({{ confirmed_count }})</h4>
+            </div>
+          </div>
+
+          <div class="signup-list">
+            {% if not confirmed_rows %}
+            <p class="signup-empty">Nenhuma inscrição confirmada até o momento.</p>
+            {% endif %}
+            {% for row in confirmed_rows[:confirmed_preview_limit] %}
+            <article class="signup-person-row">
+              <span class="signup-person-order">{{ row.index }}</span>
+              <span class="signup-person-avatar">
+                <img src="{{ row.profile_img_url }}" alt="Foto de perfil de {{ row.name }}" class="signup-person-avatar-img">
+              </span>
+              <span class="signup-person-main">
+                <strong class="signup-person-name">{{ row.name }}</strong>
+                <span class="signup-person-position">{{ row.position }}</span>
+              </span>
+              <span class="signup-person-side">
+                <span class="checkin-badge {{ row.status_badge }}">{{ row.status_label }}</span>
+              </span>
+            </article>
+            {% endfor %}
+
+            {% if confirmed_rows|length > confirmed_preview_limit %}
+            <div class="collapse" id="confirmedListCollapse">
+              <div class="signup-list signup-list-collapse">
+                {% for row in confirmed_rows[confirmed_preview_limit:] %}
+                <article class="signup-person-row">
+                  <span class="signup-person-order">{{ row.index }}</span>
+                  <span class="signup-person-avatar">
+                    <img src="{{ row.profile_img_url }}" alt="Foto de perfil de {{ row.name }}" class="signup-person-avatar-img">
+                  </span>
+                  <span class="signup-person-main">
+                    <strong class="signup-person-name">{{ row.name }}</strong>
+                    <span class="signup-person-position">{{ row.position }}</span>
+                  </span>
+                  <span class="signup-person-side">
+                    <span class="checkin-badge {{ row.status_badge }}">{{ row.status_label }}</span>
+                  </span>
+                </article>
+                {% endfor %}
+              </div>
+            </div>
+
+            <button class="signup-expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#confirmedListCollapse" aria-expanded="false" aria-controls="confirmedListCollapse">
+              Ver todas as confirmadas
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="signup-group">
+          <div class="signup-group-head">
+            <div class="signup-group-title">
+              <span class="signup-group-title-icon signup-group-title-icon-waitlist">
+                <i class="bi bi-clock-history"></i>
+              </span>
+              <h4>Fila de espera ({{ waitlist_count }})</h4>
+            </div>
+          </div>
+
+          <div class="signup-list">
+            {% if not waitlist_rows %}
+            <p class="signup-empty">Não há ninguém na fila de espera agora.</p>
+            {% endif %}
+            {% for row in waitlist_rows[:waitlist_preview_limit] %}
+            <article class="signup-person-row signup-person-row-waitlist">
+              <span class="signup-person-order signup-person-order-waitlist">{{ row.index }}º</span>
+              <span class="signup-person-avatar">
+                <img src="{{ row.profile_img_url }}" alt="Foto de perfil de {{ row.name }}" class="signup-person-avatar-img">
+              </span>
+              <span class="signup-person-main">
+                <strong class="signup-person-name">{{ row.name }}</strong>
+                <span class="signup-person-position">{{ row.position }}</span>
+              </span>
+              <span class="signup-person-side">
+                <span class="signup-person-meta{% if row.is_current_user %} is-current{% endif %}">
+                  {% if row.is_current_user %}Sua posição{% else %}Aguardando vaga{% endif %}
+                </span>
+              </span>
+            </article>
+            {% endfor %}
+
+            {% if waitlist_rows|length > waitlist_preview_limit %}
+            <div class="collapse" id="waitlistCollapse">
+              <div class="signup-list signup-list-collapse">
+                {% for row in waitlist_rows[waitlist_preview_limit:] %}
+                <article class="signup-person-row signup-person-row-waitlist">
+                  <span class="signup-person-order signup-person-order-waitlist">{{ row.index }}º</span>
+                  <span class="signup-person-avatar">
+                    <img src="{{ row.profile_img_url }}" alt="Foto de perfil de {{ row.name }}" class="signup-person-avatar-img">
+                  </span>
+                  <span class="signup-person-main">
+                    <strong class="signup-person-name">{{ row.name }}</strong>
+                    <span class="signup-person-position">{{ row.position }}</span>
+                  </span>
+                  <span class="signup-person-side">
+                    <span class="signup-person-meta{% if row.is_current_user %} is-current{% endif %}">
+                      {% if row.is_current_user %}Sua posição{% else %}Aguardando vaga{% endif %}
+                    </span>
+                  </span>
+                </article>
+                {% endfor %}
+              </div>
+            </div>
+
+            <button class="signup-expand-btn" type="button" data-bs-toggle="collapse" data-bs-target="#waitlistCollapse" aria-expanded="false" aria-controls="waitlistCollapse">
+              Ver toda a fila de espera
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            {% endif %}
+          </div>
+        </section>
+
+        <article class="signup-info-card">
+          <span class="signup-info-icon"><i class="bi bi-info-circle"></i></span>
+          <div class="signup-info-copy">
+            <strong>Como funciona a lista de espera?</strong>
+            <p>As vagas são preenchidas por ordem de chegada. Você será notificada caso uma vaga seja liberada.</p>
+          </div>
+          <i class="bi bi-chevron-right signup-info-arrow"></i>
+        </article>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}

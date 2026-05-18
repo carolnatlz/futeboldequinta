@@ -1,0 +1,45 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap">
+    <div class="cadastro-card checkin-panel-card">
+      <div class="admin-panel-head">
+        <h2 class="cadastro-title admin-panel-title">Gestão dos Jogos</h2>
+        <p class="checkin-panel-subtitle">Acompanhe o preenchimento das vagas e entre na sessão para gerir presenças.</p>
+      </div>
+
+      {% if session_cards %}
+      <div class="checkin-session-list">
+        {% for card in session_cards %}
+        <article class="checkin-session-card">
+          <div class="checkin-session-top">
+            <div>
+              <h3 class="checkin-session-title">{{ card.session.game_date.strftime('%A, %d/%m/%Y')|capitalize }}</h3>
+              <p class="checkin-session-window">Check-in até {{ card.session.checkin_closes_at.strftime('%d/%m %Hh') }}</p>
+            </div>
+            <span class="checkin-badge {{ card.status_badge }}">{{ card.status_label }}</span>
+          </div>
+
+          <div class="checkin-stats-grid">
+            <div class="checkin-stat-box">
+              <span class="checkin-stat-label">Confirmadas</span>
+              <strong class="checkin-stat-value">{{ card.confirmed_count }}/{{ card.session.max_players }}</strong>
+            </div>
+            <div class="checkin-stat-box">
+              <span class="checkin-stat-label">Fila</span>
+              <strong class="checkin-stat-value">{{ card.waitlist_count }}</strong>
+            </div>
+          </div>
+
+          <a href="{{ url_for('main.admin_checkins_sessao', session_id=card.session.id) }}" class="fdq-secondary-link-btn checkin-session-link">Gerenciar sessão</a>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="admin-empty">Nenhuma sessão cadastrada até o momento.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

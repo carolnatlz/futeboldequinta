@@ -217,12 +217,8 @@
   color: #29ddf0;
 }
 
-.home-agenda-divider {
-  width: 68px;
-  height: 3px;
-  border-radius: 999px;
+.home-agenda-copy .section-title-divider {
   margin: 10px 0 8px;
-  background: linear-gradient(90deg, #ff243d, #ff5069);
 }
 
 .home-agenda-text {

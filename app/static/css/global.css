@@ -48,8 +48,8 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding: 0 28px;
-  background: #041341;
-  border-bottom: 1px solid rgba(120, 145, 198, 0.24);
+  background: #031033;
+  border-bottom: 1px solid rgba(99, 126, 186, 0.22);
   box-shadow: 0 8px 18px rgba(1, 8, 26, 0.45);
   pointer-events: none;
 }
@@ -71,76 +71,192 @@ body {
 }
 
 .fdq-offcanvas-menu {
-  background: linear-gradient(180deg, #0f1f3e 0%, #0a1530 100%);
+  background: #031033;
   color: #fff;
-  width: min(86vw, 360px);
-  border-left: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: -12px 0 28px rgba(0, 0, 0, 0.35);
+  top: 76px;
+  height: calc(100vh - 76px);
+  width: min(80vw, 320px);
+  border-left: 1px solid rgba(108, 138, 224, 0.18);
+  box-shadow: -18px 0 36px rgba(0, 0, 0, 0.42);
+  z-index: 1080;
 }
 
-.fdq-offcanvas-menu .offcanvas-title {
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.9rem;
-}
-
-.fdq-menu-header {
-  padding: 20px 18px 8px;
-}
-
-.fdq-close-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.2);
-  opacity: 1;
-}
-
-.fdq-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.32);
+.offcanvas-backdrop {
+  z-index: 1070;
 }
 
 .fdq-menu-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px 16px 22px;
+  gap: 14px;
+  padding: 14px 12px 16px;
 }
 
-.fdq-menu-link {
+.fdq-menu-section {
+  display: grid;
+  gap: 6px;
+}
+
+.fdq-menu-section-label {
+  padding-left: 4px;
+  color: rgba(210, 221, 248, 0.72);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fdq-menu-group {
+  display: grid;
+  gap: 6px;
+}
+
+.fdq-menu-group-toggle {
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+
+.fdq-menu-group-toggle .fdq-menu-card-arrow {
+  transition: transform 0.2s ease;
+}
+
+.fdq-menu-group-toggle[aria-expanded="true"] .fdq-menu-card-arrow {
+  transform: rotate(180deg);
+}
+
+.fdq-menu-group-panel {
+  display: grid;
+  gap: 6px;
+  padding-left: 10px;
+}
+
+.fdq-menu-card,
+.fdq-submenu-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border-radius: 12px;
-  min-height: 56px;
-  padding: 0 16px;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background: rgba(10, 25, 67, 0.88);
+  border: 1px solid rgba(84, 110, 187, 0.18);
+  color: #eaf1ff;
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(41, 69, 133, 0.12);
 }
 
-.fdq-menu-link:hover {
+.fdq-menu-card:hover,
+.fdq-submenu-card:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(13, 31, 82, 0.95);
 }
 
-.fdq-menu-link i {
-  font-size: 1.1rem;
+.fdq-menu-card.is-active {
+  border-color: rgba(82, 121, 255, 0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(101, 137, 255, 0.22),
+    0 0 0 1px rgba(44, 79, 178, 0.14);
 }
 
-.fdq-menu-link-danger {
-  border: 1px solid rgba(255, 96, 122, 0.5);
-  background: rgba(175, 25, 50, 0.22);
-  color: #ffd8e0;
+.fdq-submenu-card {
+  min-height: 40px;
+  padding: 0 10px 0 12px;
+  border-radius: 12px;
+  background: rgba(8, 21, 57, 0.72);
+  font-size: 0.82rem;
+}
+
+.fdq-submenu-card.is-active {
+  border-color: rgba(82, 121, 255, 0.48);
+}
+
+.fdq-menu-card-icon,
+.fdq-menu-support-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(23, 58, 145, 0.56), rgba(8, 22, 67, 0.92));
+  border: 1px solid rgba(92, 128, 231, 0.16);
+  color: #5d8cff;
+  font-size: 1.02rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.fdq-menu-card-icon-danger {
+  background: linear-gradient(160deg, rgba(96, 28, 54, 0.72), rgba(54, 14, 28, 0.92));
+  color: #ff5f79;
+  border-color: rgba(255, 107, 133, 0.14);
+}
+
+.fdq-menu-card-text,
+.fdq-submenu-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.fdq-menu-card-arrow {
+  color: rgba(228, 236, 255, 0.84);
+  font-size: 0.92rem;
+  flex-shrink: 0;
+}
+
+.fdq-menu-card-danger {
   width: 100%;
+  border: 1px solid rgba(255, 96, 122, 0.24);
+  background: rgba(53, 15, 34, 0.42);
+  color: #ffd8e0;
+  text-align: left;
 }
 
-.fdq-menu-link-danger:hover {
-  background: rgba(193, 33, 62, 0.35);
+.fdq-menu-card-danger:hover {
+  background: rgba(74, 18, 42, 0.52);
   color: #fff;
+}
+
+.fdq-menu-support-card {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 68px;
+  padding: 0 12px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(11, 30, 82, 0.92), rgba(7, 22, 62, 0.96));
+  border: 1px solid rgba(62, 99, 205, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(44, 79, 178, 0.1);
+}
+
+.fdq-menu-support-card:hover {
+  color: #fff;
+}
+
+.fdq-menu-support-icon {
+  color: #5d8cff;
+}
+
+.fdq-menu-support-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.fdq-menu-support-copy strong {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.fdq-menu-support-copy span {
+  color: #5d8cff;
+  font-size: 0.76rem;
 }
 
 .fdq-logout-modal {
@@ -184,6 +300,14 @@ body {
 .fdq-modal-btn-danger:hover {
   background: linear-gradient(120deg, #de1545, #ff2a59);
   color: #fff;
+}
+
+.modal {
+  z-index: 2000;
+}
+
+.modal-backdrop {
+  z-index: 1990;
 }
 
 .top-brand-header {
@@ -324,6 +448,14 @@ body {
   font-size: 2rem;
   margin: 0 0 24px;
   font-weight: 700;
+}
+
+.section-title-divider {
+  display: block;
+  width: 68px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff243d, #ff5069);
 }
 
 .cadastro-form {
@@ -646,6 +778,739 @@ body {
   margin: 0;
 }
 
+.checkin-page-shell {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 8px 0 12px;
+}
+
+.checkin-page-head {
+  display: grid;
+  gap: 12px;
+  margin: 0 auto 20px;
+  max-width: 860px;
+}
+
+.checkin-page-title {
+  margin: 0;
+  text-align: left;
+  font-size: clamp(2.15rem, 5vw, 3.3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.checkin-page-head .section-title-divider {
+  margin: 0;
+}
+
+.checkin-panel-card {
+  max-width: 900px;
+}
+
+.checkin-panel-card-wide {
+  max-width: 1080px;
+}
+
+.checkin-panel-subtitle {
+  margin: 0;
+  max-width: 720px;
+  color: #dce6ff;
+  text-align: left;
+  font-size: clamp(0.88rem, 1.7vw, 1rem);
+  line-height: 1.45;
+}
+
+.checkin-session-list {
+  display: grid;
+  gap: 14px;
+}
+
+.checkin-session-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(96, 118, 255, 0.24);
+  background:
+    linear-gradient(180deg, rgba(8, 20, 58, 0.86), rgba(5, 16, 48, 0.92)),
+    rgba(7, 19, 53, 0.94);
+  border-radius: 28px;
+  padding: 22px 18px 18px;
+  display: grid;
+  gap: 16px;
+  box-shadow: inset 0 0 0 1px rgba(92, 114, 220, 0.08), 0 24px 50px rgba(0, 0, 0, 0.22);
+}
+
+.checkin-session-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(56, 89, 184, 0.14), rgba(0, 0, 0, 0) 42%),
+    radial-gradient(circle at bottom left, rgba(29, 64, 160, 0.08), rgba(0, 0, 0, 0) 40%);
+  pointer-events: none;
+}
+
+.checkin-session-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.checkin-session-top {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.checkin-session-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, rgba(48, 84, 188, 0.5), rgba(13, 34, 92, 0.82));
+  border: 1px solid rgba(113, 147, 236, 0.16);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.checkin-session-icon i {
+  font-size: 2rem;
+}
+
+.checkin-session-heading {
+  display: grid;
+  gap: 6px;
+}
+
+.checkin-session-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.38rem, 3.8vw, 2rem);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: capitalize;
+}
+
+.checkin-session-window {
+  margin: 0;
+  color: #bbcaeb;
+  font-size: clamp(0.92rem, 2vw, 1.1rem);
+}
+
+.checkin-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 0 18px;
+  border-radius: 20px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(116, 180, 255, 0.18);
+}
+
+.checkin-status-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(3, 14, 43, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  font-size: 1.3rem;
+}
+
+.checkin-status-banner-text {
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+}
+
+.checkin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checkin-stat-box {
+  min-width: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+  min-height: 112px;
+}
+
+.checkin-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.checkin-stat-label {
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.checkin-stat-value {
+  color: #ffffff;
+  font-size: clamp(1.45rem, 3.2vw, 2rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.checkin-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(87, 116, 216, 0.22);
+  background: rgba(11, 30, 86, 0.46);
+  color: #6f90ff;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.checkin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.checkin-badge-scheduled {
+  background: rgba(105, 131, 192, 0.2);
+  color: #dce6ff;
+}
+
+.checkin-badge-open {
+  background: linear-gradient(90deg, #27c8dd, #49e4c6);
+  color: #042858;
+  border-color: rgba(73, 228, 198, 0.28);
+}
+
+.checkin-status-banner.checkin-badge-open .checkin-status-banner-icon {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(4, 40, 88, 0.14);
+  color: #042858;
+}
+
+.checkin-status-banner.checkin-badge-open .checkin-status-banner-text {
+  color: #042858;
+}
+
+.checkin-badge-confirmed,
+.checkin-badge-attended {
+  background: linear-gradient(180deg, rgba(79, 149, 240, 0.18), rgba(46, 103, 214, 0.16));
+  color: #a9d8ff;
+}
+
+.checkin-badge-closed,
+.checkin-badge-waitlist {
+  background: linear-gradient(180deg, rgba(188, 136, 31, 0.94), rgba(158, 113, 19, 0.94));
+  color: #ffe18a;
+}
+
+.checkin-badge-cancelled,
+.checkin-badge-no-show {
+  background: linear-gradient(180deg, rgba(185, 47, 68, 0.94), rgba(152, 28, 46, 0.94));
+  color: #ffb0b7;
+}
+
+.checkin-badge-finished {
+  background: linear-gradient(180deg, rgba(55, 104, 214, 0.94), rgba(35, 79, 180, 0.94));
+  color: #b4d4ff;
+}
+
+.checkin-session-actions,
+.checkin-admin-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.checkin-action-split {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: stretch;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 2px solid rgba(87, 116, 216, 0.58);
+  background: rgba(7, 19, 53, 0.52);
+}
+
+.checkin-action-split-form {
+  margin: 0;
+}
+
+.checkin-action-split-divider {
+  width: 1px;
+  background: rgba(112, 142, 220, 0.48);
+}
+
+.checkin-action-split-btn {
+  width: 100%;
+  min-height: 62px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #eef4ff;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+}
+
+.checkin-action-split-btn-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.checkin-action-split-btn-inner i {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.checkin-action-split-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.checkin-action-split-btn:disabled {
+  color: rgba(210, 223, 248, 0.46);
+  background: transparent;
+  cursor: default;
+}
+
+.checkin-action-split-primary:not(:disabled) {
+  color: #ffffff;
+  background: linear-gradient(90deg, #27c8dd, #49e4c6);
+  box-shadow: inset 0 0 0 1px rgba(116, 242, 229, 0.12);
+}
+
+.checkin-action-split-secondary:not(:disabled) {
+  color: #fff0f1;
+  background: linear-gradient(120deg, rgba(209, 15, 60, 0.92), rgba(245, 31, 82, 0.92));
+}
+
+.checkin-action-split-secondary:not(:disabled):hover {
+  background: linear-gradient(120deg, rgba(222, 21, 69, 0.96), rgba(255, 42, 89, 0.96));
+}
+
+.checkin-action-split-btn.is-selected {
+  background: linear-gradient(120deg, rgba(39, 200, 221, 0.22), rgba(73, 228, 198, 0.18));
+  color: #fff0f1;
+  box-shadow: inset 0 0 0 1px rgba(116, 242, 229, 0.16);
+}
+
+.checkin-action-split-btn.is-selected.is-selected-danger {
+  background: linear-gradient(120deg, rgba(185, 47, 68, 0.22), rgba(152, 28, 46, 0.2));
+  color: #ffd8dd;
+  box-shadow: inset 0 0 0 1px rgba(255, 149, 161, 0.16);
+}
+
+.checkin-action-split-btn.is-selected:disabled {
+  color: #fff0f1;
+  background: inherit;
+  opacity: 1;
+}
+
+.checkin-action-split-btn.is-selected.is-selected-danger:disabled {
+  color: #ffd8dd;
+}
+
+.checkin-action-btn {
+  width: 100%;
+  min-height: 62px;
+  border-radius: 18px;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 20px;
+}
+
+.checkin-action-primary {
+  background: linear-gradient(120deg, #2b66d8, #4e90ff);
+  color: #fff;
+  border: none;
+}
+
+.checkin-action-primary:hover {
+  color: #fff;
+}
+
+.checkin-action-secondary {
+  background: rgba(7, 19, 53, 0.48);
+  border: 2px solid rgba(87, 116, 216, 0.58);
+  color: #eef4ff;
+}
+
+.checkin-action-secondary:hover {
+  color: #fff;
+  background: rgba(17, 32, 78, 0.82);
+}
+
+.checkin-help-text {
+  margin: 0;
+  color: #dce6ff;
+  font-size: 1rem;
+}
+
+.checkin-session-link {
+  width: 100%;
+}
+
+.signup-page-shell {
+  max-width: 1080px;
+}
+
+.signup-session-card {
+  gap: 18px;
+}
+
+.signup-session-header {
+  display: grid;
+  gap: 10px;
+}
+
+.signup-session-top {
+  grid-template-columns: 72px minmax(0, 1fr);
+}
+
+.signup-session-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.signup-session-title-row .checkin-session-title {
+  font-size: clamp(1.18rem, 3.1vw, 1.6rem);
+}
+
+.signup-status-banner {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: start;
+}
+
+.signup-status-banner-compact {
+  min-height: 42px;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.signup-status-banner-compact .checkin-status-banner-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+}
+
+.signup-status-banner-compact .checkin-status-banner-text {
+  font-size: 0.73rem;
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.signup-stats-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: 22px;
+  border: 1px solid rgba(87, 116, 216, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.signup-stat-cell {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 16px 14px;
+  min-width: 0;
+}
+
+.signup-stat-cell + .signup-stat-cell {
+  border-left: 1px solid rgba(87, 116, 216, 0.16);
+}
+
+.signup-stat-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(219, 229, 249, 0.82);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.signup-stat-heading i {
+  color: #6f90ff;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.signup-stat-value {
+  color: #fff;
+  font-size: clamp(1.55rem, 3.2vw, 2.25rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.signup-stat-caption {
+  color: rgba(208, 220, 248, 0.7);
+  font-size: 0.7rem;
+  line-height: 1.15;
+}
+
+.signup-group {
+  display: grid;
+  gap: 14px;
+}
+
+.signup-group + .signup-group {
+  padding-top: 8px;
+  border-top: 1px solid rgba(87, 116, 216, 0.18);
+}
+
+.signup-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.signup-group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.signup-group-title h4 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.15rem, 2.8vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.signup-group-title-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  background: rgba(6, 18, 52, 0.64);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.signup-group-title-icon-confirmed {
+  color: #5fe0f4;
+}
+
+.signup-group-title-icon-waitlist {
+  color: #6f90ff;
+}
+
+.signup-list {
+  display: grid;
+  gap: 8px;
+}
+
+.signup-empty {
+  margin: 0;
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.98rem;
+}
+
+.signup-list-collapse {
+  padding-top: 10px;
+}
+
+.signup-person-row {
+  display: grid;
+  grid-template-columns: 46px 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 0 10px 0 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(84, 110, 187, 0.16);
+  background: rgba(7, 19, 53, 0.42);
+}
+
+.signup-person-order {
+  color: #5fe0f4;
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 800;
+  text-align: center;
+}
+
+.signup-person-order-waitlist {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(95, 224, 244, 0.72);
+  font-size: 1rem;
+}
+
+.signup-person-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(120, 145, 211, 0.22);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(223, 232, 255, 0.68);
+  font-size: 1.8rem;
+}
+
+.signup-person-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.signup-person-main {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.signup-person-name {
+  color: #fff;
+  font-size: 0.96rem;
+  font-weight: 800;
+  min-width: 0;
+}
+
+.signup-person-position {
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.82rem;
+  min-width: 0;
+}
+
+.signup-person-side {
+  min-width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.signup-person-meta {
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+.signup-person-meta.is-current {
+  color: #5fe0f4;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.signup-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 6px auto 0;
+  border: none;
+  background: transparent;
+  color: #5fe0f4;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.signup-expand-btn:hover {
+  color: #8beeff;
+}
+
+.signup-info-card {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  min-height: 116px;
+  padding: 0 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(84, 110, 187, 0.18);
+  background: rgba(10, 25, 67, 0.52);
+}
+
+.signup-info-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(92, 128, 231, 0.16);
+  background: linear-gradient(160deg, rgba(23, 58, 145, 0.56), rgba(8, 22, 67, 0.92));
+  color: #6f90ff;
+  font-size: 1.7rem;
+}
+
+.signup-info-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.signup-info-copy strong {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.signup-info-copy p {
+  margin: 0;
+  color: rgba(208, 220, 248, 0.76);
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.signup-info-arrow {
+  color: rgba(228, 236, 255, 0.82);
+  font-size: 1.2rem;
+}
+
+.checkin-admin-item {
+  gap: 10px;
+}
+
 input[type="file"] {
   width: 100%;
   max-width: 100%;
@@ -701,12 +1566,9 @@ input[type="file"] {
   }
 
   .fdq-offcanvas-menu {
-    width: min(92vw, 360px);
-  }
-
-  .fdq-menu-link {
-    min-height: 52px;
-    font-size: 1.1rem;
+    top: 68px;
+    height: calc(100vh - 68px);
+    width: min(78vw, 300px);
   }
 
   .cadastro-hero {
@@ -759,6 +1621,195 @@ input[type="file"] {
 
   .admin-user-actions {
     flex-wrap: wrap;
+  }
+
+  .checkin-page-title {
+    font-size: clamp(2rem, 8vw, 2.7rem);
+  }
+
+  .checkin-session-card {
+    padding: 18px 14px 16px;
+    border-radius: 26px;
+    gap: 14px;
+  }
+
+  .checkin-session-top {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+  }
+
+  .checkin-session-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+  }
+
+  .checkin-session-icon i {
+    font-size: 1.5rem;
+  }
+
+  .checkin-status-banner,
+  .checkin-action-btn {
+    min-height: 58px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .checkin-status-banner-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .checkin-stat-box {
+    min-height: 92px;
+    padding: 12px;
+  }
+
+  .checkin-stat-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 0.92rem;
+  }
+
+  .checkin-stat-label {
+    font-size: 0.64rem;
+  }
+
+  .checkin-stat-value {
+    font-size: 1.3rem;
+  }
+
+  .signup-stats-card {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .signup-stat-cell {
+    gap: 6px;
+    padding: 10px 8px;
+  }
+
+  .signup-stat-cell + .signup-stat-cell {
+    border-top: none;
+    border-left: 1px solid rgba(87, 116, 216, 0.16);
+  }
+
+  .signup-stat-heading {
+    gap: 4px;
+    font-size: 0.56rem;
+    letter-spacing: 0.03em;
+  }
+
+  .signup-stat-heading i {
+    font-size: 0.8rem;
+  }
+
+  .signup-stat-value {
+    font-size: 1.22rem;
+  }
+
+  .signup-stat-caption {
+    font-size: 0.52rem;
+    line-height: 1.05;
+  }
+
+  .signup-session-title-row {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .signup-session-title-row .checkin-session-title {
+    font-size: 1.02rem;
+  }
+
+  .signup-status-banner-compact {
+    min-height: 30px;
+    padding: 0 10px 0 8px;
+    gap: 6px;
+  }
+
+  .signup-status-banner-compact .checkin-status-banner-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+
+  .signup-status-banner-compact .checkin-status-banner-text {
+    font-size: 0.54rem;
+    letter-spacing: 0.03em;
+    line-height: 1.02;
+  }
+
+  .signup-person-row {
+    grid-template-columns: 34px 40px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px 8px 10px 6px;
+    min-height: 68px;
+  }
+
+  .signup-person-order,
+  .signup-person-order-waitlist {
+    width: 34px;
+    height: 34px;
+    font-size: 0.92rem;
+  }
+
+  .signup-person-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .signup-person-name {
+    font-size: 0.84rem;
+  }
+
+  .signup-person-position {
+    font-size: 0.7rem;
+  }
+
+  .signup-person-side {
+    align-self: center;
+  }
+
+  .signup-person-meta {
+    font-size: 0.68rem;
+    text-align: right;
+    max-width: 74px;
+  }
+
+  .signup-info-card {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+    min-height: 0;
+  }
+
+  .signup-info-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    font-size: 1.35rem;
+  }
+
+  .signup-info-arrow {
+    display: none;
+  }
+
+  .checkin-session-actions,
+  .checkin-admin-actions {
+    flex-direction: column;
+  }
+
+  .checkin-action-split-btn {
+    min-height: 56px;
+    font-size: 0.96rem;
+  }
+
+  .checkin-action-btn,
+  .checkin-session-link {
+    width: 100%;
   }
 
   .cadastro-card {

@@ -4,7 +4,7 @@ from sqlalchemy import func
 
 from app import bcrypt, db
 from app.forms import FormCriarConta, FormLogin
-from app.models import AuthProvider, PlayerPosition, User, UserRole
+from app.models import AccountStatus, AuthProvider, PlayerPosition, User, UserRole
 
 from . import main, salvar_imagem
 
@@ -29,8 +29,7 @@ def cadastro():
             role=UserRole.PLAYER,
             profile_img=nome_imagem,
             position=PlayerPosition(form.position.data),
-            is_active=False,
-            is_rejected=False,
+            account_status=AccountStatus.PENDING,
         )
 
         db.session.add(novo_usuario)
@@ -57,9 +56,17 @@ def login():
             and user.auth_provider == AuthProvider.LOCAL
             and bcrypt.check_password_hash(user.password_hash, form.senha.data)
         ):
-            if user.role == UserRole.PLAYER and not user.is_active:
-                flash("Acesso aguardando aprovação.", "alert-warning")
-                return redirect(url_for("main.login"))
+            if user.role == UserRole.PLAYER:
+                if user.account_status == AccountStatus.PENDING:
+                    flash("Seu cadastro ainda está aguardando aprovação.", "alert-warning")
+                    return redirect(url_for("main.login"))
+
+                if user.account_status == AccountStatus.REJECTED:
+                    flash(
+                        "Seu cadastro foi rejeitado. Se achar que houve um engano, entre em contato com a organização.",
+                        "alert-danger",
+                    )
+                    return redirect(url_for("main.login"))
 
             login_user(user, remember=form.lembrar_login.data)
 

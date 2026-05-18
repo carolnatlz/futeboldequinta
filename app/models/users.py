@@ -19,6 +19,12 @@ class UserRole(enum.Enum):
     ORGANIZER = "organizer"
 
 
+class AccountStatus(enum.Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class PlayerPosition(enum.Enum):
     GOL = "gol"
     ATAQUE = "ataque"
@@ -47,8 +53,11 @@ class User(db.Model, UserMixin):
         nullable=True,
     )
     profile_img = db.Column(db.String(255), nullable=True)
-    is_active = db.Column(db.Boolean, default=False)
-    is_rejected = db.Column(db.Boolean, default=False, nullable=False)
+    account_status = db.Column(
+        db.Enum(AccountStatus, name="account_status_enum"),
+        nullable=False,
+        default=AccountStatus.PENDING,
+    )
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(
         db.DateTime(timezone=True),
@@ -57,7 +66,20 @@ class User(db.Model, UserMixin):
     )
     phone = db.Column(db.String(20), unique=True, nullable=True)
 
+    checkins = db.relationship(
+        "GameCheckin",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+    )
+
+    @property
+    def is_active(self):
+        return self.account_status == AccountStatus.APPROVED
+
+    @property
+    def is_rejected(self):
+        return self.account_status == AccountStatus.REJECTED
 
     def __repr__(self):
         return f"<User {self.email}>"
-

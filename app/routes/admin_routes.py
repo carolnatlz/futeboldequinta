@@ -2,7 +2,7 @@ from flask import flash, redirect, render_template, url_for
 from flask_login import login_required
 
 from app import db
-from app.models import User, UserRole
+from app.models import AccountStatus, User, UserRole
 
 from . import main, now_utc, roles_required
 
@@ -14,8 +14,7 @@ def admin_aprovacoes():
     pendentes = (
         User.query.filter(
             User.role == UserRole.PLAYER,
-            User.is_active.is_(False),
-            User.is_rejected.is_(False),
+            User.account_status == AccountStatus.PENDING,
         )
         .order_by(User.created_at.asc())
         .all()
@@ -30,8 +29,7 @@ def admin_rejeitados():
     rejeitados = (
         User.query.filter(
             User.role == UserRole.PLAYER,
-            User.is_active.is_(False),
-            User.is_rejected.is_(True),
+            User.account_status == AccountStatus.REJECTED,
         )
         .order_by(User.updated_at.desc())
         .all()
@@ -44,8 +42,7 @@ def admin_rejeitados():
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
 def admin_aceitar_usuario(user_id):
     usuario = User.query.get_or_404(user_id)
-    usuario.is_active = True
-    usuario.is_rejected = False
+    usuario.account_status = AccountStatus.APPROVED
     usuario.updated_at = now_utc()
     db.session.commit()
 
@@ -58,11 +55,9 @@ def admin_aceitar_usuario(user_id):
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
 def admin_rejeitar_usuario(user_id):
     usuario = User.query.get_or_404(user_id)
-    usuario.is_active = False
-    usuario.is_rejected = True
+    usuario.account_status = AccountStatus.REJECTED
     usuario.updated_at = now_utc()
     db.session.commit()
 
     flash(f"Usuário {usuario.name} movido para rejeitados.", "alert-warning")
     return redirect(url_for("main.admin_rejeitados"))
-

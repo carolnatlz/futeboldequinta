@@ -66,4 +66,4 @@ def salvar_imagem(imagem):
     return nome_arquivo
 
 
-from . import admin_routes, auth_routes, home_routes, perfil_routes
+from . import admin_routes, auth_routes, checkin_routes, home_routes, perfil_routes
