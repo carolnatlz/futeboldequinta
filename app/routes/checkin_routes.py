@@ -87,7 +87,7 @@ def _sync_sessions_and_organizers(sessions):
 
     current_time = _local_now()
     changed = False
-    organizers = (
+    auto_reserved_users = (
         User.query.filter(
             User.role.in_(AUTO_RESERVED_ROLES),
             User.account_status == AccountStatus.APPROVED,
@@ -95,7 +95,7 @@ def _sync_sessions_and_organizers(sessions):
         .order_by(User.created_at.asc())
         .all()
     )
-    organizer_ids = [organizer.id for organizer in organizers]
+    eligible_user_ids = {user.id for user in auto_reserved_users}
 
     for session in sessions:
         resolved_status = session.resolve_status(current_time)
@@ -103,25 +103,39 @@ def _sync_sessions_and_organizers(sessions):
             session.status = resolved_status
             changed = True
 
-        organizer_checkins = (
+        reserved_checkins = GameCheckin.query.filter(
+            GameCheckin.game_session_id == session.id,
+            GameCheckin.status == CheckinStatus.RESERVED,
+        ).all()
+
+        for reserved_checkin in reserved_checkins:
+            if reserved_checkin.user_id in eligible_user_ids:
+                continue
+
+            reserved_checkin.status = CheckinStatus.CANCELLED
+            reserved_checkin.cancelled_at = now_utc()
+            _promote_waitlist(session.id)
+            changed = True
+
+        auto_reserved_checkins = (
             {
                 checkin.user_id: checkin
                 for checkin in GameCheckin.query.filter(
                     GameCheckin.game_session_id == session.id,
-                    GameCheckin.user_id.in_(organizer_ids),
+                    GameCheckin.user_id.in_(eligible_user_ids),
                 ).all()
             }
-            if organizer_ids
+            if eligible_user_ids
             else {}
         )
 
-        for organizer in organizers:
-            existing_checkin = organizer_checkins.get(organizer.id)
+        for user in auto_reserved_users:
+            existing_checkin = auto_reserved_checkins.get(user.id)
             if not existing_checkin:
                 db.session.add(
                     GameCheckin(
                         game_session=session,
-                        user=organizer,
+                        user=user,
                         status=CheckinStatus.RESERVED,
                     )
                 )
