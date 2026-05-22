@@ -934,11 +934,21 @@ body {
 .admin-game-session-title-wrap {
   min-width: 0;
   flex: 1 1 auto;
+  padding-left: 4px;
 }
 
 .admin-game-session-title {
-  font-size: clamp(1.12rem, 2.7vw, 1.45rem);
+  font-size: clamp(1.18rem, 2.9vw, 1.52rem);
   line-height: 1.1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32em;
+  flex-wrap: wrap;
+}
+
+.admin-game-session-weekday,
+.admin-game-session-date {
+  display: inline-block;
 }
 
 .admin-game-session-head .checkin-badge {
@@ -1736,8 +1746,9 @@ input[type="file"] {
   }
 
   .admin-game-session-title {
-    font-size: 0.98rem;
+    font-size: 1.04rem;
     line-height: 1.08;
+    gap: 0.26em;
   }
 
   .admin-game-session-head .checkin-badge {

@@ -536,6 +536,8 @@ def admin_checkins():
             "status_label": SESSION_STATUS_LABELS[session.status],
             "status_badge": _session_status_badge(session.status),
             "display_date": f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
+            "weekday_label": WEEKDAY_LABELS[session.game_date.weekday()],
+            "date_label": session.game_date.strftime('%d/%m/%Y'),
         }
         for session in sessions
     ]

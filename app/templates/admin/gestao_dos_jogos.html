@@ -14,7 +14,10 @@
         <article class="checkin-session-card admin-game-session-card">
           <div class="admin-game-session-head">
             <div class="admin-game-session-title-wrap">
-              <h3 class="checkin-session-title admin-game-session-title">{{ card.display_date }}</h3>
+              <h3 class="checkin-session-title admin-game-session-title">
+                <span class="admin-game-session-weekday">{{ card.weekday_label }},</span>
+                <span class="admin-game-session-date">{{ card.date_label }}</span>
+              </h3>
             </div>
             <span class="checkin-badge {{ card.status_badge }}">{{ card.status_label }}</span>
           </div>
