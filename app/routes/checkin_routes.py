@@ -51,7 +51,7 @@ CHECKIN_STATUS_LABELS = {
 SESSION_STATUS_LABELS = {
     GameSessionStatus.SCHEDULED: "Agendado",
     GameSessionStatus.OPEN: "Check-in aberto",
-    GameSessionStatus.CLOSED: "Check-in encerrado",
+    GameSessionStatus.CLOSED: "Jogo em Andamento",
     GameSessionStatus.FINISHED: "Finalizado",
     GameSessionStatus.CANCELLED: "Cancelado",
 }
@@ -102,6 +102,9 @@ def _sync_sessions_and_organizers(sessions):
         if session.status != resolved_status:
             session.status = resolved_status
             changed = True
+
+        if session.status in {GameSessionStatus.CANCELLED, GameSessionStatus.FINISHED}:
+            continue
 
         reserved_checkins = GameCheckin.query.filter(
             GameCheckin.game_session_id == session.id,
@@ -532,11 +535,24 @@ def admin_checkins():
             "waitlist_count": waitlist_counts.get(session.id, 0),
             "status_label": SESSION_STATUS_LABELS[session.status],
             "status_badge": _session_status_badge(session.status),
+            "display_date": f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
         }
         for session in sessions
     ]
 
     return render_template("admin/gestao_dos_jogos.html", session_cards=session_cards)
+
+
+@main.route("/admin/check-ins/<uuid:session_id>/cancelar-sessao", methods=["POST"])
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_cancelar_sessao(session_id):
+    session = GameSession.query.get_or_404(session_id)
+    session.status = GameSessionStatus.CANCELLED
+    db.session.commit()
+
+    flash("Sessão cancelada com sucesso.", "alert-success")
+    return redirect(url_for("main.admin_checkins"))
 
 
 @main.route("/admin/check-ins/<uuid:session_id>")
@@ -573,6 +589,7 @@ def admin_checkins_sessao(session_id):
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
 def admin_atualizar_status_checkin(checkin_id, status_name):
     checkin = GameCheckin.query.get_or_404(checkin_id)
+    session = GameSession.query.get_or_404(checkin.game_session_id)
     previous_status = checkin.status
 
     try:
@@ -582,22 +599,35 @@ def admin_atualizar_status_checkin(checkin_id, status_name):
         return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))
 
     if new_status not in {
-        CheckinStatus.ATTENDED,
-        CheckinStatus.NO_SHOW,
         CheckinStatus.CONFIRMED,
         CheckinStatus.CANCELLED,
     }:
         flash("Esse status não pode ser ajustado manualmente nessa tela.", "alert-danger")
         return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))
 
-    checkin.status = new_status
     if new_status == CheckinStatus.CANCELLED:
+        checkin.status = CheckinStatus.CANCELLED
         checkin.cancelled_at = now_utc()
         if previous_status in OCCUPIED_CHECKIN_STATUSES:
             _promote_waitlist(checkin.game_session_id)
+        flash("Jogadora removida da lista com sucesso.", "alert-success")
     else:
+        occupied_count = _occupied_count(session.id)
+        if previous_status in OCCUPIED_CHECKIN_STATUSES:
+            occupied_count = max(occupied_count - 1, 0)
+
+        checkin.status = (
+            CheckinStatus.CONFIRMED
+            if occupied_count < session.max_players
+            else CheckinStatus.WAITLIST
+        )
+        checkin.checked_in_at = now_utc()
         checkin.cancelled_at = None
+        if checkin.status == CheckinStatus.CONFIRMED:
+            flash("Jogadora reinserida na lista de confirmadas.", "alert-success")
+        else:
+            flash("A lista estava cheia; jogadora reinserida na fila de espera.", "alert-warning")
+
     db.session.commit()
 
-    flash("Status do check-in atualizado com sucesso.", "alert-success")
     return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))

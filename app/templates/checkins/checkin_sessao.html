@@ -36,20 +36,16 @@
           </div>
 
           <div class="checkin-admin-actions">
-            {% if checkin.status.value in ['reserved', 'confirmed', 'attended', 'no_show', 'cancelled'] %}
             <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CONFIRMED') }}">
               <button type="submit" class="btn btn-outline-info btn-sm admin-action-btn">Confirmada</button>
             </form>
-            <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='ATTENDED') }}">
-              <button type="submit" class="btn btn-outline-light btn-sm admin-action-btn">Presente</button>
-            </form>
-            <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='NO_SHOW') }}">
-              <button type="submit" class="btn btn-outline-warning btn-sm admin-action-btn">No-show</button>
-            </form>
-            <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CANCELLED') }}">
-              <button type="submit" class="btn btn-outline-danger btn-sm admin-action-btn">Cancelado</button>
-            </form>
-            {% endif %}
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm admin-action-btn"
+              {% if checkin.status.value == 'cancelled' %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelCheckinAdminModal-{{ checkin.id }}"{% endif %}
+            >
+              Cancelado
+            </button>
           </div>
         </article>
         {% endfor %}
@@ -60,4 +56,30 @@
     </div>
   </div>
 </section>
+
+{% if checkins %}
+  {% for checkin in checkins %}
+    {% if checkin.status.value != 'cancelled' %}
+    <div class="modal fade" id="cancelCheckinAdminModal-{{ checkin.id }}" tabindex="-1" aria-labelledby="cancelCheckinAdminModalLabel-{{ checkin.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content fdq-logout-modal">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="cancelCheckinAdminModalLabel-{{ checkin.id }}">Remover da lista</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            Você realmente quer remover {{ checkin.user.name }} desta sessão?
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn fdq-modal-btn fdq-modal-btn-secondary" data-bs-dismiss="modal">Não</button>
+            <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CANCELLED') }}" class="m-0">
+              <button type="submit" class="btn fdq-modal-btn fdq-modal-btn-danger">Sim, remover</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
 {% endblock %}

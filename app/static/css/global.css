@@ -700,6 +700,31 @@ body {
   background: rgba(255, 255, 255, 0.16);
 }
 
+.fdq-danger-link-btn {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  text-align: center;
+  border: 1px solid rgba(201, 88, 106, 0.42);
+  color: #ffdbe0;
+  background: rgba(126, 22, 39, 0.24);
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-weight: 600;
+}
+
+.fdq-danger-link-btn:hover:not(:disabled) {
+  color: #fff2f4;
+  background: rgba(153, 28, 48, 0.34);
+}
+
+.fdq-danger-link-btn:disabled {
+  border-color: rgba(201, 88, 106, 0.24);
+  color: rgba(255, 219, 224, 0.58);
+  background: rgba(126, 22, 39, 0.14);
+  cursor: default;
+}
+
 .admin-panel-hero {
   min-height: calc(100vh - 120px);
 }
@@ -899,6 +924,48 @@ body {
   font-size: clamp(0.92rem, 2vw, 1.1rem);
 }
 
+.admin-game-session-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-game-session-title-wrap {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.admin-game-session-title {
+  font-size: clamp(1.12rem, 2.7vw, 1.45rem);
+  line-height: 1.1;
+}
+
+.admin-game-session-head .checkin-badge {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.admin-game-session-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.admin-game-session-actions > a,
+.admin-game-session-actions > button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.admin-game-session-actions .checkin-session-link {
+  width: 100%;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .checkin-status-banner {
   display: flex;
   align-items: center;
@@ -1041,6 +1108,20 @@ body {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.checkin-admin-actions {
+  flex-wrap: nowrap;
+}
+
+.checkin-admin-actions > form,
+.checkin-admin-actions > button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.checkin-admin-actions .admin-action-btn {
+  width: 100%;
 }
 
 .checkin-action-split {
@@ -1357,9 +1438,9 @@ body {
 
 .signup-person-row {
   display: grid;
-  grid-template-columns: 46px 56px minmax(0, 1fr) auto;
+  grid-template-columns: 46px 56px minmax(0, 1fr) minmax(108px, 120px);
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-height: 76px;
   padding: 0 10px 0 8px;
   border-radius: 20px;
@@ -1416,6 +1497,9 @@ body {
   font-size: 0.96rem;
   font-weight: 800;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .signup-person-position {
@@ -1425,10 +1509,18 @@ body {
 }
 
 .signup-person-side {
-  min-width: max-content;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+.signup-person-side .checkin-badge {
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 0.64rem;
+  letter-spacing: 0.02em;
 }
 
 .signup-person-meta {
@@ -1639,6 +1731,25 @@ input[type="file"] {
     align-items: center;
   }
 
+  .admin-game-session-head {
+    gap: 8px;
+  }
+
+  .admin-game-session-title {
+    font-size: 0.98rem;
+    line-height: 1.08;
+  }
+
+  .admin-game-session-head .checkin-badge {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 0.66rem;
+  }
+
+  .admin-game-session-actions {
+    flex-direction: column;
+  }
+
   .checkin-session-icon {
     width: 58px;
     height: 58px;
@@ -1742,8 +1853,8 @@ input[type="file"] {
   }
 
   .signup-person-row {
-    grid-template-columns: 34px 40px minmax(0, 1fr) auto;
-    gap: 8px;
+    grid-template-columns: 34px 40px minmax(0, 1fr) minmax(78px, 88px);
+    gap: 6px;
     padding: 10px 8px 10px 6px;
     min-height: 68px;
   }
@@ -1773,6 +1884,12 @@ input[type="file"] {
     align-self: center;
   }
 
+  .signup-person-side .checkin-badge {
+    min-height: 24px;
+    padding: 0 6px;
+    font-size: 0.54rem;
+  }
+
   .signup-person-meta {
     font-size: 0.68rem;
     text-align: right;
@@ -1800,6 +1917,10 @@ input[type="file"] {
   .checkin-session-actions,
   .checkin-admin-actions {
     flex-direction: column;
+  }
+
+  .checkin-admin-actions {
+    flex-direction: row;
   }
 
   .checkin-action-split-btn {

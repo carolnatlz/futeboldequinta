@@ -11,6 +11,7 @@ from app import db
 BRAZIL_TZ = ZoneInfo("America/Sao_Paulo")
 CHECKIN_OPEN_HOUR = 9
 CHECKIN_CLOSE_HOUR = 17
+SESSION_FINISH_HOUR = 22
 DEFAULT_MAX_CONFIRMED_PLAYERS = 30
 
 
@@ -89,6 +90,14 @@ class GameSession(db.Model):
             tzinfo=BRAZIL_TZ,
         )
 
+    @property
+    def finished_at(self):
+        return datetime.combine(
+            self.game_date,
+            time(hour=SESSION_FINISH_HOUR),
+            tzinfo=BRAZIL_TZ,
+        )
+
     def resolve_status(self, current_time=None):
         current_time = current_time or datetime.now(BRAZIL_TZ)
 
@@ -101,7 +110,10 @@ class GameSession(db.Model):
         if current_time <= self.checkin_closes_at:
             return GameSessionStatus.OPEN
 
-        return GameSessionStatus.CLOSED
+        if current_time < self.finished_at:
+            return GameSessionStatus.CLOSED
+
+        return GameSessionStatus.FINISHED
 
 
 class GameCheckin(db.Model):
