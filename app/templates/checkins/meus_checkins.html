@@ -63,9 +63,20 @@
                   class="btn checkin-action-split-btn checkin-action-split-primary{% if left_selected %} is-selected{% endif %}"
                   {% if left_selected or not card.can_checkin %}disabled{% endif %}
                 >
-                  <span class="checkin-action-split-btn-inner">
+                  <span class="checkin-action-split-btn-inner{% if current_status == 'waitlist' %} checkin-action-split-btn-inner-stacked{% endif %}">
                     <i class="bi {% if current_status == 'waitlist' %}bi-hourglass-split{% elif current_status == 'no_show' %}bi-exclamation-circle{% elif current_status == 'reserved' %}bi-shield-check{% else %}bi-check-lg{% endif %}"></i>
-                    <span>{{ card.checkin_status_label if left_selected else 'Fazer Check-In' }}</span>
+                    <span class="checkin-action-split-btn-copy">
+                      <span class="checkin-action-split-btn-label">
+                        {% if left_selected %}
+                          {{ 'Em espera' if current_status == 'waitlist' else card.checkin_status_label }}
+                        {% else %}
+                          Fazer Check-In
+                        {% endif %}
+                      </span>
+                      {% if current_status == 'waitlist' and card.waitlist_position %}
+                      <span class="checkin-action-split-btn-meta">Sua posição: {{ card.waitlist_position }}</span>
+                      {% endif %}
+                    </span>
                   </span>
                 </button>
               </form>

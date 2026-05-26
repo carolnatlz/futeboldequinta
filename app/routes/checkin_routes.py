@@ -245,7 +245,13 @@ def _serialize_signup_row(checkin, index, kind):
     }
 
 
-def _serialize_session(session, current_user_checkins, confirmed_counts, waitlist_counts):
+def _serialize_session(
+    session,
+    current_user_checkins,
+    confirmed_counts,
+    waitlist_counts,
+    waitlist_positions,
+):
     user_checkin = current_user_checkins.get(session.id)
     can_checkin = _can_user_checkin(session, current_user, user_checkin)
     return {
@@ -261,6 +267,7 @@ def _serialize_session(session, current_user_checkins, confirmed_counts, waitlis
         "can_cancel": bool(user_checkin and _can_user_cancel(session, user_checkin)),
         "checkin_action_label": "Confirmada",
         "exit_action_label": "Sair",
+        "waitlist_position": waitlist_positions.get(session.id),
         "display_date": f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
         "window_label": f"Check-in aberto até {session.checkin_closes_at.strftime('%-Hh')}",
     }
@@ -344,6 +351,7 @@ def meus_checkins():
     current_user_checkins = {}
     confirmed_counts = {}
     waitlist_counts = {}
+    waitlist_positions = {}
 
     if session_ids:
         current_user_checkins = {
@@ -379,9 +387,38 @@ def meus_checkins():
             .group_by(GameCheckin.game_session_id)
             .all()
         }
+        waitlist_position_rows = (
+            db.session.query(
+                GameCheckin.game_session_id,
+                GameCheckin.user_id,
+                func.row_number()
+                .over(
+                    partition_by=GameCheckin.game_session_id,
+                    order_by=(GameCheckin.checked_in_at.asc(), User.name.asc()),
+                )
+                .label("position"),
+            )
+            .join(User, User.id == GameCheckin.user_id)
+            .filter(
+                GameCheckin.game_session_id.in_(session_ids),
+                GameCheckin.status == CheckinStatus.WAITLIST,
+            )
+            .all()
+        )
+        waitlist_positions = {
+            session_id: position
+            for session_id, user_id, position in waitlist_position_rows
+            if user_id == current_user.id
+        }
 
     session_cards = [
-        _serialize_session(session, current_user_checkins, confirmed_counts, waitlist_counts)
+        _serialize_session(
+            session,
+            current_user_checkins,
+            confirmed_counts,
+            waitlist_counts,
+            waitlist_positions,
+        )
         for session in sessions
     ]
 

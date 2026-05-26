@@ -10,7 +10,7 @@ from app.models.game_sessions import (
     BRAZIL_TZ,
 )
 
-GAME_SESSION_ID = uuid.UUID("020c246b-4bed-4a78-89d9-86e04b25a40a")
+GAME_SESSION_ID = uuid.UUID("fbe09296-ffe1-4976-96d5-a85c3814c256")
 MAX_CONFIRMED_PLAYERS = 30
 
 

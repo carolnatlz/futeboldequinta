@@ -1176,9 +1176,33 @@ body {
   gap: 10px;
 }
 
+.checkin-action-split-btn-inner-stacked {
+  align-items: flex-start;
+}
+
+.checkin-action-split-btn-copy {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.checkin-action-split-btn-label {
+  white-space: nowrap;
+}
+
+.checkin-action-split-btn-meta {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(255, 240, 241, 0.78);
+  margin-top: 3px;
+}
+
 .checkin-action-split-btn-inner i {
   font-size: 1.05rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .checkin-action-split-btn:hover {
