@@ -2,7 +2,7 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from sqlalchemy import func
-from wtforms import RadioField, StringField, SubmitField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 
 from app.models import User
@@ -14,15 +14,6 @@ class FormEditarPerfil(FlaskForm):
     username = StringField("Nome de Usuário", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired(), Email()], filters=[normalize_email])
     celular = StringField("Celular", validators=[DataRequired(), Length(min=10, max=20)])
-    position = RadioField(
-        "Posição",
-        choices=[
-            ("gol", "Gol"),
-            ("defesa", "Defesa"),
-            ("ataque", "Ataque"),
-        ],
-        validators=[DataRequired(message="Selecione sua posição.")],
-    )
     foto_perfil = FileField(
         "Atualizar foto de perfil",
         validators=[FileAllowed(["jpg", "jpeg", "png", "heic"], "Apenas JPG, PNG ou HEIC.")],

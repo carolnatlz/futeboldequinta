@@ -5,7 +5,7 @@
   <div class="cadastro-card-wrap">
     <div class="checkin-page-shell">
       <div class="checkin-page-head">
-        <h2 class="cadastro-title checkin-page-title">Próximos Jogos</h2>
+        <h2 class="cadastro-title generic-page-title">Próximos Jogos</h2>
         <span class="section-title-divider"></span>
         <p class="checkin-panel-subtitle">Clique para fazer seu check-in e garantir sua vaga. Caso não consiga, você entrará na lista de espera.</p>
       </div>
@@ -26,7 +26,7 @@
 
           <div class="checkin-status-banner {{ card.status_badge }}">
             <span class="checkin-status-banner-icon">
-              <i class="bi {% if card.status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif card.status_badge == 'checkin-badge-closed' %}bi-lock{% elif card.status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif card.status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
+              <i class="bi {% if card.status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif card.status_badge == 'checkin-badge-closed' %}bi-lock{% elif card.status_badge == 'checkin-badge-in-progress' %}bi-diagram-3{% elif card.status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif card.status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
             </span>
             <span class="checkin-status-banner-text">{{ card.status_label }}</span>
           </div>

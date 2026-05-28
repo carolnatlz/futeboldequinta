@@ -1,6 +1,7 @@
+import random
 from datetime import datetime
 
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import case, func
 
@@ -11,6 +12,10 @@ from app.models import (
     GameCheckin,
     GameSession,
     GameSessionStatus,
+    GameTeamAssignment,
+    GameTeamAssignmentSource,
+    PlayerPosition,
+    TeamCode,
     User,
     UserRole,
 )
@@ -51,7 +56,8 @@ CHECKIN_STATUS_LABELS = {
 SESSION_STATUS_LABELS = {
     GameSessionStatus.SCHEDULED: "Agendado",
     GameSessionStatus.OPEN: "Check-in aberto",
-    GameSessionStatus.CLOSED: "Jogo em Andamento",
+    GameSessionStatus.CLOSED: "Check-in encerrado",
+    GameSessionStatus.IN_PROGRESS: "Em andamento",
     GameSessionStatus.FINISHED: "Finalizado",
     GameSessionStatus.CANCELLED: "Cancelado",
 }
@@ -74,10 +80,27 @@ POSITION_LABELS = {
 
 CONFIRMED_PREVIEW_LIMIT = 5
 WAITLIST_PREVIEW_LIMIT = 3
+TEAM_CODES = (
+    TeamCode.A,
+    TeamCode.B,
+    TeamCode.C,
+    TeamCode.D,
+    TeamCode.E,
+    TeamCode.F,
+)
+TEAM_DRAW_ALLOWED_STATUSES = (
+    GameSessionStatus.CLOSED,
+    GameSessionStatus.IN_PROGRESS,
+    GameSessionStatus.FINISHED,
+)
 
+#TEMP
+# def _local_now():
+#     return datetime.now(BRAZIL_TZ)
 
+#DEBUG ONLY: used to simulate time-based behavior during development, should be commented for production
 def _local_now():
-    return datetime.now(BRAZIL_TZ)
+    return datetime(2026, 6, 1, 18, 40, tzinfo=BRAZIL_TZ)
 
 
 def _sync_sessions_and_organizers(sessions):
@@ -117,7 +140,8 @@ def _sync_sessions_and_organizers(sessions):
 
             reserved_checkin.status = CheckinStatus.CANCELLED
             reserved_checkin.cancelled_at = now_utc()
-            _promote_waitlist(session.id)
+            if _should_promote_waitlist(session):
+                _promote_waitlist(session.id)
             changed = True
 
         auto_reserved_checkins = (
@@ -177,6 +201,10 @@ def _occupied_count(session_id):
     )
 
 
+def _should_promote_waitlist(session):
+    return session.status in {GameSessionStatus.SCHEDULED, GameSessionStatus.OPEN}
+
+
 def _promote_waitlist(session_id):
     waitlisted = (
         GameCheckin.query.filter_by(
@@ -199,6 +227,8 @@ def _session_status_badge(status):
         return "checkin-badge-open"
     if status == GameSessionStatus.CLOSED:
         return "checkin-badge-closed"
+    if status == GameSessionStatus.IN_PROGRESS:
+        return "checkin-badge-in-progress"
     if status == GameSessionStatus.CANCELLED:
         return "checkin-badge-cancelled"
     if status == GameSessionStatus.FINISHED:
@@ -220,10 +250,35 @@ def _checkin_status_badge(status):
     return "checkin-badge-no-show"
 
 
+def _format_time_label(dt):
+    if dt.minute:
+        return dt.strftime("%-Hh%M")
+    return dt.strftime("%-Hh")
+
+
+def _session_window_label(session):
+    if session.status == GameSessionStatus.SCHEDULED:
+        return f"Check-in abre às {_format_time_label(session.checkin_opens_at)}"
+    if session.status == GameSessionStatus.OPEN:
+        return f"Check-in aberto até {_format_time_label(session.checkin_closes_at)}"
+    if session.status == GameSessionStatus.CLOSED:
+        return f"Jogo começa às {_format_time_label(session.in_progress_starts_at)}"
+    if session.status == GameSessionStatus.IN_PROGRESS:
+        return f"Jogo até {_format_time_label(session.finished_at)}"
+    if session.status == GameSessionStatus.CANCELLED:
+        return "Sessão cancelada"
+    return "Sessão finalizada"
+
+
 def _position_label(user):
-    if not user.position:
+    return _position_label_from_position(user.position if user else None)
+
+
+def _position_label_from_position(position):
+    if not position:
         return "Sem posição"
-    return POSITION_LABELS.get(user.position.value, user.position.value.capitalize())
+    position_value = position.value if hasattr(position, "value") else str(position).lower()
+    return POSITION_LABELS.get(position_value, position_value.capitalize())
 
 
 def _serialize_signup_row(checkin, index, kind):
@@ -240,7 +295,7 @@ def _serialize_signup_row(checkin, index, kind):
         "profile_img_url": (
             url_for("static", filename=f"img/fotos_perfil/{checkin.user.profile_img}")
             if checkin.user.profile_img
-            else url_for("static", filename="img/fotos_perfil/default.jpg")
+            else url_for("static", filename="img/fotos_perfil/default.jpeg")
         ),
     }
 
@@ -269,8 +324,238 @@ def _serialize_session(
         "exit_action_label": "Sair",
         "waitlist_position": waitlist_positions.get(session.id),
         "display_date": f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
-        "window_label": f"Check-in aberto até {session.checkin_closes_at.strftime('%-Hh')}",
+        "window_label": _session_window_label(session),
     }
+
+
+def _can_draw_teams(session):
+    return session.status in TEAM_DRAW_ALLOWED_STATUSES
+
+
+def _build_admin_session_cards(limit=2):
+    today = _local_now().date()
+    sessions = (
+        GameSession.query.filter(GameSession.game_date >= today)
+        .order_by(GameSession.game_date.asc())
+        .limit(limit)
+        .all()
+    )
+    _sync_sessions_and_organizers(sessions)
+    sessions = (
+        GameSession.query.filter(GameSession.game_date >= today)
+        .order_by(GameSession.game_date.asc())
+        .limit(limit)
+        .all()
+    )
+
+    session_ids = [session.id for session in sessions]
+    confirmed_counts = {}
+    waitlist_counts = {}
+    assignment_counts = {}
+
+    if session_ids:
+        confirmed_counts = {
+            session_id: count
+            for session_id, count in db.session.query(
+                GameCheckin.game_session_id,
+                func.count(GameCheckin.id),
+            )
+            .filter(
+                GameCheckin.game_session_id.in_(session_ids),
+                GameCheckin.status.in_(OCCUPIED_CHECKIN_STATUSES),
+            )
+            .group_by(GameCheckin.game_session_id)
+            .all()
+        }
+        waitlist_counts = {
+            session_id: count
+            for session_id, count in db.session.query(
+                GameCheckin.game_session_id,
+                func.count(GameCheckin.id),
+            )
+            .filter(
+                GameCheckin.game_session_id.in_(session_ids),
+                GameCheckin.status == CheckinStatus.WAITLIST,
+            )
+            .group_by(GameCheckin.game_session_id)
+            .all()
+        }
+        assignment_counts = {
+            session_id: count
+            for session_id, count in db.session.query(
+                GameTeamAssignment.game_session_id,
+                func.count(GameTeamAssignment.id),
+            )
+            .filter(GameTeamAssignment.game_session_id.in_(session_ids))
+            .group_by(GameTeamAssignment.game_session_id)
+            .all()
+        }
+
+    return [
+        {
+            "session": session,
+            "confirmed_count": confirmed_counts.get(session.id, 0),
+            "waitlist_count": waitlist_counts.get(session.id, 0),
+            "assignment_count": assignment_counts.get(session.id, 0),
+            "teams_drawn": assignment_counts.get(session.id, 0) > 0,
+            "can_draw_teams": _can_draw_teams(session),
+            "status_label": SESSION_STATUS_LABELS[session.status],
+            "status_badge": _session_status_badge(session.status),
+            "display_date": f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
+            "weekday_label": WEEKDAY_LABELS[session.game_date.weekday()],
+            "date_label": session.game_date.strftime('%d/%m/%Y'),
+        }
+        for session in sessions
+    ]
+
+
+def _confirmed_checkins_for_team_draw(session_id):
+    return (
+        GameCheckin.query.filter(
+            GameCheckin.game_session_id == session_id,
+            GameCheckin.status.in_(OCCUPIED_CHECKIN_STATUSES),
+        )
+        .join(User)
+        .order_by(GameCheckin.checked_in_at.asc(), User.name.asc())
+        .all()
+    )
+
+
+def _build_auto_team_assignments(session, confirmed_checkins):
+    rng = random.SystemRandom()
+    grouped_checkins = {
+        PlayerPosition.GOL: [],
+        PlayerPosition.DEFESA: [],
+        PlayerPosition.ATAQUE: [],
+        None: [],
+    }
+
+    for checkin in confirmed_checkins:
+        grouped_checkins.setdefault(checkin.user.position, [])
+        grouped_checkins[checkin.user.position].append(checkin)
+
+    for group in grouped_checkins.values():
+        rng.shuffle(group)
+
+    assignments = []
+    team_index = 0
+
+    for position_key in (
+        PlayerPosition.GOL,
+        PlayerPosition.DEFESA,
+        PlayerPosition.ATAQUE,
+        None,
+    ):
+        for checkin in grouped_checkins.get(position_key, []):
+            assignments.append(
+                GameTeamAssignment(
+                    game_session=session,
+                    team_code=TEAM_CODES[team_index % len(TEAM_CODES)],
+                    user=checkin.user,
+                    source_type=GameTeamAssignmentSource.AUTO,
+                )
+            )
+            team_index += 1
+
+    return assignments
+
+
+def _serialize_team_assignment(assignment):
+    return {
+        "assignment": assignment,
+        "is_manual": assignment.source_type == GameTeamAssignmentSource.MANUAL,
+        "name": assignment.display_name,
+        "position_label": (
+            _position_label(assignment.user)
+            if assignment.user
+            else _position_label_from_position(assignment.manual_player_position)
+        ),
+        "position_key": (
+            assignment.user.position.name
+            if assignment.user and assignment.user.position
+            else assignment.manual_player_position.name
+            if assignment.manual_player_position
+            else "NONE"
+        ),
+        "profile_img_url": (
+            url_for("static", filename=f"img/fotos_perfil/{assignment.user.profile_img}")
+            if assignment.user and assignment.user.profile_img
+            else url_for("static", filename="img/fotos_perfil/default.jpeg")
+        ),
+    }
+
+
+def _team_buckets(assignments):
+    grouped_assignments = {team_code: [] for team_code in TEAM_CODES}
+
+    for assignment in assignments:
+        grouped_assignments.setdefault(assignment.team_code, [])
+        grouped_assignments[assignment.team_code].append(_serialize_team_assignment(assignment))
+
+    return [
+        {
+            "code": team_code.value,
+            "label": f"Time {team_code.value}",
+            "players": grouped_assignments.get(team_code, []),
+            "player_count": len(grouped_assignments.get(team_code, [])),
+            "placeholder_slots": max(0, 5 - len(grouped_assignments.get(team_code, []))),
+        }
+        for team_code in TEAM_CODES
+    ]
+
+
+def _build_team_draw_position_cards(confirmed_checkins, total_slots):
+    position_counts = [
+        {
+            "label": "Goleiras",
+            "count": sum(1 for checkin in confirmed_checkins if checkin.user.position == PlayerPosition.GOL),
+            "icon_emoji": "🧤",
+            "accent_class": "team-draw-position-card-goalkeepers",
+        },
+        {
+            "label": "Defesas",
+            "count": sum(1 for checkin in confirmed_checkins if checkin.user.position == PlayerPosition.DEFESA),
+            "icon_emoji": "🛡️",
+            "accent_class": "team-draw-position-card-defenders",
+        },
+        {
+            "label": "Ataques",
+            "count": sum(1 for checkin in confirmed_checkins if checkin.user.position == PlayerPosition.ATAQUE),
+            "icon_emoji": "👟",
+            "accent_class": "team-draw-position-card-attackers",
+        },
+        {
+            "label": "Sem posição",
+            "count": sum(1 for checkin in confirmed_checkins if not checkin.user.position),
+            "icon_emoji": "👕",
+            "accent_class": "team-draw-position-card-unassigned",
+        },
+    ]
+
+    for item in position_counts:
+        if total_slots > 0:
+            bar_width = round((item["count"] / total_slots) * 100)
+        else:
+            bar_width = 0
+        item["bar_width"] = bar_width
+
+    return position_counts
+
+
+def _first_available_team_draw_session():
+    today = _local_now().date()
+    sessions = (
+        GameSession.query.filter(GameSession.game_date >= today)
+        .order_by(GameSession.game_date.asc())
+        .all()
+    )
+    _sync_sessions_and_organizers(sessions)
+
+    for session in sessions:
+        if _can_draw_teams(session) and session.status != GameSessionStatus.CANCELLED:
+            return session
+
+    return None
 
 
 @main.route("/check-ins/<uuid:session_id>/inscricoes")
@@ -503,11 +788,24 @@ def cancelar_checkin(session_id):
     checkin.status = CheckinStatus.CANCELLED
     checkin.cancelled_at = now_utc()
 
-    promoted = _promote_waitlist(session.id) if was_occupying_slot else None
+    promoted = (
+        _promote_waitlist(session.id)
+        if was_occupying_slot and _should_promote_waitlist(session)
+        else None
+    )
     db.session.commit()
 
     if promoted:
         flash("Check-in cancelado e a primeira pessoa da fila foi promovida automaticamente.", "alert-info")
+    elif was_occupying_slot and session.status in {
+        GameSessionStatus.CLOSED,
+        GameSessionStatus.IN_PROGRESS,
+        GameSessionStatus.FINISHED,
+    }:
+        flash(
+            "Check-in cancelado com sucesso. A fila de espera foi congelada para esta sessão.",
+            "alert-info",
+        )
     else:
         flash("Check-in cancelado com sucesso.", "alert-success")
 
@@ -518,68 +816,206 @@ def cancelar_checkin(session_id):
 @login_required
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
 def admin_checkins():
-    today = _local_now().date()
-    sessions = (
-        GameSession.query.filter(GameSession.game_date >= today)
-        .order_by(GameSession.game_date.asc())
-        .limit(2)
-        .all()
-    )
-    _sync_sessions_and_organizers(sessions)
-    sessions = (
-        GameSession.query.filter(GameSession.game_date >= today)
-        .order_by(GameSession.game_date.asc())
-        .limit(2)
-        .all()
+    return render_template(
+        "admin/gestao_dos_jogos.html",
+        session_cards=_build_admin_session_cards(limit=2),
     )
 
-    session_ids = [session.id for session in sessions]
-    confirmed_counts = {}
-    waitlist_counts = {}
 
-    if session_ids:
-        confirmed_counts = {
-            session_id: count
-            for session_id, count in db.session.query(
-                GameCheckin.game_session_id,
-                func.count(GameCheckin.id),
-            )
-            .filter(
-                GameCheckin.game_session_id.in_(session_ids),
-                GameCheckin.status.in_(OCCUPIED_CHECKIN_STATUSES),
-            )
-            .group_by(GameCheckin.game_session_id)
-            .all()
-        }
-        waitlist_counts = {
-            session_id: count
-            for session_id, count in db.session.query(
-                GameCheckin.game_session_id,
-                func.count(GameCheckin.id),
-            )
-            .filter(
-                GameCheckin.game_session_id.in_(session_ids),
-                GameCheckin.status == CheckinStatus.WAITLIST,
-            )
-            .group_by(GameCheckin.game_session_id)
-            .all()
-        }
+@main.route("/admin/sorteio-times")
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_team_draws():
+    session = _first_available_team_draw_session()
+    if session:
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
-    session_cards = [
-        {
-            "session": session,
-            "confirmed_count": confirmed_counts.get(session.id, 0),
-            "waitlist_count": waitlist_counts.get(session.id, 0),
-            "status_label": SESSION_STATUS_LABELS[session.status],
-            "status_badge": _session_status_badge(session.status),
-            "display_date": f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
-            "weekday_label": WEEKDAY_LABELS[session.game_date.weekday()],
-            "date_label": session.game_date.strftime('%d/%m/%Y'),
-        }
-        for session in sessions
-    ]
+    return render_template("admin/sorteio_times_indisponivel.html")
 
-    return render_template("admin/gestao_dos_jogos.html", session_cards=session_cards)
+
+@main.route("/admin/sorteio-times/<uuid:session_id>")
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_team_draw_session(session_id):
+    session = GameSession.query.get_or_404(session_id)
+    _sync_sessions_and_organizers([session])
+    session = GameSession.query.get_or_404(session_id)
+
+    confirmed_checkins = _confirmed_checkins_for_team_draw(session.id)
+    waitlist_count = (
+        db.session.query(func.count(GameCheckin.id))
+        .filter(
+            GameCheckin.game_session_id == session.id,
+            GameCheckin.status == CheckinStatus.WAITLIST,
+        )
+        .scalar()
+        or 0
+    )
+    assignments = (
+        GameTeamAssignment.query.filter_by(game_session_id=session.id)
+        .order_by(GameTeamAssignment.created_at.asc())
+        .all()
+    )
+
+    return render_template(
+        "admin/sorteio_times.html",
+        session=session,
+        display_date=f"{WEEKDAY_LABELS[session.game_date.weekday()]}, {session.game_date.strftime('%d/%m/%Y')}",
+        weekday_label=WEEKDAY_LABELS[session.game_date.weekday()],
+        date_label=session.game_date.strftime('%d/%m/%Y'),
+        status_label=SESSION_STATUS_LABELS[session.status],
+        status_badge=_session_status_badge(session.status),
+        confirmed_count=len(confirmed_checkins),
+        waitlist_count=waitlist_count,
+        assignment_count=len(assignments),
+        teams_drawn=bool(assignments),
+        can_draw_teams=_can_draw_teams(session),
+        position_cards=_build_team_draw_position_cards(confirmed_checkins, session.max_players),
+        team_buckets=_team_buckets(assignments),
+    )
+
+
+@main.route("/admin/sorteio-times/<uuid:session_id>/gerar", methods=["POST"])
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_generate_team_draw(session_id):
+    session = GameSession.query.get_or_404(session_id)
+    _sync_sessions_and_organizers([session])
+    session = GameSession.query.get_or_404(session_id)
+
+    if not _can_draw_teams(session):
+        flash("O sorteio dos times fica disponível após o encerramento do check-in.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    confirmed_checkins = _confirmed_checkins_for_team_draw(session.id)
+    if not confirmed_checkins:
+        flash("Ainda não existem jogadoras confirmadas para gerar os times dessa sessão.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    GameTeamAssignment.query.filter_by(game_session_id=session.id).delete(synchronize_session=False)
+
+    for assignment in _build_auto_team_assignments(session, confirmed_checkins):
+        db.session.add(assignment)
+
+    db.session.commit()
+
+    flash("Times sorteados com sucesso para essa sessão.", "alert-success")
+    return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+
+@main.route("/admin/sorteio-times/<uuid:session_id>/times/<team_code>/manual", methods=["POST"])
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_add_manual_team_player(session_id, team_code):
+    session = GameSession.query.get_or_404(session_id)
+    _sync_sessions_and_organizers([session])
+    session = GameSession.query.get_or_404(session_id)
+
+    if session.status == GameSessionStatus.CANCELLED:
+        flash("Sessões canceladas não permitem alterações nos times.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    if not _can_draw_teams(session):
+        flash("A inclusão manual de jogadoras fica disponível após o encerramento do check-in.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    try:
+        team_code_enum = TeamCode[team_code]
+    except KeyError:
+        flash("Time inválido para inclusão manual.", "alert-danger")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    manual_player_name = (request.form.get("manual_player_name") or "").strip()
+    manual_player_position_name = (request.form.get("manual_player_position") or "").strip()
+
+    if not manual_player_name:
+        flash("Informe o nome da jogadora manual.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    manual_player_position = None
+    if manual_player_position_name and manual_player_position_name != "NONE":
+        try:
+            manual_player_position = PlayerPosition[manual_player_position_name]
+        except KeyError:
+            flash("Posição inválida para a jogadora manual.", "alert-danger")
+            return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    current_team_count = (
+        db.session.query(func.count(GameTeamAssignment.id))
+        .filter(
+            GameTeamAssignment.game_session_id == session.id,
+            GameTeamAssignment.team_code == team_code_enum,
+        )
+        .scalar()
+        or 0
+    )
+
+    if current_team_count >= 5:
+        flash("Esse time já está completo com 5 jogadoras.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    db.session.add(
+        GameTeamAssignment(
+            game_session=session,
+            team_code=team_code_enum,
+            user=None,
+            manual_player_name=manual_player_name,
+            manual_player_position=manual_player_position,
+            source_type=GameTeamAssignmentSource.MANUAL,
+        )
+    )
+    db.session.commit()
+
+    flash("Jogadora manual adicionada ao time com sucesso.", "alert-success")
+    return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+
+@main.route("/admin/sorteio-times/<uuid:session_id>/times/manual/<uuid:assignment_id>", methods=["POST"])
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_update_manual_team_player(session_id, assignment_id):
+    session = GameSession.query.get_or_404(session_id)
+    _sync_sessions_and_organizers([session])
+    session = GameSession.query.get_or_404(session_id)
+
+    if session.status == GameSessionStatus.CANCELLED:
+        flash("Sessões canceladas não permitem alterações nos times.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    if not _can_draw_teams(session):
+        flash("A edição manual de jogadoras fica disponível após o encerramento do check-in.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    assignment = GameTeamAssignment.query.get_or_404(assignment_id)
+    if assignment.game_session_id != session.id:
+        flash("Jogadora manual inválida para esta sessão.", "alert-danger")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    if assignment.source_type != GameTeamAssignmentSource.MANUAL:
+        flash("Apenas jogadoras manuais podem ser editadas por este fluxo.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    manual_player_name = (request.form.get("manual_player_name") or "").strip()
+    manual_player_position_name = (request.form.get("manual_player_position") or "").strip()
+
+    if not manual_player_name:
+        flash("Informe o nome da jogadora manual.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    manual_player_position = None
+    if manual_player_position_name and manual_player_position_name != "NONE":
+        try:
+            manual_player_position = PlayerPosition[manual_player_position_name]
+        except KeyError:
+            flash("Posição inválida para a jogadora manual.", "alert-danger")
+            return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    assignment.manual_player_name = manual_player_name
+    assignment.manual_player_position = manual_player_position
+    db.session.commit()
+
+    flash("Jogadora manual atualizada com sucesso.", "alert-success")
+    return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
 
 @main.route("/admin/check-ins/<uuid:session_id>/cancelar-sessao", methods=["POST"])
@@ -631,6 +1067,10 @@ def admin_atualizar_status_checkin(checkin_id, status_name):
     session = GameSession.query.get_or_404(checkin.game_session_id)
     previous_status = checkin.status
 
+    if session.status == GameSessionStatus.CANCELLED:
+        flash("Sessões canceladas não permitem alterações nos check-ins.", "alert-warning")
+        return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))
+
     try:
         new_status = CheckinStatus[status_name]
     except KeyError:
@@ -647,9 +1087,23 @@ def admin_atualizar_status_checkin(checkin_id, status_name):
     if new_status == CheckinStatus.CANCELLED:
         checkin.status = CheckinStatus.CANCELLED
         checkin.cancelled_at = now_utc()
-        if previous_status in OCCUPIED_CHECKIN_STATUSES:
-            _promote_waitlist(checkin.game_session_id)
-        flash("Jogadora removida da lista com sucesso.", "alert-success")
+        promoted = None
+        if previous_status in OCCUPIED_CHECKIN_STATUSES and _should_promote_waitlist(session):
+            promoted = _promote_waitlist(checkin.game_session_id)
+
+        if promoted:
+            flash("Jogadora removida da lista e a primeira da fila foi promovida automaticamente.", "alert-info")
+        elif previous_status in OCCUPIED_CHECKIN_STATUSES and session.status in {
+            GameSessionStatus.CLOSED,
+            GameSessionStatus.IN_PROGRESS,
+            GameSessionStatus.FINISHED,
+        }:
+            flash(
+                "Jogadora removida da lista oficial. A fila de espera foi congelada para esta sessão.",
+                "alert-info",
+            )
+        else:
+            flash("Jogadora removida da lista com sucesso.", "alert-success")
     else:
         occupied_count = _occupied_count(session.id)
         if previous_status in OCCUPIED_CHECKIN_STATUSES:

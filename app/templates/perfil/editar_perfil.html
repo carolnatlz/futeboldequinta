@@ -40,18 +40,9 @@
             </div>
 
             <div class="perfil-form-group">
-                <span class="perfil-label">{{ form.position.label.text }}</span>
-                <div class="perfil-position-group">
-                    {% for opcao in form.position %}
-                    <label class="perfil-position-option" for="{{ opcao.id }}">
-                        {{ opcao(class="perfil-position-input") }}
-                        <span class="perfil-position-text">{{ opcao.label.text }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
-                {% for erro in form.position.errors %}
-                <div class="invalid-feedback d-block">{{ erro }}</div>
-                {% endfor %}
+                <span class="perfil-label">Posição</span>
+                <div class="perfil-position-display">{{ position_label }}</div>
+                <p class="perfil-readonly-help">Caso queira alterar a posição, favor entrar em contato com a administração do FDQ</p>
             </div>
 
             <div class="perfil-form-group">

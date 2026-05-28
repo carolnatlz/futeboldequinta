@@ -3,9 +3,11 @@
 {% block body %}
 <section class="cadastro-hero admin-panel-hero">
   <div class="cadastro-card-wrap">
-    <div class="cadastro-card admin-panel-card">
-      <div class="admin-panel-head">
-        <h2 class="cadastro-title admin-panel-title">Aprovações Pendentes</h2>
+    <div class="checkin-page-shell">
+      <div class="checkin-page-head">
+        <h2 class="cadastro-title generic-page-title">Aprovações de Cadastros</h2>
+        <span class="section-title-divider"></span>
+        <p class="checkin-panel-subtitle">Revise os cadastros pendentes, aprove novas jogadoras e encaminhe rejeições quando necessário.</p>
         <a href="{{ url_for('main.admin_rejeitados') }}" class="fdq-secondary-link-btn admin-head-link">Ver Rejeitados</a>
       </div>
 

@@ -700,6 +700,13 @@ body {
   background: rgba(255, 255, 255, 0.16);
 }
 
+.fdq-secondary-link-btn:disabled {
+  border-color: rgba(255, 255, 255, 0.16);
+  color: rgba(234, 241, 255, 0.54);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
 .fdq-danger-link-btn {
   display: block;
   width: 100%;
@@ -817,12 +824,12 @@ body {
   max-width: 860px;
 }
 
-.checkin-page-title {
+.generic-page-title {
   margin: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, 8vw, 2.7rem);
+  line-height: 1.02;
   text-align: left;
-  font-size: clamp(2.15rem, 5vw, 3.3rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
 }
 
 .checkin-page-head .section-title-divider {
@@ -841,8 +848,8 @@ body {
   margin: 0;
   max-width: 720px;
   color: #dce6ff;
-  text-align: left;
-  font-size: clamp(0.88rem, 1.7vw, 1rem);
+  text-align: justify;
+  font-size: clamp(0.82rem, 1.55vw, 0.94rem);
   line-height: 1.45;
 }
 
@@ -957,14 +964,14 @@ body {
 }
 
 .admin-game-session-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  flex-wrap: nowrap;
+  align-items: stretch;
 }
 
 .admin-game-session-actions > a,
 .admin-game-session-actions > button {
-  flex: 1 1 0;
   min-width: 0;
 }
 
@@ -974,6 +981,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.admin-game-session-cancel {
+  grid-column: 1 / -1;
 }
 
 .checkin-status-banner {
@@ -1008,18 +1021,20 @@ body {
 .checkin-stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 0;
+  align-items: stretch;
 }
 
 .checkin-stat-box {
   min-width: 0;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.045);
-  padding: 16px;
+  padding: 0 18px;
   display: grid;
   gap: 10px;
-  min-height: 112px;
+  min-height: 0;
+}
+
+.checkin-stat-box + .checkin-stat-box {
+  border-left: 1px solid rgba(120, 150, 226, 0.18);
 }
 
 .checkin-stat-row {
@@ -1100,6 +1115,11 @@ body {
 .checkin-badge-waitlist {
   background: linear-gradient(180deg, rgba(188, 136, 31, 0.94), rgba(158, 113, 19, 0.94));
   color: #ffe18a;
+}
+
+.checkin-badge-in-progress {
+  background: linear-gradient(180deg, rgba(13, 151, 124, 0.94), rgba(8, 118, 98, 0.94));
+  color: #d9fff5;
 }
 
 .checkin-badge-cancelled,
@@ -1297,11 +1317,544 @@ body {
   width: 100%;
 }
 
+.team-draw-shell {
+  width: min(100%, 1080px);
+}
+
+.team-draw-page {
+  width: 100%;
+  display: grid;
+  gap: 28px;
+  padding: 6px 0 0;
+}
+
+.team-draw-page-head {
+  display: grid;
+  gap: 14px;
+}
+
+.team-draw-overview {
+  display: grid;
+  gap: 12px;
+}
+
+.team-draw-session-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 0;
+}
+
+.team-draw-session-mark {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  width: 100%;
+}
+
+.team-draw-session-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: linear-gradient(160deg, rgba(48, 84, 188, 0.3), rgba(13, 34, 92, 0.42));
+  color: #ffffff;
+}
+
+.team-draw-session-icon i {
+  font-size: 1.9rem;
+}
+
+.team-draw-session-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.team-draw-session-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.team-draw-session-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.08rem, 2.8vw, 1.42rem);
+  line-height: 1.08;
+  flex: 1 1 auto;
+}
+
+.team-draw-session-weekday,
+.team-draw-session-date {
+  display: block;
+}
+
+.team-draw-status-banner {
+  max-width: 100%;
+  flex-shrink: 0;
+}
+
+.team-draw-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  align-items: stretch;
+}
+
+.team-draw-stat {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 18px;
+}
+
+.team-draw-stat:first-child {
+  padding-left: 10px;
+}
+
+.team-draw-stat + .team-draw-stat {
+  border-left: 1px solid rgba(120, 150, 226, 0.18);
+}
+
+.team-draw-stat-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(219, 229, 249, 0.82);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  flex-wrap: wrap;
+}
+
+.team-draw-stat-heading i {
+  color: #6f90ff;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.team-draw-stat-value {
+  color: #ffffff;
+  font-size: clamp(1.35rem, 3.3vw, 2rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.team-draw-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+  margin: 4px 0 8px;
+}
+
+.team-draw-action-form {
+  margin: 0;
+  min-width: 0;
+}
+
+.team-draw-action-btn {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.94rem;
+  line-height: 1.1;
+}
+
+.team-draw-action-btn-secondary {
+  min-width: 0;
+}
+
+.team-draw-copy-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 2px 0 10px;
+}
+
+.team-draw-copy-label {
+  color: #dce6ff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.team-draw-copy-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: #eaf1ff;
+  flex-shrink: 0;
+}
+
+.team-draw-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.team-draw-copy-btn i {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.team-draw-copy-btn.is-copied {
+  border-color: rgba(139, 238, 255, 0.42);
+  background: rgba(139, 238, 255, 0.12);
+  color: #8beeff;
+}
+
+.team-draw-copy-source {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.team-draw-position-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(120, 150, 226, 0.18);
+  align-items: stretch;
+}
+
+.team-draw-position-card {
+  padding: 0 12px 8px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.team-draw-position-card:first-child {
+  padding-left: 0;
+}
+
+.team-draw-position-card + .team-draw-position-card {
+  border-left: 1px solid rgba(120, 150, 226, 0.18);
+}
+
+.team-draw-position-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.team-draw-position-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.team-draw-position-icon-emoji {
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+.team-draw-position-label {
+  display: block;
+  color: #dbe7ff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.team-draw-position-value {
+  display: block;
+  color: #ffffff;
+  font-size: 1.28rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.team-draw-position-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: rgba(146, 163, 212, 0.18);
+  overflow: hidden;
+}
+
+.team-draw-position-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.team-draw-position-card-goalkeepers .team-draw-position-icon {
+  color: #22c55e;
+}
+
+.team-draw-position-card-goalkeepers .team-draw-position-bar-fill {
+  background: linear-gradient(90deg, #22c55e, #4ee287);
+}
+
+.team-draw-position-card-defenders .team-draw-position-icon {
+  color: #ff7b32;
+}
+
+.team-draw-position-card-defenders .team-draw-position-bar-fill {
+  background: linear-gradient(90deg, #ff5a36, #ff9a3d);
+}
+
+.team-draw-position-card-attackers .team-draw-position-icon {
+  color: #ffcf44;
+}
+
+.team-draw-position-card-attackers .team-draw-position-bar-fill {
+  background: linear-gradient(90deg, #ffb703, #ffcf44);
+}
+
+.team-draw-position-card-unassigned .team-draw-position-icon {
+  color: #62a0ff;
+}
+
+.team-draw-position-card-unassigned .team-draw-position-bar-fill {
+  background: linear-gradient(90deg, #2f6cff, #62a0ff);
+}
+
+.team-draw-info-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 18px 0;
+  align-items: start;
+  border-top: 1px solid rgba(120, 150, 226, 0.18);
+  border-bottom: 1px solid rgba(120, 150, 226, 0.18);
+}
+
+.team-draw-info-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(39, 200, 221, 0.16);
+  color: #9beffd;
+  font-size: 1rem;
+}
+
+.team-draw-info-copy strong {
+  display: block;
+  color: #ffffff;
+}
+
+.team-draw-info-copy p {
+  margin: 6px 0 0;
+  color: #dce6ff;
+  line-height: 1.5;
+}
+
+.team-draw-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.team-draw-team-block {
+  min-width: 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(166, 194, 255, 0.38);
+}
+
+.team-draw-team-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.team-draw-team-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.team-draw-team-heading > div {
+  text-align: center;
+}
+
+.team-draw-team-shield {
+  position: relative;
+  width: 36px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #8beeff;
+}
+
+.team-draw-team-shield i {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.18));
+}
+
+.team-draw-team-shield-code {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #031033;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.team-draw-team-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.12rem;
+}
+
+.team-draw-team-count {
+  display: inline-block;
+  margin-top: 4px;
+  color: #9cb1dd;
+  font-size: 0.84rem;
+}
+
+.team-draw-player-list {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(166, 194, 255, 0.38);
+}
+
+.team-draw-player-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(120, 150, 226, 0.14);
+}
+
+.team-draw-player-row:last-child {
+  border-bottom: none;
+}
+
+.team-draw-player-row-placeholder {
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+}
+
+.team-draw-player-row-manual {
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+}
+
+.team-draw-player-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(120, 145, 211, 0.22);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.team-draw-player-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.team-draw-player-copy {
+  min-width: 0;
+}
+
+.team-draw-player-name {
+  display: block;
+  color: #ffffff;
+  font-size: 0.82rem;
+}
+
+.team-draw-player-name-placeholder {
+  color: rgba(220, 230, 255, 0.72);
+}
+
+.team-draw-player-meta {
+  display: block;
+  margin-top: 3px;
+  color: #9cb1dd;
+  font-size: 0.82rem;
+}
+
+.team-draw-manual-add-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(111, 144, 255, 0.26);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  color: #8beeff;
+  flex-shrink: 0;
+  justify-self: end;
+  align-self: center;
+}
+
+.team-draw-manual-add-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.team-draw-manual-add-btn i {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.team-draw-team-empty {
+  margin: 0;
+  color: #9cb1dd;
+  line-height: 1.5;
+}
+
 .signup-page-shell {
   max-width: 1080px;
 }
 
-.signup-session-card {
+.signup-page-content {
+  display: grid;
   gap: 18px;
 }
 
@@ -1356,10 +1909,10 @@ body {
 .signup-stats-card {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-radius: 22px;
-  border: 1px solid rgba(87, 116, 216, 0.18);
-  background: rgba(255, 255, 255, 0.04);
-  overflow: hidden;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
 }
 
 .signup-stat-cell {
@@ -1368,6 +1921,10 @@ body {
   gap: 8px;
   padding: 16px 14px;
   min-width: 0;
+}
+
+.signup-stat-cell:first-child {
+  padding-left: 0;
 }
 
 .signup-stat-cell + .signup-stat-cell {
@@ -1460,6 +2017,10 @@ body {
   gap: 8px;
 }
 
+.signup-group-confirmed .signup-list {
+  gap: 0;
+}
+
 .signup-empty {
   margin: 0;
   color: rgba(208, 220, 248, 0.72);
@@ -1480,6 +2041,15 @@ body {
   border-radius: 20px;
   border: 1px solid rgba(84, 110, 187, 0.16);
   background: rgba(7, 19, 53, 0.42);
+}
+
+.signup-group-confirmed .signup-person-row {
+  min-height: 72px;
+  padding: 10px 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  border-bottom: 1px solid rgba(120, 150, 226, 0.16);
 }
 
 .signup-person-order {
@@ -1749,7 +2319,7 @@ input[type="file"] {
     flex-wrap: wrap;
   }
 
-  .checkin-page-title {
+  .generic-page-title {
     font-size: clamp(2rem, 8vw, 2.7rem);
   }
 
@@ -1782,7 +2352,168 @@ input[type="file"] {
   }
 
   .admin-game-session-actions {
-    flex-direction: column;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .admin-game-session-actions .checkin-session-link {
+    font-size: 0.84rem;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .admin-game-session-cancel {
+    grid-column: 1 / -1;
+  }
+
+  .team-draw-page {
+    gap: 22px;
+  }
+
+  .team-draw-session-head {
+    gap: 14px;
+    padding-bottom: 0;
+  }
+
+  .team-draw-session-mark {
+    align-items: center;
+  }
+
+  .team-draw-session-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+  }
+
+  .team-draw-session-icon i {
+    font-size: 1.55rem;
+  }
+
+  .team-draw-session-title {
+    font-size: clamp(1.04rem, 4.5vw, 1.26rem);
+  }
+
+  .team-draw-session-line {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .team-draw-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .team-draw-stat:first-child {
+    padding-left: 6px;
+  }
+
+  .team-draw-stat-heading {
+    font-size: 0.72rem;
+  }
+
+  .team-draw-stat-value {
+    font-size: clamp(1.2rem, 5.8vw, 1.7rem);
+  }
+
+  .team-draw-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 2px 0 6px;
+  }
+
+  .team-draw-copy-row {
+    margin: 0 0 8px;
+    gap: 5px;
+  }
+
+  .team-draw-copy-label {
+    font-size: 0.9rem;
+  }
+
+  .team-draw-copy-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .team-draw-copy-btn i {
+    font-size: 0.92rem;
+  }
+
+  .team-draw-position-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding-top: 12px;
+  }
+
+  .team-draw-position-label {
+    font-size: 0.68rem;
+  }
+
+  .team-draw-position-value {
+    font-size: 1.04rem;
+  }
+
+  .team-draw-position-card {
+    padding: 0 8px 8px;
+    min-height: 0;
+  }
+
+  .team-draw-position-card:first-child {
+    padding-left: 0;
+  }
+
+  .team-draw-position-head {
+    gap: 5px;
+  }
+
+  .team-draw-position-icon {
+    font-size: 0.8rem;
+  }
+
+  .team-draw-board {
+    grid-template-columns: 1fr;
+  }
+
+  .team-draw-player-row {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .team-draw-player-row-placeholder {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+
+  .team-draw-player-row-manual {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+
+  .team-draw-team-shield {
+    width: 32px;
+    height: 36px;
+  }
+
+  .team-draw-team-shield i {
+    font-size: 1.75rem;
+  }
+
+  .team-draw-team-shield-code {
+    font-size: 0.72rem;
+  }
+
+  .team-draw-player-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .team-draw-manual-add-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .team-draw-manual-add-btn i {
+    font-size: 0.84rem;
   }
 
   .checkin-session-icon {
@@ -1809,8 +2540,8 @@ input[type="file"] {
   }
 
   .checkin-stat-box {
-    min-height: 92px;
-    padding: 12px;
+    min-height: 0;
+    padding: 0 12px;
   }
 
   .checkin-stat-icon {
@@ -1834,6 +2565,10 @@ input[type="file"] {
   .signup-stat-cell {
     gap: 6px;
     padding: 10px 8px;
+  }
+
+  .signup-stat-cell:first-child {
+    padding-left: 0;
   }
 
   .signup-stat-cell + .signup-stat-cell {
@@ -1892,6 +2627,11 @@ input[type="file"] {
     gap: 6px;
     padding: 10px 8px 10px 6px;
     min-height: 68px;
+  }
+
+  .signup-group-confirmed .signup-person-row {
+    padding: 10px 0;
+    min-height: 64px;
   }
 
   .signup-person-order,

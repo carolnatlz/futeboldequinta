@@ -1,0 +1,345 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap team-draw-shell">
+    <div class="team-draw-page">
+      <div class="team-draw-page-head">
+        <h2 class="cadastro-title generic-page-title">Sorteio dos Times</h2>
+        <span class="section-title-divider"></span>
+        <p class="checkin-panel-subtitle">Monte os times da sessão, acompanhe a distribuição por posição e refine a lógica de sorteio conforme a evolução do projeto.</p>
+      </div>
+
+      <section class="team-draw-overview">
+        <div class="team-draw-session-head">
+          <div class="team-draw-session-mark">
+            <div class="team-draw-session-icon">
+              <i class="bi bi-dice-5"></i>
+            </div>
+            <div class="team-draw-session-copy">
+              <div class="team-draw-session-line">
+                <h3 class="team-draw-session-title">
+                  <span class="team-draw-session-weekday">{{ weekday_label }},</span>
+                  <span class="team-draw-session-date">{{ date_label }}</span>
+                </h3>
+                <div class="checkin-status-banner {{ status_badge }} signup-status-banner signup-status-banner-compact team-draw-status-banner">
+                  <span class="checkin-status-banner-icon">
+                    <i class="bi {% if status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif status_badge == 'checkin-badge-closed' %}bi-lock{% elif status_badge == 'checkin-badge-in-progress' %}bi-diagram-3{% elif status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
+                  </span>
+                  <span class="checkin-status-banner-text">{{ status_label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="team-draw-stats">
+          <div class="team-draw-stat">
+            <div class="team-draw-stat-heading">
+              <i class="bi bi-people"></i>
+              <span>Confirmadas</span>
+            </div>
+            <strong class="team-draw-stat-value">{{ confirmed_count }}/{{ session.max_players }}</strong>
+          </div>
+
+          <div class="team-draw-stat">
+            <div class="team-draw-stat-heading">
+              <i class="bi bi-clock-history"></i>
+              <span>Fila de espera</span>
+            </div>
+            <strong class="team-draw-stat-value">{{ waitlist_count }}</strong>
+          </div>
+
+          <div class="team-draw-stat">
+            <div class="team-draw-stat-heading">
+              <i class="bi bi-diagram-3"></i>
+              <span>Jogadoras alocadas</span>
+            </div>
+            <strong class="team-draw-stat-value">{{ assignment_count }}</strong>
+          </div>
+        </div>
+
+        <div class="team-draw-position-grid">
+          {% for card in position_cards %}
+          <div class="team-draw-position-card {{ card.accent_class }}">
+            <div class="team-draw-position-head">
+              <span class="team-draw-position-icon">
+                <span class="team-draw-position-icon-emoji">{{ card.icon_emoji }}</span>
+              </span>
+              <span class="team-draw-position-label">{{ card.label }}</span>
+            </div>
+            <strong class="team-draw-position-value">{{ card.count }}</strong>
+            <span class="team-draw-position-bar">
+              <span class="team-draw-position-bar-fill" style="width: {{ card.bar_width }}%;"></span>
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="team-draw-actions">
+          <form method="POST" action="{{ url_for('main.admin_generate_team_draw', session_id=session.id) }}" class="team-draw-action-form">
+            <button type="submit" class="btn {% if teams_drawn %}fdq-danger-link-btn{% else %}fdq-secondary-link-btn{% endif %} team-draw-action-btn" {% if not can_draw_teams or status_label == 'Cancelado' %}disabled{% endif %}>
+              {{ 'Sortear novamente' if teams_drawn else 'Gerar sorteio agora' }}
+            </button>
+          </form>
+          <a href="{{ url_for('main.admin_checkins') }}" class="fdq-secondary-link-btn team-draw-action-btn team-draw-action-btn-secondary">Voltar</a>
+        </div>
+
+        <div class="team-draw-copy-row">
+          <span class="team-draw-copy-label">Copiar todos os times:</span>
+          <button type="button" class="btn team-draw-copy-btn" id="teamDrawCopyButton" aria-label="Copiar todos os times">
+            <i class="bi bi-copy"></i>
+          </button>
+        </div>
+        <textarea id="teamDrawCopySource" class="team-draw-copy-source" readonly aria-hidden="true">{% for team in team_buckets %}TIME {{ team.code }}
+{% for player in team.players %}- {{ player.name }} ({{ player.position_label }})
+{% endfor %}{% for _ in range(team.placeholder_slots) %}- (vaga da fome)
+{% endfor %}{% if not loop.last %}
+
+{% endif %}{% endfor %}</textarea>
+
+        {% if not can_draw_teams %}
+        <div class="team-draw-info-card">
+          <span class="team-draw-info-icon"><i class="bi bi-info-circle"></i></span>
+          <div class="team-draw-info-copy">
+            <strong>Sorteio ainda indisponível</strong>
+            <p>Essa sessão ainda está em fase de check-in. Quando o check-in encerrar, o sorteio dos times poderá ser gerado.</p>
+          </div>
+        </div>
+        {% elif not teams_drawn %}
+        <div class="team-draw-info-card">
+          <span class="team-draw-info-icon"><i class="bi bi-dice-5"></i></span>
+          <div class="team-draw-info-copy">
+            <strong>Nenhum time sorteado até agora</strong>
+            <p>Use o botão acima para gerar a primeira distribuição automática das jogadoras entre os times A, B, C, D, E e F.</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="team-draw-board">
+          {% for team in team_buckets %}
+          <section class="team-draw-team-block">
+            <div class="team-draw-team-head">
+              <div class="team-draw-team-heading">
+                <span class="team-draw-team-shield" aria-hidden="true">
+                  <i class="bi bi-shield-fill"></i>
+                  <span class="team-draw-team-shield-code">{{ team.code }}</span>
+                </span>
+                <div>
+                <h4 class="team-draw-team-title">{{ team.label }}</h4>
+                <span class="team-draw-team-count">{{ team.player_count }} jogadoras</span>
+                </div>
+              </div>
+            </div>
+
+            {% if team.players %}
+            <div class="team-draw-player-list">
+              {% for player in team.players %}
+              <article class="team-draw-player-row {% if player.is_manual %}team-draw-player-row-manual{% endif %}">
+                <span class="team-draw-player-avatar">
+                  <img src="{{ player.profile_img_url }}" alt="Foto de perfil de {{ player.name }}" class="team-draw-player-avatar-img">
+                </span>
+                <div class="team-draw-player-copy">
+                  <strong class="team-draw-player-name">{{ player.name }}</strong>
+                  <span class="team-draw-player-meta">{{ player.position_label }}</span>
+                </div>
+                {% if player.is_manual %}
+                <button
+                  type="button"
+                  class="btn team-draw-manual-add-btn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#manualTeamPlayerEditModal-{{ player.assignment.id }}"
+                  aria-label="Editar jogadora manual do {{ team.label }}"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                {% endif %}
+              </article>
+              {% endfor %}
+
+              {% for _ in range(team.placeholder_slots) %}
+              <article class="team-draw-player-row team-draw-player-row-placeholder">
+                <span class="team-draw-player-avatar">
+                  <img src="{{ url_for('static', filename='img/fotos_perfil/default.jpeg') }}" alt="Avatar padrão para vaga manual" class="team-draw-player-avatar-img">
+                </span>
+                <div class="team-draw-player-copy">
+                  <strong class="team-draw-player-name team-draw-player-name-placeholder"><em>(vaga da fome)</em></strong>
+                </div>
+                <button
+                  type="button"
+                  class="btn team-draw-manual-add-btn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#manualTeamPlayerModal-{{ team.code }}"
+                  aria-label="Add jogadora manual ao {{ team.label }}"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </article>
+              {% endfor %}
+            </div>
+            {% elif team.placeholder_slots %}
+            <div class="team-draw-player-list">
+              {% for _ in range(team.placeholder_slots) %}
+              <article class="team-draw-player-row team-draw-player-row-placeholder">
+                <span class="team-draw-player-avatar">
+                  <img src="{{ url_for('static', filename='img/fotos_perfil/default.jpeg') }}" alt="Avatar padrão para vaga manual" class="team-draw-player-avatar-img">
+                </span>
+                <div class="team-draw-player-copy">
+                  <strong class="team-draw-player-name team-draw-player-name-placeholder"><em>(vaga da fome)</em></strong>
+                </div>
+                <button
+                  type="button"
+                  class="btn team-draw-manual-add-btn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#manualTeamPlayerModal-{{ team.code }}"
+                  aria-label="Add jogadora manual ao {{ team.label }}"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </article>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="team-draw-team-empty">Nenhuma jogadora alocada neste time ainda.</p>
+            {% endif %}
+          </section>
+
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+{% for team in team_buckets %}
+  {% if team.placeholder_slots %}
+  <div class="modal fade" id="manualTeamPlayerModal-{{ team.code }}" tabindex="-1" aria-labelledby="manualTeamPlayerModalLabel-{{ team.code }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content fdq-logout-modal">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="manualTeamPlayerModalLabel-{{ team.code }}">Add jogadora manual ao {{ team.label }}</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form method="POST" action="{{ url_for('main.admin_add_manual_team_player', session_id=session.id, team_code=team.code) }}">
+          <div class="modal-body">
+            <div class="fdq-field-group">
+              <i class="bi bi-person-fill"></i>
+              <input type="text" name="manual_player_name" class="form-control fdq-form-input" placeholder="Nome da jogadora" maxlength="120" required>
+            </div>
+            <div class="fdq-field-group">
+              <i class="bi bi-diagram-3-fill"></i>
+              <select name="manual_player_position" class="form-select fdq-form-input" required>
+                <option value="" disabled selected>Posição</option>
+                <option value="GOL">Goleira</option>
+                <option value="DEFESA">Defesa</option>
+                <option value="ATAQUE">Ataque</option>
+                <option value="NONE">Sem posição</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn fdq-modal-btn fdq-modal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn fdq-modal-btn fdq-modal-btn-danger">OK</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{% endfor %}
+{% for team in team_buckets %}
+  {% for player in team.players %}
+    {% if player.is_manual %}
+    <div class="modal fade" id="manualTeamPlayerEditModal-{{ player.assignment.id }}" tabindex="-1" aria-labelledby="manualTeamPlayerEditModalLabel-{{ player.assignment.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content fdq-logout-modal">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="manualTeamPlayerEditModalLabel-{{ player.assignment.id }}">Editar jogadora manual do {{ team.label }}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <form method="POST" action="{{ url_for('main.admin_update_manual_team_player', session_id=session.id, assignment_id=player.assignment.id) }}">
+            <div class="modal-body">
+              <div class="fdq-field-group">
+                <i class="bi bi-person-fill"></i>
+                <input type="text" name="manual_player_name" class="form-control fdq-form-input" placeholder="Nome da jogadora" maxlength="120" value="{{ player.name }}" required>
+              </div>
+              <div class="fdq-field-group">
+                <i class="bi bi-diagram-3-fill"></i>
+                <select name="manual_player_position" class="form-select fdq-form-input" required>
+                  <option value="GOL" {% if player.position_key == "GOL" %}selected{% endif %}>Goleira</option>
+                  <option value="DEFESA" {% if player.position_key == "DEFESA" %}selected{% endif %}>Defesa</option>
+                  <option value="ATAQUE" {% if player.position_key == "ATAQUE" %}selected{% endif %}>Ataque</option>
+                  <option value="NONE" {% if player.position_key == "NONE" %}selected{% endif %}>Sem posição</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer border-0">
+              <button type="button" class="btn fdq-modal-btn fdq-modal-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn fdq-modal-btn fdq-modal-btn-danger">OK</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const copyButton = document.getElementById("teamDrawCopyButton");
+    const copySource = document.getElementById("teamDrawCopySource");
+
+    if (!copyButton || !copySource) {
+      return;
+    }
+
+    const copyIcon = copyButton.querySelector("i");
+    let resetCopyFeedbackTimeout = null;
+
+    const showCopyFeedback = () => {
+      copyButton.classList.add("is-copied");
+      if (copyIcon) {
+        copyIcon.classList.remove("bi-copy");
+        copyIcon.classList.add("bi-check2");
+      }
+      if (resetCopyFeedbackTimeout) {
+        window.clearTimeout(resetCopyFeedbackTimeout);
+      }
+      resetCopyFeedbackTimeout = window.setTimeout(() => {
+        copyButton.classList.remove("is-copied");
+        if (copyIcon) {
+          copyIcon.classList.remove("bi-check2");
+          copyIcon.classList.add("bi-copy");
+        }
+      }, 1800);
+    };
+
+    const fallbackCopy = () => {
+      copySource.focus();
+      copySource.select();
+      copySource.setSelectionRange(0, copySource.value.length);
+      return document.execCommand("copy");
+    };
+
+    copyButton.addEventListener("click", async function () {
+      const copyText = copySource.value.trim();
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(copyText);
+          showCopyFeedback();
+          return;
+        }
+
+        if (fallbackCopy()) {
+          showCopyFeedback();
+        }
+      } catch (error) {
+        if (fallbackCopy()) {
+          showCopyFeedback();
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

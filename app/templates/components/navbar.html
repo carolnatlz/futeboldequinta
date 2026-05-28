@@ -94,6 +94,12 @@
         <span class="fdq-menu-card-text">Gestão dos Jogos</span>
         <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
       </a>
+
+      <a href="{{ url_for('main.admin_team_draws') }}" class="fdq-menu-card{% if endpoint in ['main.admin_team_draws', 'main.admin_team_draw_session'] %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-dice-5"></i></span>
+        <span class="fdq-menu-card-text">Sorteio dos Times</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
     </div>
     {% endif %}
 

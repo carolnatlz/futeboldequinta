@@ -5,12 +5,12 @@
   <div class="cadastro-card-wrap">
     <div class="checkin-page-shell signup-page-shell">
       <div class="checkin-page-head signup-page-head">
-        <h2 class="cadastro-title checkin-page-title">Lista de inscrições</h2>
+        <h2 class="cadastro-title generic-page-title">Lista de inscrições</h2>
         <span class="section-title-divider"></span>
         <p class="checkin-panel-subtitle">Acompanhe quem já confirmou presença e sua posição na lista de espera.</p>
       </div>
 
-      <article class="checkin-session-card signup-session-card">
+      <section class="signup-page-content">
         <div class="signup-session-header">
           <div class="checkin-session-top signup-session-top">
             <div class="checkin-session-icon">
@@ -21,7 +21,7 @@
                 <h3 class="checkin-session-title">{{ display_date }}</h3>
                 <div class="checkin-status-banner {{ status_badge }} signup-status-banner signup-status-banner-compact">
                   <span class="checkin-status-banner-icon">
-                    <i class="bi {% if status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif status_badge == 'checkin-badge-closed' %}bi-lock{% elif status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
+                    <i class="bi {% if status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif status_badge == 'checkin-badge-closed' %}bi-lock{% elif status_badge == 'checkin-badge-in-progress' %}bi-diagram-3{% elif status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>
                   </span>
                   <span class="checkin-status-banner-text">
                     {% if status_badge == 'checkin-badge-open' %}
@@ -63,7 +63,7 @@
           </div>
         </div>
 
-        <section class="signup-group">
+        <section class="signup-group signup-group-confirmed">
           <div class="signup-group-head">
             <div class="signup-group-title">
               <span class="signup-group-title-icon signup-group-title-icon-confirmed">
@@ -189,11 +189,11 @@
           <span class="signup-info-icon"><i class="bi bi-info-circle"></i></span>
           <div class="signup-info-copy">
             <strong>Como funciona a lista de espera?</strong>
-            <p>As vagas são preenchidas por ordem de chegada. Você será notificada caso uma vaga seja liberada.</p>
+            <p>As vagas são preenchidas por ordem de chegada. Caso alguém desista, as pessoas da fila de espera serão automaticamente convocadas.</p>
           </div>
           <i class="bi bi-chevron-right signup-info-arrow"></i>
         </article>
-      </article>
+      </section>
     </div>
   </div>
 </section>

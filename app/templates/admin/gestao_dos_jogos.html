@@ -3,9 +3,11 @@
 {% block body %}
 <section class="cadastro-hero admin-panel-hero">
   <div class="cadastro-card-wrap">
-    <div class="cadastro-card checkin-panel-card">
-      <div class="admin-panel-head">
-        <h2 class="cadastro-title admin-panel-title">Gestão dos Jogos</h2>
+    <div class="checkin-page-shell">
+      <div class="checkin-page-head">
+        <h2 class="cadastro-title generic-page-title">Gestão dos Jogos</h2>
+        <span class="section-title-divider"></span>
+        <p class="checkin-panel-subtitle">Acompanhe as sessões cadastradas, gerencie inscrições, realize o sorteio dos times e cancele partidas quando necessário.</p>
       </div>
 
       {% if session_cards %}
@@ -34,10 +36,11 @@
           </div>
 
           <div class="admin-game-session-actions">
+            <a href="{{ url_for('main.admin_team_draw_session', session_id=card.session.id) }}" class="fdq-secondary-link-btn checkin-session-link">Sortear times</a>
             <a href="{{ url_for('main.admin_checkins_sessao', session_id=card.session.id) }}" class="fdq-secondary-link-btn checkin-session-link">Gerenciar sessão</a>
             <button
               type="button"
-              class="btn fdq-danger-link-btn checkin-session-link"
+              class="btn fdq-danger-link-btn checkin-session-link admin-game-session-cancel"
               {% if card.session.status.value == 'cancelled' %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelSessionModal-{{ card.session.id }}"{% endif %}
             >
               {% if card.session.status.value == 'cancelled' %}Sessão cancelada{% else %}Cancelar sessão{% endif %}

@@ -72,6 +72,11 @@ class User(db.Model, UserMixin):
         cascade="all, delete-orphan",
         lazy=True,
     )
+    team_assignments = db.relationship(
+        "GameTeamAssignment",
+        back_populates="user",
+        lazy=True,
+    )
 
     @property
     def is_active(self):

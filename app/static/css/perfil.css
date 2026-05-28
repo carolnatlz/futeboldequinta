@@ -175,6 +175,20 @@
   color: #fff;
 }
 
+.perfil-position-display {
+  color: #eef4ff;
+  font-size: 1.57rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.perfil-readonly-help {
+  margin: 0;
+  color: #9cb1dd;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .perfil-position-group {
   display: flex;
   gap: 10px;

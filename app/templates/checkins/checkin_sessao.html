@@ -37,12 +37,12 @@
 
           <div class="checkin-admin-actions">
             <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CONFIRMED') }}">
-              <button type="submit" class="btn btn-outline-info btn-sm admin-action-btn">Confirmada</button>
+              <button type="submit" class="btn btn-outline-info btn-sm admin-action-btn" {% if session.status.value == 'cancelled' %}disabled{% endif %}>Confirmada</button>
             </form>
             <button
               type="button"
               class="btn btn-outline-danger btn-sm admin-action-btn"
-              {% if checkin.status.value == 'cancelled' %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelCheckinAdminModal-{{ checkin.id }}"{% endif %}
+              {% if session.status.value == 'cancelled' or checkin.status.value == 'cancelled' %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelCheckinAdminModal-{{ checkin.id }}"{% endif %}
             >
               Cancelado
             </button>
@@ -59,7 +59,7 @@
 
 {% if checkins %}
   {% for checkin in checkins %}
-    {% if checkin.status.value != 'cancelled' %}
+    {% if session.status.value != 'cancelled' and checkin.status.value != 'cancelled' %}
     <div class="modal fade" id="cancelCheckinAdminModal-{{ checkin.id }}" tabindex="-1" aria-labelledby="cancelCheckinAdminModalLabel-{{ checkin.id }}" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content fdq-logout-modal">
