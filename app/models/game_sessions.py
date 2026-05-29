@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
 from app import db
-from .users import PlayerPosition
+from .users import PlayerPosition, UserRole
 
 BRAZIL_TZ = ZoneInfo("America/Sao_Paulo")
 CHECKIN_OPEN_HOUR = 9
@@ -34,6 +34,13 @@ class CheckinStatus(Enum):
     CANCELLED = "cancelled"
     NO_SHOW = "no_show"
     ATTENDED = "attended"
+
+
+class CheckinUpdateSource(Enum):
+    SELF_SERVICE = "self_service"
+    ADMIN_PANEL = "admin_panel"
+    TEAM_DRAW = "team_draw"
+    SYSTEM = "system"
 
 
 class TeamCode(Enum):
@@ -184,6 +191,19 @@ class GameCheckin(db.Model):
         server_default=func.now(),
     )
     cancelled_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    last_updated_by_user_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    last_updated_by_role = db.Column(
+        db.Enum(UserRole, name="user_role_enum", create_type=False),
+        nullable=True,
+    )
+    last_updated_source = db.Column(
+        db.Enum(CheckinUpdateSource, name="checkin_update_source_enum"),
+        nullable=True,
+    )
     created_at = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
@@ -197,7 +217,8 @@ class GameCheckin(db.Model):
     )
 
     game_session = db.relationship("GameSession", back_populates="checkins", lazy=True)
-    user = db.relationship("User", back_populates="checkins", lazy=True)
+    user = db.relationship("User", back_populates="checkins", foreign_keys=[user_id], lazy=True)
+    last_updated_by = db.relationship("User", foreign_keys=[last_updated_by_user_id], lazy=True)
 
 
 class GameTeamAssignment(db.Model):

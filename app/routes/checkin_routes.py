@@ -8,6 +8,7 @@ from sqlalchemy import case, func
 from app import db
 from app.models import (
     AccountStatus,
+    CheckinUpdateSource,
     CheckinStatus,
     GameCheckin,
     GameSession,
@@ -53,6 +54,13 @@ CHECKIN_STATUS_LABELS = {
     CheckinStatus.ATTENDED: "Presente",
 }
 
+CHECKIN_UPDATE_SOURCE_LABELS = {
+    CheckinUpdateSource.SELF_SERVICE: "Autoatendimento",
+    CheckinUpdateSource.ADMIN_PANEL: "Painel admin",
+    CheckinUpdateSource.TEAM_DRAW: "Sorteio dos times",
+    CheckinUpdateSource.SYSTEM: "Sistema",
+}
+
 SESSION_STATUS_LABELS = {
     GameSessionStatus.SCHEDULED: "Agendado",
     GameSessionStatus.OPEN: "Check-in aberto",
@@ -90,6 +98,10 @@ TEAM_CODES = (
 )
 TEAM_DRAW_ALLOWED_STATUSES = (
     GameSessionStatus.CLOSED,
+    GameSessionStatus.IN_PROGRESS,
+    GameSessionStatus.FINISHED,
+)
+TEAM_DRAW_ATTENDANCE_ALLOWED_STATUSES = (
     GameSessionStatus.IN_PROGRESS,
     GameSessionStatus.FINISHED,
 )
@@ -140,6 +152,7 @@ def _sync_sessions_and_organizers(sessions):
 
             reserved_checkin.status = CheckinStatus.CANCELLED
             reserved_checkin.cancelled_at = now_utc()
+            _stamp_checkin_audit(reserved_checkin)
             if _should_promote_waitlist(session):
                 _promote_waitlist(session.id)
             changed = True
@@ -160,10 +173,11 @@ def _sync_sessions_and_organizers(sessions):
             existing_checkin = auto_reserved_checkins.get(user.id)
             if not existing_checkin:
                 db.session.add(
-                    GameCheckin(
+                    _build_checkin(
                         game_session=session,
                         user=user,
                         status=CheckinStatus.RESERVED,
+                        source=CheckinUpdateSource.SYSTEM,
                     )
                 )
                 changed = True
@@ -219,7 +233,28 @@ def _promote_waitlist(session_id):
 
     waitlisted.status = CheckinStatus.CONFIRMED
     waitlisted.cancelled_at = None
+    _stamp_checkin_audit(waitlisted)
     return waitlisted
+
+
+def _stamp_checkin_audit(checkin, acting_user=None, source=CheckinUpdateSource.SYSTEM):
+    checkin.last_updated_source = source
+    if acting_user:
+        checkin.last_updated_by = acting_user
+        checkin.last_updated_by_role = acting_user.role
+    else:
+        checkin.last_updated_by = None
+        checkin.last_updated_by_role = None
+    return checkin
+
+
+def _build_checkin(*, game_session, user, status, source, acting_user=None):
+    checkin = GameCheckin(
+        game_session=game_session,
+        user=user,
+        status=status,
+    )
+    return _stamp_checkin_audit(checkin, acting_user=acting_user, source=source)
 
 
 def _session_status_badge(status):
@@ -415,7 +450,25 @@ def _confirmed_checkins_for_team_draw(session_id):
             GameCheckin.game_session_id == session_id,
             GameCheckin.status.in_(OCCUPIED_CHECKIN_STATUSES),
         )
-        .join(User)
+        .join(User, User.id == GameCheckin.user_id)
+        .order_by(GameCheckin.checked_in_at.asc(), User.name.asc())
+        .all()
+    )
+
+
+def _display_checkins_for_team_draw(session_id):
+    return (
+        GameCheckin.query.filter(
+            GameCheckin.game_session_id == session_id,
+            GameCheckin.status.in_(
+                (
+                    CheckinStatus.RESERVED,
+                    CheckinStatus.CONFIRMED,
+                    CheckinStatus.ATTENDED,
+                )
+            ),
+        )
+        .join(User, User.id == GameCheckin.user_id)
         .order_by(GameCheckin.checked_in_at.asc(), User.name.asc())
         .all()
     )
@@ -460,7 +513,8 @@ def _build_auto_team_assignments(session, confirmed_checkins):
     return assignments
 
 
-def _serialize_team_assignment(assignment):
+def _serialize_team_assignment(assignment, checkin_status_by_user_id=None):
+    checkin_status_by_user_id = checkin_status_by_user_id or {}
     return {
         "assignment": assignment,
         "is_manual": assignment.source_type == GameTeamAssignmentSource.MANUAL,
@@ -482,15 +536,22 @@ def _serialize_team_assignment(assignment):
             if assignment.user and assignment.user.profile_img
             else url_for("static", filename="img/fotos_perfil/default.jpeg")
         ),
+        "checkin_status_value": (
+            checkin_status_by_user_id.get(assignment.user_id).name.lower()
+            if assignment.user_id and checkin_status_by_user_id.get(assignment.user_id)
+            else None
+        ),
     }
 
 
-def _team_buckets(assignments):
+def _team_buckets(assignments, checkin_status_by_user_id=None):
     grouped_assignments = {team_code: [] for team_code in TEAM_CODES}
 
     for assignment in assignments:
         grouped_assignments.setdefault(assignment.team_code, [])
-        grouped_assignments[assignment.team_code].append(_serialize_team_assignment(assignment))
+        grouped_assignments[assignment.team_code].append(
+            _serialize_team_assignment(assignment, checkin_status_by_user_id)
+        )
 
     return [
         {
@@ -576,7 +637,7 @@ def lista_checkins_sessao(session_id):
                 )
             ),
         )
-        .join(User)
+        .join(User, User.id == GameCheckin.user_id)
         .order_by(CHECKIN_STATUS_ORDER, GameCheckin.checked_in_at.asc(), User.name.asc())
         .all()
     )
@@ -749,12 +810,19 @@ def entrar_checkin(session_id):
         existing_checkin.status = new_status
         existing_checkin.checked_in_at = now_utc()
         existing_checkin.cancelled_at = None
+        _stamp_checkin_audit(
+            existing_checkin,
+            acting_user=current_user,
+            source=CheckinUpdateSource.SELF_SERVICE,
+        )
     else:
         db.session.add(
-            GameCheckin(
+            _build_checkin(
                 game_session=session,
                 user=current_user,
                 status=new_status,
+                source=CheckinUpdateSource.SELF_SERVICE,
+                acting_user=current_user,
             )
         )
 
@@ -787,6 +855,11 @@ def cancelar_checkin(session_id):
     was_occupying_slot = checkin.status in OCCUPIED_CHECKIN_STATUSES
     checkin.status = CheckinStatus.CANCELLED
     checkin.cancelled_at = now_utc()
+    _stamp_checkin_audit(
+        checkin,
+        acting_user=current_user,
+        source=CheckinUpdateSource.SELF_SERVICE,
+    )
 
     promoted = (
         _promote_waitlist(session.id)
@@ -841,7 +914,11 @@ def admin_team_draw_session(session_id):
     _sync_sessions_and_organizers([session])
     session = GameSession.query.get_or_404(session_id)
 
-    confirmed_checkins = _confirmed_checkins_for_team_draw(session.id)
+    display_checkins = _display_checkins_for_team_draw(session.id)
+    checkin_status_by_user_id = {
+        checkin.user_id: checkin.status
+        for checkin in display_checkins
+    }
     waitlist_count = (
         db.session.query(func.count(GameCheckin.id))
         .filter(
@@ -865,13 +942,14 @@ def admin_team_draw_session(session_id):
         date_label=session.game_date.strftime('%d/%m/%Y'),
         status_label=SESSION_STATUS_LABELS[session.status],
         status_badge=_session_status_badge(session.status),
-        confirmed_count=len(confirmed_checkins),
+        confirmed_count=len(display_checkins),
         waitlist_count=waitlist_count,
         assignment_count=len(assignments),
         teams_drawn=bool(assignments),
         can_draw_teams=_can_draw_teams(session),
-        position_cards=_build_team_draw_position_cards(confirmed_checkins, session.max_players),
-        team_buckets=_team_buckets(assignments),
+        attendance_controls_enabled=session.status in TEAM_DRAW_ATTENDANCE_ALLOWED_STATUSES,
+        position_cards=_build_team_draw_position_cards(display_checkins, session.max_players),
+        team_buckets=_team_buckets(assignments, checkin_status_by_user_id),
     )
 
 
@@ -1018,6 +1096,72 @@ def admin_update_manual_team_player(session_id, assignment_id):
     return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
 
+@main.route("/admin/sorteio-times/<uuid:session_id>/presenca/<uuid:assignment_id>/<status_name>", methods=["POST"])
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_update_team_draw_attendance(session_id, assignment_id, status_name):
+    session = GameSession.query.get_or_404(session_id)
+    _sync_sessions_and_organizers([session])
+    session = GameSession.query.get_or_404(session_id)
+
+    if session.status == GameSessionStatus.CANCELLED:
+        flash("Sessões canceladas não permitem alterações nos times.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    if session.status not in TEAM_DRAW_ATTENDANCE_ALLOWED_STATUSES:
+        flash("A marcação de presença fica disponível quando a sessão estiver em andamento ou finalizada.", "alert-warning")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    assignment = GameTeamAssignment.query.get_or_404(assignment_id)
+    if assignment.game_session_id != session.id:
+        flash("Jogadora inválida para esta sessão.", "alert-danger")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    try:
+        new_status = CheckinStatus[status_name]
+    except KeyError:
+        flash("Status inválido para a jogadora.", "alert-danger")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    if new_status not in {CheckinStatus.ATTENDED, CheckinStatus.NO_SHOW}:
+        flash("A tela de sorteio só permite marcar Presente ou Faltou.", "alert-danger")
+        return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+    player_name = assignment.display_name
+
+    if assignment.user_id:
+        checkin = GameCheckin.query.filter_by(
+            game_session_id=session.id,
+            user_id=assignment.user_id,
+        ).first()
+        if not checkin:
+            flash("Não foi possível localizar o check-in dessa jogadora.", "alert-danger")
+            return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+        checkin.status = new_status
+        checkin.cancelled_at = None
+        _stamp_checkin_audit(
+            checkin,
+            acting_user=current_user,
+            source=CheckinUpdateSource.TEAM_DRAW,
+        )
+
+        if new_status == CheckinStatus.NO_SHOW:
+            db.session.delete(assignment)
+            flash(f"{player_name} foi marcada como faltou e removida do time.", "alert-warning")
+        else:
+            flash(f"{player_name} foi marcada como presente.", "alert-success")
+    else:
+        if new_status == CheckinStatus.NO_SHOW:
+            db.session.delete(assignment)
+            flash(f"{player_name} foi removida do time como faltou.", "alert-warning")
+        else:
+            flash(f"{player_name} foi mantida como presente no time.", "alert-success")
+
+    db.session.commit()
+    return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
+
+
 @main.route("/admin/check-ins/<uuid:session_id>/cancelar-sessao", methods=["POST"])
 @login_required
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
@@ -1040,7 +1184,7 @@ def admin_checkins_sessao(session_id):
 
     checkins = (
         GameCheckin.query.filter_by(game_session_id=session.id)
-        .join(User)
+        .join(User, User.id == GameCheckin.user_id)
         .order_by(CHECKIN_STATUS_ORDER, GameCheckin.checked_in_at.asc(), User.name.asc())
         .all()
     )
@@ -1054,7 +1198,9 @@ def admin_checkins_sessao(session_id):
         checkins=checkins,
         confirmed_count=confirmed_count,
         waitlist_count=waitlist_count,
+        is_admin_view=current_user.role == UserRole.ADMIN,
         checkin_status_labels=CHECKIN_STATUS_LABELS,
+        checkin_update_source_labels=CHECKIN_UPDATE_SOURCE_LABELS,
         session_status_labels=SESSION_STATUS_LABELS,
     )
 
@@ -1087,6 +1233,11 @@ def admin_atualizar_status_checkin(checkin_id, status_name):
     if new_status == CheckinStatus.CANCELLED:
         checkin.status = CheckinStatus.CANCELLED
         checkin.cancelled_at = now_utc()
+        _stamp_checkin_audit(
+            checkin,
+            acting_user=current_user,
+            source=CheckinUpdateSource.ADMIN_PANEL,
+        )
         promoted = None
         if previous_status in OCCUPIED_CHECKIN_STATUSES and _should_promote_waitlist(session):
             promoted = _promote_waitlist(checkin.game_session_id)
@@ -1116,6 +1267,11 @@ def admin_atualizar_status_checkin(checkin_id, status_name):
         )
         checkin.checked_in_at = now_utc()
         checkin.cancelled_at = None
+        _stamp_checkin_audit(
+            checkin,
+            acting_user=current_user,
+            source=CheckinUpdateSource.ADMIN_PANEL,
+        )
         if checkin.status == CheckinStatus.CONFIRMED:
             flash("Jogadora reinserida na lista de confirmadas.", "alert-success")
         else:

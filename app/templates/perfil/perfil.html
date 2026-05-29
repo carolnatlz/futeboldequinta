@@ -2,46 +2,97 @@
 
 {% block body %}
 <section class="perfil-page">
-    <div class="perfil-card">
-        <div class="perfil-card-header">
-            <img src="{{ foto_perfil }}" class="perfil-avatar" alt="Foto de perfil de {{ current_user.name }}">
-            <div class="perfil-main-info">
-                <span class="perfil-badge">Meu Perfil</span>
-                <h1 class="perfil-nome">{{ current_user.name }}</h1>
-                <p class="perfil-email">{{ current_user.email }}</p>
+    <div class="checkin-page-shell perfil-shell">
+        <div class="checkin-page-head perfil-page-head">
+            <h2 class="generic-page-title">Meu Perfil</h2>
+            <span class="section-title-divider"></span>
+        </div>
+
+        <div class="perfil-content">
+            <div class="perfil-card-header">
+                <div class="perfil-avatar-shell shield-avatar">
+                    <div
+                        class="perfil-avatar-fill"
+                        style="background-image: url('{{ foto_perfil }}');"
+                        role="img"
+                        aria-label="Foto de perfil de {{ current_user.name }}"
+                    ></div>
+                </div>
+                <div class="perfil-main-info">
+                    <h1 class="perfil-nome">{{ current_user.name }}</h1>
+                </div>
             </div>
-        </div>
 
-        <div class="perfil-info-grid">
-            <article class="perfil-info-item">
-                <span class="perfil-info-label">Celular</span>
-                <strong class="perfil-info-value">{{ current_user.phone or 'Não informado' }}</strong>
-            </article>
-            <article class="perfil-info-item">
-                <span class="perfil-info-label">Posição</span>
-                <strong class="perfil-info-value">{{ position_label }}</strong>
-            </article>
-            <article class="perfil-info-item">
-                <span class="perfil-info-label">Perfil de acesso</span>
-                <strong class="perfil-info-value">{{ current_user.role.value|capitalize }}</strong>
-            </article>
-            <article class="perfil-info-item">
-                <span class="perfil-info-label">Status</span>
-                <strong class="perfil-info-value">
-                    {% if current_user.is_active %}
-                    Aprovado
-                    {% else %}
-                    Aguardando aprovação
-                    {% endif %}
-                </strong>
-            </article>
-        </div>
+            <section class="perfil-stats-card" aria-label="Resumo de desempenho">
+                <article class="perfil-stat-item">
+                    <span class="perfil-stat-icon"><i class="bi bi-dribbble"></i></span>
+                    <strong class="perfil-stat-value">{{ profile_stats.games }}</strong>
+                    <span class="perfil-stat-label">Jogos</span>
+                </article>
+                <article class="perfil-stat-item">
+                    <span class="perfil-stat-icon"><i class="bi bi-star"></i></span>
+                    <strong class="perfil-stat-value">{{ profile_stats.presence_pct }}%</strong>
+                    <span class="perfil-stat-label">Presença</span>
+                </article>
+                <article class="perfil-stat-item">
+                    <span class="perfil-stat-icon"><i class="bi bi-trophy"></i></span>
+                    <strong class="perfil-stat-value">{{ profile_stats.ranking_display }}</strong>
+                    <span class="perfil-stat-label">Ranking</span>
+                </article>
+            </section>
 
-        <div class="perfil-actions">
-            <a href="{{ url_for('main.editar_perfil') }}" class="perfil-primary-action">
-                <i class="bi bi-pencil-square"></i>
-                Editar perfil
-            </a>
+            <section class="perfil-section">
+                <div class="perfil-section-head">
+                    <span class="perfil-section-icon"><i class="bi bi-person"></i></span>
+                    <strong class="perfil-section-title">Informações</strong>
+                </div>
+                <div class="perfil-list">
+                    <article class="perfil-list-item">
+                        <span class="perfil-list-item-icon"><i class="bi bi-phone"></i></span>
+                        <div class="perfil-list-item-copy">
+                            <span class="perfil-list-item-label">Celular</span>
+                            <strong class="perfil-list-item-value">{{ current_user.phone or 'Não informado' }}</strong>
+                        </div>
+                    </article>
+                    <article class="perfil-list-item">
+                        <span class="perfil-list-item-icon"><i class="bi bi-envelope"></i></span>
+                        <div class="perfil-list-item-copy">
+                            <span class="perfil-list-item-label">E-mail</span>
+                            <strong class="perfil-list-item-value">{{ current_user.email }}</strong>
+                        </div>
+                    </article>
+                    <article class="perfil-list-item">
+                        <span class="perfil-list-item-icon"><i class="bi bi-dribbble"></i></span>
+                        <div class="perfil-list-item-copy">
+                            <span class="perfil-list-item-label">Posição</span>
+                            <strong class="perfil-list-item-value">{{ position_label }}</strong>
+                        </div>
+                    </article>
+                    <article class="perfil-list-item">
+                        <span class="perfil-list-item-icon"><i class="bi bi-person-badge"></i></span>
+                        <div class="perfil-list-item-copy">
+                            <span class="perfil-list-item-label">Perfil de acesso</span>
+                            <strong class="perfil-list-item-value">{{ current_user.role.value|capitalize }}</strong>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="perfil-section">
+                <div class="perfil-section-head">
+                    <span class="perfil-section-icon"><i class="bi bi-lightning-charge"></i></span>
+                    <strong class="perfil-section-title">Ações</strong>
+                </div>
+                <div class="perfil-list">
+                    <a href="{{ url_for('main.editar_perfil') }}" class="perfil-list-item perfil-list-item-action">
+                        <span class="perfil-list-item-icon"><i class="bi bi-pencil-square"></i></span>
+                        <div class="perfil-list-item-copy">
+                            <strong class="perfil-list-item-value">Editar perfil</strong>
+                        </div>
+                        <span class="perfil-list-item-chevron" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
+                    </a>
+                </div>
+            </section>
         </div>
     </div>
 </section>

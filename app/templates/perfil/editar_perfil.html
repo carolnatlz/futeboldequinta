@@ -4,7 +4,14 @@
 <section class="perfil-page">
     <div class="perfil-card perfil-card-form">
         <div class="perfil-card-header perfil-card-header-form">
-            <img src="{{ foto_perfil }}" class="perfil-avatar" alt="Foto atual de perfil">
+            <div class="perfil-avatar-shell shield-avatar">
+                <div
+                    class="perfil-avatar-fill"
+                    style="background-image: url('{{ foto_perfil }}');"
+                    role="img"
+                    aria-label="Foto atual de perfil"
+                ></div>
+            </div>
             <div class="perfil-main-info">
                 <span class="perfil-badge">Editar Perfil</span>
                 <h1 class="perfil-nome">Atualize seus dados</h1>

@@ -34,6 +34,32 @@
             <span class="admin-user-label">Check-in</span>
             <span class="admin-user-value admin-break">{{ checkin.checked_in_at }}</span>
           </div>
+          {% if is_admin_view %}
+          <div class="admin-user-row">
+            <span class="admin-user-label">Último update por</span>
+            <span class="admin-user-value admin-user-value-audit">
+              {{ checkin.last_updated_by.name if checkin.last_updated_by else 'Sistema' }}
+            </span>
+          </div>
+          <div class="admin-user-row">
+            <span class="admin-user-label">Perfil update</span>
+            <span class="admin-user-value admin-user-value-audit">
+              {{ checkin.last_updated_by_role.value|capitalize if checkin.last_updated_by_role else 'Sistema' }}
+            </span>
+          </div>
+          <div class="admin-user-row">
+            <span class="admin-user-label">Origem update</span>
+            <span class="admin-user-value admin-user-value-audit">
+              {{ checkin_update_source_labels.get(checkin.last_updated_source, 'Não informado') }}
+            </span>
+          </div>
+          <div class="admin-user-row">
+            <span class="admin-user-label">Atualizado em</span>
+            <span class="admin-user-value admin-user-value-audit admin-break">
+              {{ checkin.updated_at }}
+            </span>
+          </div>
+          {% endif %}
 
           <div class="checkin-admin-actions">
             <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CONFIRMED') }}">

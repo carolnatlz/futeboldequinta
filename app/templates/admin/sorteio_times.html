@@ -135,7 +135,7 @@
             {% if team.players %}
             <div class="team-draw-player-list">
               {% for player in team.players %}
-              <article class="team-draw-player-row {% if player.is_manual %}team-draw-player-row-manual{% endif %}">
+              <article class="team-draw-player-row {% if player.is_manual %}team-draw-player-row-manual{% endif %}{% if attendance_controls_enabled or player.is_manual %} team-draw-player-row-with-actions{% endif %}">
                 <span class="team-draw-player-avatar">
                   <img src="{{ player.profile_img_url }}" alt="Foto de perfil de {{ player.name }}" class="team-draw-player-avatar-img">
                 </span>
@@ -143,16 +143,32 @@
                   <strong class="team-draw-player-name">{{ player.name }}</strong>
                   <span class="team-draw-player-meta">{{ player.position_label }}</span>
                 </div>
-                {% if player.is_manual %}
-                <button
-                  type="button"
-                  class="btn team-draw-manual-add-btn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#manualTeamPlayerEditModal-{{ player.assignment.id }}"
-                  aria-label="Editar jogadora manual do {{ team.label }}"
-                >
-                  <i class="bi bi-pencil-square"></i>
-                </button>
+                {% if attendance_controls_enabled or player.is_manual %}
+                <div class="team-draw-player-actions">
+                  {% if attendance_controls_enabled %}
+                  <form method="POST" action="{{ url_for('main.admin_update_team_draw_attendance', session_id=session.id, assignment_id=player.assignment.id, status_name='ATTENDED') }}" class="team-draw-status-form">
+                    <button type="submit" class="btn team-draw-status-btn team-draw-status-btn-present {% if player.checkin_status_value == 'attended' %}is-active{% endif %}">
+                      Presente
+                    </button>
+                  </form>
+                  <form method="POST" action="{{ url_for('main.admin_update_team_draw_attendance', session_id=session.id, assignment_id=player.assignment.id, status_name='NO_SHOW') }}" class="team-draw-status-form">
+                    <button type="submit" class="btn team-draw-status-btn team-draw-status-btn-missed">
+                      Faltou
+                    </button>
+                  </form>
+                  {% endif %}
+                  {% if player.is_manual %}
+                  <button
+                    type="button"
+                    class="btn team-draw-manual-add-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#manualTeamPlayerEditModal-{{ player.assignment.id }}"
+                    aria-label="Editar jogadora manual do {{ team.label }}"
+                  >
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  {% endif %}
+                </div>
                 {% endif %}
               </article>
               {% endfor %}

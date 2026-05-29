@@ -772,7 +772,7 @@ body {
 
 .admin-user-row {
   display: grid;
-  grid-template-columns: 90px 1fr;
+  grid-template-columns: 112px 1fr;
   gap: 8px;
   align-items: start;
 }
@@ -788,6 +788,10 @@ body {
   color: #e7eeff;
   font-size: 0.95rem;
   line-height: 1.25;
+}
+
+.admin-user-value-audit {
+  color: #8beeff;
 }
 
 .admin-break {
@@ -1778,6 +1782,10 @@ body {
   grid-template-columns: 42px minmax(0, 1fr) auto;
 }
 
+.team-draw-player-row-with-actions {
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+}
+
 .team-draw-player-avatar {
   width: 42px;
   height: 42px;
@@ -1815,6 +1823,46 @@ body {
   margin-top: 3px;
   color: #9cb1dd;
   font-size: 0.82rem;
+}
+
+.team-draw-player-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.team-draw-status-form {
+  margin: 0;
+}
+
+.team-draw-status-btn {
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 183, 255, 0.22);
+  background: rgba(255, 255, 255, 0.035);
+  color: #e8f1ff;
+  font-size: 0.64rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.team-draw-status-btn-present {
+  border-color: rgba(61, 214, 156, 0.3);
+  color: #bff8e3;
+}
+
+.team-draw-status-btn-present.is-active {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(61, 214, 156, 0.42);
+}
+
+.team-draw-status-btn-missed {
+  border-color: rgba(255, 122, 122, 0.28);
+  color: #ffd0d0;
 }
 
 .team-draw-manual-add-btn {
@@ -2304,7 +2352,7 @@ input[type="file"] {
   }
 
   .admin-user-row {
-    grid-template-columns: 78px 1fr;
+    grid-template-columns: 96px 1fr;
   }
 
   .admin-user-label {
@@ -2488,6 +2536,10 @@ input[type="file"] {
     grid-template-columns: 36px minmax(0, 1fr) auto;
   }
 
+  .team-draw-player-row-with-actions {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+
   .team-draw-team-shield {
     width: 32px;
     height: 36px;
@@ -2514,6 +2566,16 @@ input[type="file"] {
 
   .team-draw-manual-add-btn i {
     font-size: 0.84rem;
+  }
+
+  .team-draw-player-actions {
+    gap: 5px;
+  }
+
+  .team-draw-status-btn {
+    min-height: 22px;
+    padding: 0 8px;
+    font-size: 0.6rem;
   }
 
   .checkin-session-icon {

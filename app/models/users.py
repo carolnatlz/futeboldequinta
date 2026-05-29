@@ -71,6 +71,12 @@ class User(db.Model, UserMixin):
         back_populates="user",
         cascade="all, delete-orphan",
         lazy=True,
+        foreign_keys="GameCheckin.user_id",
+    )
+    updated_checkins = db.relationship(
+        "GameCheckin",
+        foreign_keys="GameCheckin.last_updated_by_user_id",
+        lazy=True,
     )
     team_assignments = db.relationship(
         "GameTeamAssignment",

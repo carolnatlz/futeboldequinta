@@ -1,5 +1,6 @@
 from .users import AccountStatus, AuthProvider, PlayerPosition, User, UserRole
 from .game_sessions import (
+    CheckinUpdateSource,
     CheckinStatus,
     GameCheckin,
     GameSession,
@@ -19,6 +20,7 @@ __all__ = [
     "GameSessionStatus",
     "GameCheckin",
     "CheckinStatus",
+    "CheckinUpdateSource",
     "GameTeamAssignment",
     "GameTeamAssignmentSource",
     "TeamCode",
