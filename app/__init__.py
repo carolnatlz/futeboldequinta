@@ -49,6 +49,7 @@ def create_app():
     app.config["MAIL_USE_SSL"] = (
         os.environ.get("MAIL_USE_SSL", "false").strip().lower() == "true"
     )
+    app.config["MAIL_IP_FAMILY"] = os.environ.get("MAIL_IP_FAMILY", "auto").strip().lower()
     app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
     app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
     app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
