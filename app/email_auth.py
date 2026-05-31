@@ -27,6 +27,19 @@ class TokenExpiredError(TokenValidationError):
     pass
 
 
+class IPv4SMTP(smtplib.SMTP):
+    def _get_socket(self, host, port, timeout):
+        return _create_ipv4_connection(host, port, timeout)
+
+
+class IPv4SMTP_SSL(smtplib.SMTP_SSL):
+    def _get_socket(self, host, port, timeout):
+        raw_socket = _create_ipv4_connection(host, port, timeout)
+        if self.context is None:
+            self.context = ssl.create_default_context()
+        return self.context.wrap_socket(raw_socket, server_hostname=self._host)
+
+
 def generate_email_verification_token(user):
     return _serializer().dumps(
         {"user_id": str(user.id), "email": user.email},
@@ -173,7 +186,7 @@ def _send_smtp_email(*, to_email, subject, html, text):
     try:
         if mail_use_ssl:
             context = ssl.create_default_context()
-            with smtplib.SMTP_SSL(
+            with IPv4SMTP_SSL(
                 mail_server,
                 mail_port,
                 timeout=mail_timeout,
@@ -182,7 +195,7 @@ def _send_smtp_email(*, to_email, subject, html, text):
                 smtp.login(mail_username, mail_password)
                 smtp.send_message(message)
         else:
-            with smtplib.SMTP(mail_server, mail_port, timeout=mail_timeout) as smtp:
+            with IPv4SMTP(mail_server, mail_port, timeout=mail_timeout) as smtp:
                 smtp.ehlo()
                 if mail_use_tls:
                     context = ssl.create_default_context()
@@ -205,3 +218,29 @@ def _get_user_by_token_id(user_id):
     except (TypeError, ValueError):
         raise TokenValidationError("Identificador de usuário inválido.")
     return User.query.get(normalized_id)
+
+
+def _create_ipv4_connection(host, port, timeout):
+    addresses = socket.getaddrinfo(
+        host,
+        port,
+        family=socket.AF_INET,
+        type=socket.SOCK_STREAM,
+    )
+    last_error = None
+    for family, socktype, proto, _, sockaddr in addresses:
+        sock = None
+        try:
+            sock = socket.socket(family, socktype, proto)
+            if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+                sock.settimeout(timeout)
+            sock.connect(sockaddr)
+            return sock
+        except OSError as exc:
+            last_error = exc
+            if sock is not None:
+                sock.close()
+
+    if last_error is not None:
+        raise last_error
+    raise OSError(f"Nenhum endereço IPv4 disponível para {host}:{port}")
