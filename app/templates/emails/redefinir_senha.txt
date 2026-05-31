@@ -1,0 +1,8 @@
+Oi, {{ user.name }}!
+
+Recebemos um pedido para redefinir a senha da sua conta no Futebol de Quinta.
+
+Use o link abaixo para cadastrar uma nova senha:
+{{ reset_link }}
+
+Esse link expira em aproximadamente {{ expiration_minutes }} minuto(s).

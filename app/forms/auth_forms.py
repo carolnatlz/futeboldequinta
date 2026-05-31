@@ -52,3 +52,30 @@ class FormLogin(FlaskForm):
     senha = PasswordField('Senha',validators=[DataRequired(),Length(6,20)])
     lembrar_login = BooleanField('Lembrar Dados de Acesso')
     botao_submit_login = SubmitField('Fazer Login')
+
+
+class FormReenviarVerificacao(FlaskForm):
+    email = StringField(
+        "Email",
+        validators=[DataRequired(), Email(message="digite um endereço de email válido")],
+        filters=[normalize_email],
+    )
+    botao_submit_reenviar = SubmitField("Reenviar email")
+
+
+class FormSolicitarRedefinicaoSenha(FlaskForm):
+    email = StringField(
+        "Email",
+        validators=[DataRequired(), Email(message="digite um endereço de email válido")],
+        filters=[normalize_email],
+    )
+    botao_submit_redefinicao = SubmitField("Enviar link")
+
+
+class FormRedefinirSenha(FlaskForm):
+    senha = PasswordField("Nova senha", validators=[DataRequired(), Length(6, 20)])
+    confirmacao = PasswordField(
+        "Confirmação da nova senha",
+        validators=[DataRequired(), EqualTo("senha")],
+    )
+    botao_submit_redefinir = SubmitField("Salvar nova senha")

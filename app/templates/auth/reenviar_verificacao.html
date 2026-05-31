@@ -1,0 +1,37 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero auth-screen-hero">
+  <div class="auth-page-logo-wrap">
+    <a href="{{ url_for('main.nossa_historia') }}" aria-label="Ir para home">
+      <img src="{{ url_for('static', filename='img/logofdq.png') }}" alt="Logo Futebol de Quinta" class="auth-page-logo">
+    </a>
+  </div>
+  <div class="cadastro-card-wrap">
+    <div class="cadastro-card">
+      <h2 class="cadastro-title">Reenviar Verificação</h2>
+      <p class="fdq-auth-helper-text">
+        Digite o email usado no cadastro para receber um novo link de verificação.
+      </p>
+
+      <form method="POST" class="cadastro-form">
+        {{ form.csrf_token }}
+
+        <div class="fdq-field-group">
+          <i class="bi bi-envelope"></i>
+          {{ form.email(class="fdq-field", placeholder="Email") }}
+        </div>
+        {% for erro in form.email.errors %}
+          <div class="fdq-error">{{ erro }}</div>
+        {% endfor %}
+
+        {{ form.botao_submit_reenviar(class="fdq-submit") }}
+      </form>
+
+      <div class="fdq-secondary-cta">
+        <a href="{{ url_for('main.login') }}" class="fdq-secondary-link-btn">Voltar ao login</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

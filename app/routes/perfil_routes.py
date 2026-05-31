@@ -1,12 +1,13 @@
 from flask import flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, logout_user
 from sqlalchemy import Float, case, cast, func
 
 from app import db
+from app.email_auth import EmailDeliveryError, send_email_verification_email
 from app.forms import FormEditarPerfil
 from app.models import AccountStatus, CheckinStatus, GameCheckin, PlayerPosition, User
 
-from . import main, salvar_imagem
+from . import main, now_utc, salvar_imagem
 
 
 POSITION_LABELS = {
@@ -132,17 +133,50 @@ def editar_perfil():
     form = FormEditarPerfil()
 
     if form.validate_on_submit():
+        email_alterado = current_user.email != form.email.data
         current_user.name = form.username.data
         current_user.email = form.email.data
         current_user.phone = form.celular.data
+        feedback_message = "Perfil atualizado com sucesso!"
+        feedback_category = "alert-success"
 
         if form.foto_perfil.data:
             nome_imagem = salvar_imagem(form.foto_perfil.data)
             current_user.profile_img = nome_imagem
 
+        if email_alterado:
+            current_user.email_verified_at = None
+            current_user.email_verification_sent_at = None
+
         db.session.commit()
 
-        flash("Perfil atualizado com sucesso!", "alert-success")
+        if email_alterado:
+            try:
+                send_email_verification_email(current_user)
+            except EmailDeliveryError:
+                db.session.rollback()
+                feedback_message = (
+                    "Perfil atualizado, mas não conseguimos enviar a verificação para o novo email agora. "
+                    "Tente reenviar o link mais tarde."
+                )
+                feedback_category = "alert-warning"
+            else:
+                current_user.email_verification_sent_at = now_utc()
+                db.session.commit()
+                feedback_message = (
+                    "Perfil atualizado! Enviamos um link de verificação para o novo email informado."
+                )
+                feedback_category = "alert-info"
+
+            logout_user()
+            flash(
+                "Por segurança, pedimos um novo login depois da troca de email.",
+                "alert-info",
+            )
+            flash(feedback_message, feedback_category)
+            return redirect(url_for("main.login"))
+
+        flash(feedback_message, feedback_category)
         return redirect(url_for("main.perfil"))
 
     if request.method == "GET":

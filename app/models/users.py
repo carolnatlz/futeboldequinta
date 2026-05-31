@@ -64,6 +64,8 @@ class User(db.Model, UserMixin):
         server_default=func.now(),
         onupdate=func.now(),
     )
+    email_verified_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    email_verification_sent_at = db.Column(db.DateTime(timezone=True), nullable=True)
     phone = db.Column(db.String(20), unique=True, nullable=True)
 
     checkins = db.relationship(

@@ -107,12 +107,12 @@ TEAM_DRAW_ATTENDANCE_ALLOWED_STATUSES = (
 )
 
 #TEMP
-# def _local_now():
-#     return datetime.now(BRAZIL_TZ)
+def _local_now():
+    return datetime.now(BRAZIL_TZ)
 
 #DEBUG ONLY: used to simulate time-based behavior during development, should be commented for production
-def _local_now():
-    return datetime(2026, 6, 1, 18, 40, tzinfo=BRAZIL_TZ)
+# def _local_now():
+#     return datetime(2026, 6, 1, 18, 40, tzinfo=BRAZIL_TZ)
 
 
 def _sync_sessions_and_organizers(sessions):
@@ -677,7 +677,7 @@ def lista_checkins_sessao(session_id):
 
 @main.route("/check-ins")
 @login_required
-def meus_checkins():
+def inscricoes_nos_jogos():
     today = _local_now().date()
     sessions = (
         GameSession.query.filter(GameSession.game_date >= today)
@@ -768,7 +768,7 @@ def meus_checkins():
         for session in sessions
     ]
 
-    return render_template("checkins/meus_checkins.html", session_cards=session_cards)
+    return render_template("checkins/inscricoes_nos_jogos.html", session_cards=session_cards)
 
 
 @main.route("/check-ins/<uuid:session_id>/entrar", methods=["POST"])
@@ -794,11 +794,11 @@ def entrar_checkin(session_id):
             flash("Sua vaga garantida já está reservada para esta sessão.", "alert-info")
         else:
             flash("O check-in dessa sessão não está aberto no momento.", "alert-warning")
-        return redirect(url_for("main.meus_checkins"))
+        return redirect(url_for("main.inscricoes_nos_jogos"))
 
     if existing_checkin and existing_checkin.status != CheckinStatus.CANCELLED:
         flash("Você já possui check-in ativo para essa sessão.", "alert-info")
-        return redirect(url_for("main.meus_checkins"))
+        return redirect(url_for("main.inscricoes_nos_jogos"))
 
     new_status = (
         CheckinStatus.CONFIRMED
@@ -833,7 +833,7 @@ def entrar_checkin(session_id):
     else:
         flash("As vagas confirmadas esgotaram. Você entrou na lista de espera.", "alert-warning")
 
-    return redirect(url_for("main.meus_checkins"))
+    return redirect(url_for("main.inscricoes_nos_jogos"))
 
 
 @main.route("/check-ins/<uuid:session_id>/cancelar", methods=["POST"])
@@ -850,7 +850,7 @@ def cancelar_checkin(session_id):
 
     if not _can_user_cancel(session, checkin):
         flash("Esse check-in não pode mais ser cancelado.", "alert-warning")
-        return redirect(url_for("main.meus_checkins"))
+        return redirect(url_for("main.inscricoes_nos_jogos"))
 
     was_occupying_slot = checkin.status in OCCUPIED_CHECKIN_STATUSES
     checkin.status = CheckinStatus.CANCELLED
@@ -882,7 +882,7 @@ def cancelar_checkin(session_id):
     else:
         flash("Check-in cancelado com sucesso.", "alert-success")
 
-    return redirect(url_for("main.meus_checkins"))
+    return redirect(url_for("main.inscricoes_nos_jogos"))
 
 
 @main.route("/admin/check-ins")

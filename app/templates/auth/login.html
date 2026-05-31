@@ -36,6 +36,11 @@
                 </div>
 
                 {{ form.botao_submit_login(class="fdq-submit") }}
+
+                <div class="fdq-auth-links">
+                    <a href="{{ url_for('main.solicitar_redefinicao_senha') }}" class="fdq-login-link">Esqueci minha senha</a>
+                    <a href="{{ url_for('main.reenviar_verificacao_email') }}" class="fdq-login-link">Reenviar verificação de email</a>
+                </div>
             </form>
 
             <div class="fdq-secondary-cta">

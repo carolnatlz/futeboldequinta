@@ -31,6 +31,12 @@ def sequencia_dos_jogos():
     )
 
 
+@main.route("/quem-ta-jogando-agora")
+@login_required
+def quem_ta_jogando_agora():
+    return render_template("components/quem_ta_jogando_agora.html")
+
+
 @main.route("/regras")
 def regras():
     return render_template("components/regras.html")

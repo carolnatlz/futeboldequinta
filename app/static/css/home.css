@@ -266,6 +266,91 @@
   border-radius: 999px;
 }
 
+.match-soon-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 18px 40px;
+  color: #f5f8ff;
+}
+
+.match-soon-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.match-soon-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.match-soon-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(41, 221, 240, 0.12);
+  border: 1px solid rgba(41, 221, 240, 0.28);
+  color: #7befff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.match-soon-title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.match-soon-copy .section-title-divider {
+  margin: 14px 0 18px;
+}
+
+.match-soon-text {
+  margin: 0;
+  max-width: 34rem;
+  color: rgba(233, 241, 255, 0.86);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.6;
+}
+
+.match-soon-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(248, 198, 78, 0.2), transparent 28%),
+    linear-gradient(145deg, rgba(13, 34, 82, 0.98), rgba(6, 18, 50, 0.96));
+  border: 1px solid rgba(41, 221, 240, 0.24);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.26);
+}
+
+.match-soon-illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 22px;
+}
+
+@media (max-width: 820px) {
+  .match-soon-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .match-soon-page {
+    padding-top: 18px;
+  }
+}
+
 .home-schedule-card-header {
   display: flex;
   align-items: center;

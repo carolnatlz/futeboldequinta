@@ -1,0 +1,27 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="match-soon-page">
+  <div class="match-soon-shell">
+    <div class="match-soon-copy">
+      <span class="match-soon-kicker">
+        <i class="bi bi-cone-striped"></i>
+        Em construção
+      </span>
+      <h1 class="match-soon-title">Quem Tá Jogando Agora?</h1>
+      <span class="section-title-divider"></span>
+      <p class="match-soon-text">
+        Você quer saber quem tá jogando e se seu time é o próximo, né? A TI está trabalhando duro pra que isso seja possível, logo mais teremos essa tela!
+      </p>
+    </div>
+
+    <div class="match-soon-card">
+      <img
+        src="{{ url_for('static', filename='img/em-construcao.png') }}"
+        alt="Ilustração divertida de um quadro em construção"
+        class="match-soon-illustration"
+      >
+    </div>
+  </div>
+</section>
+{% endblock %}

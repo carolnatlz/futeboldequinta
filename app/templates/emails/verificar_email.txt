@@ -1,0 +1,6 @@
+Oi, {{ user.name }}!
+
+Para confirmar seu email no Futebol de Quinta, acesse o link abaixo:
+{{ verify_link }}
+
+Esse link expira em aproximadamente {{ expiration_minutes }} minuto(s).

@@ -43,6 +43,27 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+    app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
+    app.config["MAIL_USE_TLS"] = (
+        os.environ.get("MAIL_USE_TLS", "true").strip().lower() == "true"
+    )
+    app.config["MAIL_USE_SSL"] = (
+        os.environ.get("MAIL_USE_SSL", "false").strip().lower() == "true"
+    )
+    app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+    app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+    app.config["PUBLIC_BASE_URL"] = os.environ.get("PUBLIC_BASE_URL")
+    app.config["EMAIL_VERIFICATION_TOKEN_MAX_AGE"] = int(
+        os.environ.get("EMAIL_VERIFICATION_TOKEN_MAX_AGE", 60 * 60 * 24)
+    )
+    app.config["PASSWORD_RESET_TOKEN_MAX_AGE"] = int(
+        os.environ.get("PASSWORD_RESET_TOKEN_MAX_AGE", 60 * 60)
+    )
+    app.config["EMAIL_VERIFICATION_COOLDOWN_SECONDS"] = int(
+        os.environ.get("EMAIL_VERIFICATION_COOLDOWN_SECONDS", 60)
+    )
 
     # =========================
     # Inicializar extensões
