@@ -34,18 +34,17 @@
                     {{ form.lembrar_login(class="form-check-input") }}
                     {{ form.lembrar_login.label(class="form-check-label") }}
                 </div>
-
                 {{ form.botao_submit_login(class="fdq-submit") }}
-
-                <div class="fdq-auth-links">
-                    <a href="{{ url_for('main.solicitar_redefinicao_senha') }}" class="fdq-login-link">Esqueci minha senha</a>
-                    <a href="{{ url_for('main.reenviar_verificacao_email') }}" class="fdq-login-link">Reenviar verificação de email</a>
-                </div>
             </form>
 
             <div class="fdq-secondary-cta">
-                <small>Não tem conta?</small>
-                <a href="{{ url_for('main.cadastro') }}" class="fdq-secondary-link-btn">Criar Conta</a>
+                <div class="fdq-secondary-cta-action">
+                    <a href="{{ url_for('main.cadastro') }}" class="fdq-secondary-link-btn">Criar Conta</a>
+                </div>
+                <div class="fdq-secondary-cta-links">
+                    <a href="{{ url_for('main.solicitar_redefinicao_senha') }}" class="fdq-login-link">Esqueci minha senha</a>
+                    <a href="{{ url_for('main.reenviar_verificacao_email') }}" class="fdq-login-link">Reenviar verificação de email</a>
+                </div>
             </div>
         </div>
     </div>
