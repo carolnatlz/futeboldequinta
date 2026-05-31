@@ -1,4 +1,4 @@
-Oi, {{ user.name }}!
+Olá, {{ user.name }}!
 
 Para confirmar seu email no Futebol de Quinta, acesse o link abaixo:
 {{ verify_link }}

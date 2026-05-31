@@ -1,4 +1,4 @@
-Oi, {{ user.name }}!
+Olá, {{ user.name }}!
 
 Recebemos um pedido para redefinir a senha da sua conta no Futebol de Quinta.
 
