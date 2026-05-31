@@ -176,6 +176,8 @@ def _send_smtp_email(*, to_email, subject, html, text):
             "Configuração SMTP incompleta. Defina MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD e MAIL_DEFAULT_SENDER."
         )
 
+    logger = current_app.logger
+
     message = EmailMessage()
     message["Subject"] = subject
     message["From"] = default_sender
@@ -185,6 +187,13 @@ def _send_smtp_email(*, to_email, subject, html, text):
 
     try:
         if mail_use_ssl:
+            logger.info(
+                "SMTP 1 - abrindo conexão SSL com %s:%s para %s (timeout=%ss)",
+                mail_server,
+                mail_port,
+                to_email,
+                mail_timeout,
+            )
             context = ssl.create_default_context()
             with IPv4SMTP_SSL(
                 mail_server,
@@ -192,19 +201,40 @@ def _send_smtp_email(*, to_email, subject, html, text):
                 timeout=mail_timeout,
                 context=context,
             ) as smtp:
+                logger.info("SMTP 2 - conectado via SSL")
                 smtp.login(mail_username, mail_password)
+                logger.info("SMTP 3 - autenticado")
                 smtp.send_message(message)
+                logger.info("SMTP 4 - email enviado para %s", to_email)
         else:
+            logger.info(
+                "SMTP 1 - abrindo conexão com %s:%s para %s (tls=%s timeout=%ss)",
+                mail_server,
+                mail_port,
+                to_email,
+                mail_use_tls,
+                mail_timeout,
+            )
             with IPv4SMTP(mail_server, mail_port, timeout=mail_timeout) as smtp:
+                logger.info("SMTP 2 - conectado")
                 smtp.ehlo()
                 if mail_use_tls:
+                    logger.info("SMTP 2.1 - iniciando STARTTLS")
                     context = ssl.create_default_context()
                     smtp.starttls(context=context)
                     smtp.ehlo()
+                    logger.info("SMTP 2.2 - STARTTLS concluído")
                 smtp.login(mail_username, mail_password)
+                logger.info("SMTP 3 - autenticado")
                 smtp.send_message(message)
+                logger.info("SMTP 4 - email enviado para %s", to_email)
     except (smtplib.SMTPException, socket.timeout, TimeoutError, OSError, ssl.SSLError) as exc:
-        current_app.logger.error("Falha ao enviar email por SMTP: %s", exc)
+        logger.exception(
+            "Falha SMTP ao enviar email para %s via %s:%s",
+            to_email,
+            mail_server,
+            mail_port,
+        )
         raise EmailDeliveryError("Não foi possível enviar o email por SMTP.") from exc
 
 
