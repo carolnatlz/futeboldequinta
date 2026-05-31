@@ -218,12 +218,7 @@ class GameCheckin(db.Model):
 
     game_session = db.relationship("GameSession", back_populates="checkins", lazy=True)
     user = db.relationship("User", back_populates="checkins", foreign_keys=[user_id], lazy=True)
-    last_updated_by = db.relationship(
-        "User",
-        back_populates="updated_checkins",
-        foreign_keys=[last_updated_by_user_id],
-        lazy=True,
-    )
+    last_updated_by = db.relationship("User", foreign_keys=[last_updated_by_user_id], lazy=True)
 
 
 class GameTeamAssignment(db.Model):

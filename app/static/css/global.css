@@ -623,8 +623,8 @@ body {
   border-radius: 14px;
   background: linear-gradient(120deg, #d10f3c, #f51f52);
   color: #fff;
-  padding: 11px 12px;
-  font-size: 1rem;
+  padding: 12px;
+  font-size: 1.8rem;
   font-weight: 700;
   box-shadow: 0 12px 22px rgba(245, 31, 82, 0.28);
 }
@@ -671,7 +671,6 @@ body {
   color: #dce6ff;
   margin-top: 2px;
   margin-bottom: 4px;
-  padding-left: 6px;
 }
 
 .fdq-check-row .form-check-input {
@@ -691,18 +690,9 @@ body {
 .fdq-secondary-cta {
   margin-top: 10px;
   display: grid;
-  gap: 12px;
+  gap: 8px;
   color: #dce6ff;
   text-align: center;
-}
-
-.fdq-secondary-cta-action,
-.fdq-secondary-cta-links {
-  display: grid;
-}
-
-.fdq-secondary-cta-links {
-  gap: 4px;
 }
 
 .fdq-secondary-link-btn {
@@ -2806,6 +2796,6 @@ input[type="file"] {
   }
 
   .fdq-submit {
-    font-size: 1rem;
+    font-size: 1.65rem;
   }
 }

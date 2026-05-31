@@ -77,7 +77,6 @@ class User(db.Model, UserMixin):
     )
     updated_checkins = db.relationship(
         "GameCheckin",
-        back_populates="last_updated_by",
         foreign_keys="GameCheckin.last_updated_by_user_id",
         lazy=True,
     )
