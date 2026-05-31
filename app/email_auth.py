@@ -1,12 +1,13 @@
+import smtplib
+import socket
+import ssl
 import uuid
-from smtplib import SMTPException
+from email.message import EmailMessage
 from urllib.parse import urljoin
 
 from flask import current_app, render_template, url_for
-from flask_mail import Message
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-from app import mail
 from app.models import AuthProvider, User
 
 
@@ -153,21 +154,43 @@ def _send_smtp_email(*, to_email, subject, html, text):
     mail_username = current_app.config.get("MAIL_USERNAME")
     mail_password = current_app.config.get("MAIL_PASSWORD")
     default_sender = current_app.config.get("MAIL_DEFAULT_SENDER")
+    mail_port = current_app.config.get("MAIL_PORT")
+    mail_use_tls = current_app.config.get("MAIL_USE_TLS")
+    mail_use_ssl = current_app.config.get("MAIL_USE_SSL")
+    mail_timeout = current_app.config.get("MAIL_TIMEOUT", 10)
     if not mail_server or not mail_username or not mail_password or not default_sender:
         raise EmailDeliveryError(
             "Configuração SMTP incompleta. Defina MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD e MAIL_DEFAULT_SENDER."
         )
 
-    message = Message(
-        subject=subject,
-        recipients=[to_email],
-        body=text,
-        html=html,
-    )
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = default_sender
+    message["To"] = to_email
+    message.set_content(text)
+    message.add_alternative(html, subtype="html")
 
     try:
-        mail.send(message)
-    except (SMTPException, OSError) as exc:
+        if mail_use_ssl:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(
+                mail_server,
+                mail_port,
+                timeout=mail_timeout,
+                context=context,
+            ) as smtp:
+                smtp.login(mail_username, mail_password)
+                smtp.send_message(message)
+        else:
+            with smtplib.SMTP(mail_server, mail_port, timeout=mail_timeout) as smtp:
+                smtp.ehlo()
+                if mail_use_tls:
+                    context = ssl.create_default_context()
+                    smtp.starttls(context=context)
+                    smtp.ehlo()
+                smtp.login(mail_username, mail_password)
+                smtp.send_message(message)
+    except (smtplib.SMTPException, socket.timeout, TimeoutError, OSError, ssl.SSLError) as exc:
         current_app.logger.error("Falha ao enviar email por SMTP: %s", exc)
         raise EmailDeliveryError("Não foi possível enviar o email por SMTP.") from exc
 

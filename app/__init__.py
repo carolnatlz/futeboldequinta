@@ -54,6 +54,7 @@ def create_app():
     app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
     app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
     app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+    app.config["MAIL_TIMEOUT"] = int(os.environ.get("MAIL_TIMEOUT", 10))
     app.config["PUBLIC_BASE_URL"] = os.environ.get("PUBLIC_BASE_URL")
     app.config["EMAIL_VERIFICATION_TOKEN_MAX_AGE"] = int(
         os.environ.get("EMAIL_VERIFICATION_TOKEN_MAX_AGE", 60 * 60 * 24)
