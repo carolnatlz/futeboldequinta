@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from flask_mail import Mail
 
 # =========================
 # Extensões (SEM app ainda)
@@ -15,7 +14,6 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 migrate = Migrate()
 login_manager = LoginManager()
-mail = Mail()
 
 # =========================
 # Application Factory
@@ -73,7 +71,6 @@ def create_app():
     bcrypt.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    mail.init_app(app)
 
     # =========================
     # Config Login
