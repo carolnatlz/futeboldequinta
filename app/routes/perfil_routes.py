@@ -154,7 +154,6 @@ def editar_perfil():
             try:
                 send_email_verification_email(current_user)
             except EmailDeliveryError:
-                db.session.rollback()
                 feedback_message = (
                     "Perfil atualizado, mas não conseguimos enviar a verificação para o novo email agora. "
                     "Tente reenviar o link mais tarde."

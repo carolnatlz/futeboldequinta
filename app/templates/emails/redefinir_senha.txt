@@ -6,3 +6,5 @@ Use o link abaixo para cadastrar uma nova senha:
 {{ reset_link }}
 
 Esse link expira em aproximadamente {{ expiration_minutes }} minuto(s).
+
+Caso você não tenha realizado essa solicitação, favor entrar em contato com a administração.

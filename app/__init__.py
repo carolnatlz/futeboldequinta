@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from flask_mail import Mail
 
 # =========================
 # Extensões (SEM app ainda)
@@ -15,7 +14,6 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 migrate = Migrate()
 login_manager = LoginManager()
-mail = Mail()
 
 # =========================
 # Application Factory
@@ -43,17 +41,10 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
-    app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
-    app.config["MAIL_USE_TLS"] = (
-        os.environ.get("MAIL_USE_TLS", "true").strip().lower() == "true"
-    )
-    app.config["MAIL_USE_SSL"] = (
-        os.environ.get("MAIL_USE_SSL", "false").strip().lower() == "true"
-    )
-    app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
-    app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
-    app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+    app.config["RESEND_API_KEY"] = os.environ.get("RESEND_API_KEY")
+    app.config["RESEND_FROM_EMAIL"] = os.environ.get("RESEND_FROM_EMAIL")
+    app.config["RESEND_REPLY_TO"] = os.environ.get("RESEND_REPLY_TO")
+    app.config["RESEND_TIMEOUT"] = int(os.environ.get("RESEND_TIMEOUT", 10))
     app.config["PUBLIC_BASE_URL"] = os.environ.get("PUBLIC_BASE_URL")
     app.config["EMAIL_VERIFICATION_TOKEN_MAX_AGE"] = int(
         os.environ.get("EMAIL_VERIFICATION_TOKEN_MAX_AGE", 60 * 60 * 24)
@@ -72,7 +63,6 @@ def create_app():
     bcrypt.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    mail.init_app(app)
 
     # =========================
     # Config Login
