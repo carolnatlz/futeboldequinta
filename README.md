@@ -68,7 +68,9 @@ Plataforma para organização de partidas de futebol, check-in dos usuários, ge
 </p>
 
 <p align="center">
-  Fluxo de Inscrições nos Jogos &nbsp;&nbsp;|&nbsp;&nbsp;
+  Fluxo de Inscrições nos Jogos
+</p>
+<p align="center">
   Agendado > Check-in Aberto > Em andamento > Finalizado
 </p>
 
