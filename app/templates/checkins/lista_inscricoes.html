@@ -5,7 +5,7 @@
   <div class="cadastro-card-wrap">
     <div class="checkin-page-shell signup-page-shell">
       <div class="checkin-page-head signup-page-head">
-        <h2 class="cadastro-title generic-page-title">Lista de inscrições</h2>
+        <h2 class="cadastro-title generic-page-title">Lista de Inscrições</h2>
         <span class="section-title-divider"></span>
         <p class="checkin-panel-subtitle">Acompanhe quem já confirmou presença e sua posição na lista de espera.</p>
       </div>
@@ -18,7 +18,13 @@
             </div>
             <div class="checkin-session-heading">
               <div class="signup-session-title-row">
-                <h3 class="checkin-session-title">{{ display_date }}</h3>
+                {% set date_parts = display_date.split(', ', 1) %}
+                <h3 class="checkin-session-title signup-session-title-split">
+                  <span class="signup-session-title-weekday">{{ date_parts[0] }},</span>
+                  {% if date_parts|length > 1 %}
+                  <span class="signup-session-title-date">{{ date_parts[1] }}</span>
+                  {% endif %}
+                </h3>
                 <div class="checkin-status-banner {{ status_badge }} signup-status-banner signup-status-banner-compact">
                   <span class="checkin-status-banner-icon">
                     <i class="bi {% if status_badge == 'checkin-badge-open' %}bi-check2-circle{% elif status_badge == 'checkin-badge-closed' %}bi-lock{% elif status_badge == 'checkin-badge-in-progress' %}bi-diagram-3{% elif status_badge == 'checkin-badge-cancelled' %}bi-x-circle{% elif status_badge == 'checkin-badge-finished' %}bi-flag{% else %}bi-clock{% endif %}"></i>

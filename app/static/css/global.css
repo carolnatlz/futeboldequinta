@@ -1943,10 +1943,27 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: nowrap;
 }
 
 .signup-session-title-row .checkin-session-title {
   font-size: clamp(1.18rem, 3.1vw, 1.6rem);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.signup-session-title-split {
+  display: block;
+}
+
+.signup-session-title-weekday {
+  margin-right: 0.9rem;
+}
+
+.signup-session-title-date {
+  display: inline;
+  margin-left: 0;
+  font-size: 0.9em;
 }
 
 .signup-status-banner {
@@ -2258,15 +2275,15 @@ body {
 
 .signup-info-copy strong {
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   font-weight: 800;
 }
 
 .signup-info-copy p {
   margin: 0;
   color: rgba(208, 220, 248, 0.76);
-  font-size: 0.98rem;
-  line-height: 1.45;
+  font-size: 0.64rem;
+  line-height: 1.35;
 }
 
 .signup-info-arrow {

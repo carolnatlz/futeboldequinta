@@ -1,7 +1,7 @@
 import os
 import uuid
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -79,6 +79,19 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(uuid.UUID(user_id))
+
+    @app.context_processor
+    def inject_asset_url():
+        def asset_url(filename):
+            asset_path = os.path.join(app.static_folder, filename)
+
+            if os.path.exists(asset_path):
+                version = int(os.path.getmtime(asset_path))
+                return url_for("static", filename=filename, v=version)
+
+            return url_for("static", filename=filename)
+
+        return {"asset_url": asset_url}
 
     # =========================
     # Registrar rotas
