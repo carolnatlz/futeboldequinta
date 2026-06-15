@@ -22,7 +22,7 @@ from app.models import (
 )
 from app.models.game_sessions import BRAZIL_TZ
 
-from . import main, now_utc, roles_required
+from . import main, now_utc, profile_photo_url, roles_required
 
 
 CHECKIN_STATUS_ORDER = case(
@@ -327,11 +327,7 @@ def _serialize_signup_row(checkin, index, kind):
         "position": _position_label(checkin.user),
         "status_label": CHECKIN_STATUS_LABELS.get(checkin.status, "Confirmada"),
         "status_badge": _checkin_status_badge(checkin.status),
-        "profile_img_url": (
-            url_for("static", filename=f"img/fotos_perfil/{checkin.user.profile_img}")
-            if checkin.user.profile_img
-            else url_for("static", filename="img/fotos_perfil/default.jpeg")
-        ),
+        "profile_img_url": profile_photo_url(checkin.user.profile_img),
     }
 
 
@@ -532,9 +528,9 @@ def _serialize_team_assignment(assignment, checkin_status_by_user_id=None):
             else "NONE"
         ),
         "profile_img_url": (
-            url_for("static", filename=f"img/fotos_perfil/{assignment.user.profile_img}")
-            if assignment.user and assignment.user.profile_img
-            else url_for("static", filename="img/fotos_perfil/default.jpeg")
+            profile_photo_url(assignment.user.profile_img)
+            if assignment.user
+            else profile_photo_url(None)
         ),
         "checkin_status_value": (
             checkin_status_by_user_id.get(assignment.user_id).name.lower()

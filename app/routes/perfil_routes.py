@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, logout_user
 from sqlalchemy import Float, case, cast, func
 
@@ -7,7 +7,13 @@ from app.email_auth import EmailDeliveryError, send_email_verification_email
 from app.forms import FormEditarPerfil
 from app.models import AccountStatus, CheckinStatus, GameCheckin, PlayerPosition, User
 
-from . import main, now_utc, salvar_imagem
+from . import (
+    ProfileImageUploadError,
+    main,
+    now_utc,
+    remover_imagem,
+    salvar_imagem,
+)
 
 
 POSITION_LABELS = {
@@ -15,14 +21,6 @@ POSITION_LABELS = {
     PlayerPosition.DEFESA: "Defesa",
     PlayerPosition.ATAQUE: "Ataque",
 }
-
-
-def _profile_photo_url(filename):
-    if filename:
-        return url_for("static", filename=f"img/fotos_perfil/{filename}")
-
-    return url_for("static", filename="img/fotos_perfil/default.jpeg")
-
 
 def _build_profile_stats(user_id):
     attendance_totals = (
@@ -118,10 +116,8 @@ def _build_profile_stats(user_id):
 @main.route("/perfil")
 @login_required
 def perfil():
-    foto = _profile_photo_url(current_user.profile_img)
     return render_template(
         "perfil/perfil.html",
-        foto_perfil=foto,
         position_label=POSITION_LABELS.get(current_user.position, "Não informada"),
         profile_stats=_build_profile_stats(current_user.id),
     )
@@ -133,6 +129,24 @@ def editar_perfil():
     form = FormEditarPerfil()
 
     if form.validate_on_submit():
+        uploaded_profile_image = None
+        old_public_id = current_user.profile_img_public_id
+        if form.foto_perfil.data:
+            try:
+                uploaded_profile_image = salvar_imagem(form.foto_perfil.data)
+            except ProfileImageUploadError as exc:
+                flash(
+                    f"Não conseguimos salvar sua foto de perfil agora. {exc}",
+                    "alert-danger",
+                )
+                return render_template(
+                    "perfil/editar_perfil.html",
+                    form=form,
+                    position_label=POSITION_LABELS.get(
+                        current_user.position, "Não informada"
+                    ),
+                )
+
         email_alterado = current_user.email != form.email.data
         current_user.name = form.username.data
         current_user.email = form.email.data
@@ -140,15 +154,42 @@ def editar_perfil():
         feedback_message = "Perfil atualizado com sucesso!"
         feedback_category = "alert-success"
 
-        if form.foto_perfil.data:
-            nome_imagem = salvar_imagem(form.foto_perfil.data)
-            current_user.profile_img = nome_imagem
+        if uploaded_profile_image:
+            current_user.profile_img = uploaded_profile_image.url
+            current_user.profile_img_public_id = uploaded_profile_image.public_id
 
         if email_alterado:
             current_user.email_verified_at = None
             current_user.email_verification_sent_at = None
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            if uploaded_profile_image:
+                remover_imagem(uploaded_profile_image.public_id)
+            current_app.logger.exception(
+                "Falha ao persistir atualizacao de perfil para %s.",
+                current_user.id,
+            )
+            flash(
+                "Não conseguimos salvar seu perfil agora. Tente novamente em instantes.",
+                "alert-danger",
+            )
+            return render_template(
+                "perfil/editar_perfil.html",
+                form=form,
+                position_label=POSITION_LABELS.get(
+                    current_user.position, "Não informada"
+                ),
+            )
+
+        if (
+            uploaded_profile_image
+            and old_public_id
+            and old_public_id != uploaded_profile_image.public_id
+        ):
+            remover_imagem(old_public_id)
 
         if email_alterado:
             try:
@@ -183,11 +224,8 @@ def editar_perfil():
         form.email.data = current_user.email
         form.celular.data = current_user.phone
 
-    foto = _profile_photo_url(current_user.profile_img)
-
     return render_template(
         "perfil/editar_perfil.html",
         form=form,
-        foto_perfil=foto,
         position_label=POSITION_LABELS.get(current_user.position, "Não informada"),
     )

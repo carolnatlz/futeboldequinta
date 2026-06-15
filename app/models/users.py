@@ -52,7 +52,8 @@ class User(db.Model, UserMixin):
         db.Enum(PlayerPosition, name="player_position_enum"),
         nullable=True,
     )
-    profile_img = db.Column(db.String(255), nullable=True)
+    profile_img = db.Column(db.String(2048), nullable=True)
+    profile_img_public_id = db.Column(db.String(255), nullable=True)
     account_status = db.Column(
         db.Enum(AccountStatus, name="account_status_enum"),
         nullable=False,

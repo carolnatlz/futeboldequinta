@@ -21,7 +21,7 @@ from app.forms import (
 )
 from app.models import AccountStatus, AuthProvider, PlayerPosition, User, UserRole
 
-from . import main, now_utc, salvar_imagem
+from . import ProfileImageUploadError, main, now_utc, remover_imagem, salvar_imagem
 
 
 def _send_verification_email_with_tracking(user):
@@ -70,7 +70,14 @@ def cadastro():
 
     if form.validate_on_submit():
         senha_hash = bcrypt.generate_password_hash(form.senha.data).decode("utf-8")
-        nome_imagem = salvar_imagem(form.foto_perfil.data)
+        try:
+            uploaded_profile_image = salvar_imagem(form.foto_perfil.data)
+        except ProfileImageUploadError as exc:
+            flash(
+                f"Não conseguimos salvar sua foto de perfil agora. {exc}",
+                "alert-danger",
+            )
+            return render_template("auth/cadastro.html", form=form)
 
         novo_usuario = User(
             name=form.username.data,
@@ -79,13 +86,26 @@ def cadastro():
             password_hash=senha_hash,
             auth_provider=AuthProvider.LOCAL,
             role=UserRole.PLAYER,
-            profile_img=nome_imagem,
+            profile_img=uploaded_profile_image.url,
+            profile_img_public_id=uploaded_profile_image.public_id,
             position=PlayerPosition(form.position.data),
             account_status=AccountStatus.PENDING,
         )
 
         db.session.add(novo_usuario)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            remover_imagem(uploaded_profile_image.public_id)
+            current_app.logger.exception(
+                "Falha ao persistir cadastro apos upload da foto de perfil."
+            )
+            flash(
+                "Não conseguimos concluir seu cadastro agora. Tente novamente em instantes.",
+                "alert-danger",
+            )
+            return render_template("auth/cadastro.html", form=form)
 
         _handle_verification_email_send(
             novo_usuario,

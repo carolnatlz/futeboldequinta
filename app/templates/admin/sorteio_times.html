@@ -176,7 +176,7 @@
               {% for _ in range(team.placeholder_slots) %}
               <article class="team-draw-player-row team-draw-player-row-placeholder">
                 <span class="team-draw-player-avatar">
-                  <img src="{{ url_for('static', filename='img/fotos_perfil/default.jpeg') }}" alt="Avatar padrão para vaga manual" class="team-draw-player-avatar-img">
+                  <img src="{{ profile_photo_url(None) }}" alt="Avatar padrão para vaga manual" class="team-draw-player-avatar-img">
                 </span>
                 <div class="team-draw-player-copy">
                   <strong class="team-draw-player-name team-draw-player-name-placeholder"><em>(vaga da fome)</em></strong>
@@ -198,7 +198,7 @@
               {% for _ in range(team.placeholder_slots) %}
               <article class="team-draw-player-row team-draw-player-row-placeholder">
                 <span class="team-draw-player-avatar">
-                  <img src="{{ url_for('static', filename='img/fotos_perfil/default.jpeg') }}" alt="Avatar padrão para vaga manual" class="team-draw-player-avatar-img">
+                  <img src="{{ profile_photo_url(None) }}" alt="Avatar padrão para vaga manual" class="team-draw-player-avatar-img">
                 </span>
                 <div class="team-draw-player-copy">
                   <strong class="team-draw-player-name team-draw-player-name-placeholder"><em>(vaga da fome)</em></strong>

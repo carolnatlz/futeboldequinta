@@ -1,11 +1,14 @@
 import os
 import uuid
+
 from dotenv import load_dotenv
 from flask import Flask, url_for
-from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+from app.profile_images import profile_photo_url
 
 # =========================
 # Extensões (SEM app ainda)
@@ -46,6 +49,13 @@ def create_app():
     app.config["RESEND_REPLY_TO"] = os.environ.get("RESEND_REPLY_TO")
     app.config["RESEND_TIMEOUT"] = int(os.environ.get("RESEND_TIMEOUT", 10))
     app.config["PUBLIC_BASE_URL"] = os.environ.get("PUBLIC_BASE_URL")
+    app.config["CLOUDINARY_CLOUD_NAME"] = os.environ.get("CLOUDINARY_CLOUD_NAME")
+    app.config["CLOUDINARY_API_KEY"] = os.environ.get("CLOUDINARY_API_KEY")
+    app.config["CLOUDINARY_API_SECRET"] = os.environ.get("CLOUDINARY_API_SECRET")
+    app.config["CLOUDINARY_PROFILE_IMAGE_FOLDER"] = os.environ.get(
+        "CLOUDINARY_PROFILE_IMAGE_FOLDER",
+        "fdq/profile_images",
+    )
     app.config["EMAIL_VERIFICATION_TOKEN_MAX_AGE"] = int(
         os.environ.get("EMAIL_VERIFICATION_TOKEN_MAX_AGE", 60 * 60 * 24)
     )
@@ -55,6 +65,40 @@ def create_app():
     app.config["EMAIL_VERIFICATION_COOLDOWN_SECONDS"] = int(
         os.environ.get("EMAIL_VERIFICATION_COOLDOWN_SECONDS", 60)
     )
+
+    cloudinary_config = {
+        "cloud_name": app.config["CLOUDINARY_CLOUD_NAME"],
+        "api_key": app.config["CLOUDINARY_API_KEY"],
+        "api_secret": app.config["CLOUDINARY_API_SECRET"],
+        "secure": True,
+    }
+    app.config["CLOUDINARY_ENABLED"] = False
+    if all(
+        (
+            cloudinary_config["cloud_name"],
+            cloudinary_config["api_key"],
+            cloudinary_config["api_secret"],
+        )
+    ):
+        try:
+            import cloudinary
+        except ImportError:
+            app.logger.warning(
+                "Cloudinary SDK não está instalada neste ambiente; uploads de foto ficarão indisponíveis."
+            )
+        else:
+            cloudinary.config(**cloudinary_config)
+            app.config["CLOUDINARY_ENABLED"] = True
+    elif any(
+        (
+            cloudinary_config["cloud_name"],
+            cloudinary_config["api_key"],
+            cloudinary_config["api_secret"],
+        )
+    ):
+        app.logger.warning(
+            "Cloudinary está configurado parcialmente; uploads de foto ficarão indisponíveis."
+        )
 
     # =========================
     # Inicializar extensões
@@ -91,7 +135,10 @@ def create_app():
 
             return url_for("static", filename=filename)
 
-        return {"asset_url": asset_url}
+        return {
+            "asset_url": asset_url,
+            "profile_photo_url": profile_photo_url,
+        }
 
     # =========================
     # Registrar rotas
