@@ -14,7 +14,7 @@ register_heif_opener()
 
 PROFILE_PHOTO_FOLDER = os.path.join("static", "img", "fotos_perfil")
 PROFILE_DEFAULT_FILENAME = "default.jpeg"
-PROFILE_THUMBNAIL_SIZE = (300, 300)
+PROFILE_THUMBNAIL_SIZE = (800, 800)
 REMOTE_URL_SCHEMES = {"http", "https"}
 IMAGE_FORMATS = {
     ".jpg": "JPEG",
