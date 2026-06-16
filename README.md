@@ -75,13 +75,19 @@ Plataforma para organização de partidas de futebol, check-in dos usuários, ge
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5a8f7fe4-69ca-4437-bf65-5ce407534f23" width="22%">
+  <img src="https://github.com/user-attachments/assets/5a8f7fe4-69ca-4437-bf65-5ce407534f23" width="28%">
   &nbsp;
-  <img src="https://github.com/user-attachments/assets/b9974b54-26dc-4dcb-b917-d7c6172b72f9" width="22%">
+  <img src="https://github.com/user-attachments/assets/b9974b54-26dc-4dcb-b917-d7c6172b72f9" width="28%">
   &nbsp;
-  <img src="https://github.com/user-attachments/assets/06cfd71e-d3c8-44a6-a77f-cd903e26511d" width="22%">
+  <img src="https://github.com/user-attachments/assets/812d45c7-6e03-42e5-8f08-662226021767" width="28%">
   &nbsp;
-  <img src="https://github.com/user-attachments/assets/c97b6d2b-bcc1-4428-a821-91ce6bcfda47" width="22%">
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/06cfd71e-d3c8-44a6-a77f-cd903e26511d" width="28%">
+  &nbsp;
+  <img src="https://github.com/user-attachments/assets/c97b6d2b-bcc1-4428-a821-91ce6bcfda47" width="28%">
+  &nbsp;
+  <img src="" width="28%">
   &nbsp;
 </p>
 
