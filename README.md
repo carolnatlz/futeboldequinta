@@ -71,7 +71,7 @@ Plataforma para organização de partidas de futebol, check-in dos usuários, ge
   Fluxo de Inscrições nos Jogos
 </p>
 <p align="center">
-  Agendado > Check-in Aberto > Em andamento > Finalizado
+  Agendado > Check-in Aberto > Check-in Encerrado
 </p>
 
 <p align="center">
@@ -82,12 +82,16 @@ Plataforma para organização de partidas de futebol, check-in dos usuários, ge
   <img src="https://github.com/user-attachments/assets/812d45c7-6e03-42e5-8f08-662226021767" width="28%">
   &nbsp;
 </p>
+
+<p align="center">
+  Em andamento > Finalizado | Cancelado
+</p>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/06cfd71e-d3c8-44a6-a77f-cd903e26511d" width="28%">
   &nbsp;
-  <img src="https://github.com/user-attachments/assets/c97b6d2b-bcc1-4428-a821-91ce6bcfda47" width="28%">
+  <img src="https://github.com/user-attachments/assets/c97b6d2b-bcc1-4428-a821-91ce6bcfda47" width="28.1%">
   &nbsp;
-  <img src="" width="28%">
+  <img src="https://github.com/user-attachments/assets/53c76996-ae2b-42fb-a01f-e8d579c87c0e" width="27.9%">
   &nbsp;
 </p>
 
