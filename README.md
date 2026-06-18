@@ -8,17 +8,24 @@ Plataforma para organização de partidas de futebol, check-in dos usuários, ge
 
 <p align="center">
   Página Inicial &nbsp;&nbsp;|&nbsp;&nbsp;
-  Login &nbsp;&nbsp;|&nbsp;&nbsp;
   Regras e Cadastro
 </p>
-
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/364aeeac-2887-4254-b45f-fee2b63abf5c" width="31.5%">
   &nbsp;&nbsp;
-  <img src="https://github.com/user-attachments/assets/28338e06-a301-4f8c-a539-ff364364390a" width="28.1%">
-  &nbsp;&nbsp;
   <img src="https://github.com/user-attachments/assets/8b78c739-0820-4a59-ad9b-f7091be90a3d" width="29.7%">
+</p>
+
+<p align="center">
+  Login &nbsp;&nbsp;|&nbsp;&nbsp;
+  Confirmação de Email
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/28338e06-a301-4f8c-a539-ff364364390a" width="27.7%">
+  &nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/4d098261-ccd4-46dc-8fc2-7b7e7da14ccd" width="29.7%">
 </p>
 
 <h3 align="center">⚙️ Gestão</h3>
