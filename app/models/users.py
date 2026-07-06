@@ -87,6 +87,12 @@ class User(db.Model, UserMixin):
         back_populates="user",
         lazy=True,
     )
+    pinnie = db.relationship(
+        "Pinnie",
+        back_populates="user",
+        uselist=False,
+        lazy=True,
+    )
 
     @property
     def is_active(self):

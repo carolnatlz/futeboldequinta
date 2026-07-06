@@ -2244,6 +2244,97 @@ body {
   color: #8beeff;
 }
 
+.user-directory-search-card {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(110, 138, 220, 0.18);
+  background: rgba(7, 19, 53, 0.48);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+}
+
+.user-directory-search-label {
+  color: #dce6ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.user-directory-search-input-wrap {
+  position: relative;
+}
+
+.user-directory-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: rgba(220, 230, 255, 0.56);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.user-directory-search-input.form-control {
+  min-height: 56px;
+  padding: 0 18px 0 46px;
+  border-radius: 18px;
+  border: 1px solid rgba(120, 150, 226, 0.22);
+  background: rgba(4, 16, 49, 0.82);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.user-directory-search-input.form-control::placeholder {
+  color: rgba(220, 230, 255, 0.48);
+}
+
+.user-directory-search-input.form-control:focus {
+  border-color: rgba(95, 224, 244, 0.58);
+  background: rgba(4, 16, 49, 0.92);
+  color: #ffffff;
+  box-shadow: 0 0 0 0.18rem rgba(95, 224, 244, 0.12);
+}
+
+.user-directory-search-hint {
+  margin: 0;
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.82rem;
+}
+
+.user-directory-group .signup-group-head {
+  margin-bottom: 8px;
+}
+
+.user-directory-list {
+  gap: 0;
+}
+
+.user-directory-row {
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 78px;
+  padding: 12px 0;
+}
+
+.user-directory-main {
+  gap: 4px;
+}
+
+.user-directory-row .signup-person-name {
+  font-size: 1rem;
+}
+
+.user-directory-row .signup-person-position {
+  font-size: 0.84rem;
+}
+
+.user-directory-empty {
+  padding-top: 16px;
+}
+
 .signup-info-card {
   display: grid;
   grid-template-columns: 56px minmax(0, 1fr) auto;
@@ -2765,6 +2856,24 @@ input[type="file"] {
     min-height: 24px;
     padding: 0 6px;
     font-size: 0.54rem;
+  }
+
+  .user-directory-search-card {
+    padding: 16px 14px;
+    border-radius: 20px;
+  }
+
+  .user-directory-search-input.form-control {
+    min-height: 50px;
+    padding-left: 42px;
+    font-size: 0.94rem;
+  }
+
+  .user-directory-row {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 64px;
+    padding: 10px 0;
   }
 
   .signup-person-meta {

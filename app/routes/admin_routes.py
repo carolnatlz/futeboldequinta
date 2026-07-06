@@ -1,5 +1,6 @@
 from flask import flash, redirect, render_template, url_for
 from flask_login import login_required
+from sqlalchemy import func
 
 from app import db
 from app.models import AccountStatus, User, UserRole
@@ -35,6 +36,14 @@ def admin_rejeitados():
         .all()
     )
     return render_template("admin/rejeitados.html", usuarios=rejeitados)
+
+
+@main.route("/admin/usuarios")
+@login_required
+@roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
+def admin_usuarios():
+    usuarios = User.query.order_by(func.lower(User.name).asc()).all()
+    return render_template("admin/usuarios.html", usuarios=usuarios)
 
 
 @main.route("/admin/aprovacoes/<uuid:user_id>/aceitar", methods=["POST"])

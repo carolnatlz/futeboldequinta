@@ -1,75 +1,112 @@
 {% extends 'components/base.html' %}
 
 {% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap">
+    <div class="checkin-page-shell signup-page-shell">
+      <div class="checkin-page-head signup-page-head">
+        <h2 class="cadastro-title generic-page-title">Usuários</h2>
+        <span class="section-title-divider"></span>
+      </div>
 
-    <div class="container"> 
-        {% for usuario in lista_usuarios %}
-
-        <div class="container mt-5 mb-5 d-flex justify-content-center">
-            <div class="card p-3" style="height: fit-content;">
-                <div class="d-flex align-items-center">
-                    <div class="image"> <img src="{{ profile_photo_url(usuario.foto_perfil) }}" class="rounded" width="100"> </div>
-                    <div class="ml-3 w-100">
-                        <h4 class="mb-0 mt-0">{{ usuario.usuario }}</h4><span>{{ usuario.email }}</span>
-                        <div class="p-2 mt-2 d-flex justify-content-between rounded stats">
-                            {% if 'não informado' in usuario.afinidades or usuario.afinidades == '' %}
-                                <div class="d-flex flex-column"><h6 class="mb-0">Linguagens</h6><span>0</span></div>
-                            {% else %}
-                                <div class="d-flex flex-column"><h6 class="mb-0">Linguagens</h6><span>{{ usuario.afinidades.count(';') + 1}}</span></div>
-                            {% endif %}
-                            <div class="d-flex flex-column"><h6 class="mb-0">Projects</h6> <span>0</span></div>
-                            <div class="d-flex flex-column"><h6 class="mb-0">Posts</h6> <span> {{ usuario.contar_posts() }} </span></div>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <div class="d-flex align-items-center">
-                    <style>
-                    .column {
-                    float: left;
-                    width: 25%;
-                    padding: 10px 10px;
-                    }
-                    </style>
-                    <div class="row">
-                        {% if 'HTML' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'CSS' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'Python' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Python.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'Java' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'C#' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/C_Sharp_wordmark.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'PHP' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/PHP-logo.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if '.NET' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a3/.NET_Logo.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'Angular' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Angular_full_color_logo.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'Ionic' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Ionic-logo-landscape.svg" height="48" width="48"></div>
-                        {% endif %}
-                        {% if 'Flutter' in usuario.afinidades %}
-                        <div class="column"><img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Google-flutter-logo.svg" height="48" width="48"></div>
-                        {% endif %}
-                    {% if usuario.afinidades == 'não informado' or usuario.afinidades == '' %}
-                        <p>Não existem linguagens cadastradas.</p>
-                    {% endif %}
-                    </div>
-                </div>
-            </div>
+      <section class="signup-page-content">
+        <div class="user-directory-search-card">
+          <label for="userDirectorySearch" class="user-directory-search-label">Buscar por nome</label>
+          <div class="user-directory-search-input-wrap">
+            <i class="bi bi-search user-directory-search-icon" aria-hidden="true"></i>
+            <input
+              type="search"
+              id="userDirectorySearch"
+              class="form-control user-directory-search-input"
+              placeholder="Digite um nome ou parte dele"
+              autocomplete="off"
+            >
+          </div>
         </div>
-        {% endfor %}
-    </div>
 
+        <section class="signup-group signup-group-confirmed user-directory-group">
+          <div class="signup-group-head">
+            <div class="signup-group-title">
+              <span class="signup-group-title-icon signup-group-title-icon-confirmed">
+                <i class="bi bi-people"></i>
+              </span>
+              <h4>Usuários cadastrados (<span id="userDirectoryCount">{{ usuarios|length }}</span>)</h4>
+            </div>
+          </div>
+
+          <div class="signup-list user-directory-list" id="userDirectoryList">
+            {% for usuario in usuarios %}
+            <article class="signup-person-row user-directory-row" data-user-row data-user-name="{{ usuario.name }}">
+              <span class="signup-person-avatar">
+                <img
+                  src="{{ profile_photo_url(usuario.profile_img) }}"
+                  alt="Foto de perfil de {{ usuario.name }}"
+                  class="signup-person-avatar-img"
+                >
+              </span>
+              <span class="signup-person-main user-directory-main">
+                <strong class="signup-person-name">{{ usuario.name }}</strong>
+                <span class="signup-person-position">{{ usuario.phone or "Telefone não informado" }}</span>
+              </span>
+            </article>
+            {% endfor %}
+          </div>
+
+          <p class="signup-empty user-directory-empty" id="userDirectoryEmpty"{% if usuarios %} hidden{% endif %}>
+            {% if usuarios %}
+            Nenhum usuário encontrado para esta busca.
+            {% else %}
+            Nenhum usuário cadastrado até o momento.
+            {% endif %}
+          </p>
+        </section>
+      </section>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("userDirectorySearch");
+    const userRows = Array.from(document.querySelectorAll("[data-user-row]"));
+    const countElement = document.getElementById("userDirectoryCount");
+    const emptyElement = document.getElementById("userDirectoryEmpty");
+
+    if (!searchInput || !countElement || !emptyElement) {
+      return;
+    }
+
+    function normalizeSearchValue(value) {
+      return (value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .trim();
+    }
+
+    function updateVisibleUsers() {
+      const query = normalizeSearchValue(searchInput.value);
+      let visibleCount = 0;
+
+      userRows.forEach(function (row) {
+        const userName = normalizeSearchValue(row.dataset.userName);
+        const matches = !query || userName.includes(query);
+
+        row.hidden = !matches;
+        if (matches) {
+          visibleCount += 1;
+        }
+      });
+
+      countElement.textContent = String(visibleCount);
+      emptyElement.hidden = visibleCount !== 0;
+      emptyElement.textContent = query
+        ? "Nenhum usuário encontrado para esta busca."
+        : "Nenhum usuário cadastrado até o momento.";
+    }
+
+    searchInput.addEventListener("input", updateVisibleUsers);
+    updateVisibleUsers();
+  });
+</script>
 {% endblock %}

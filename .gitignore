@@ -7,3 +7,4 @@ __pycache__/
 .vscode/
 *.db
 .DS_Store
+script_pinnie_number.sql
