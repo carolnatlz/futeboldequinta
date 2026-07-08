@@ -70,6 +70,12 @@
         <span class="fdq-menu-card-text">Quem Tá Jogando Agora?</span>
         <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
       </a>
+
+      <a href="{{ url_for('main.coletes_teste') }}" class="fdq-menu-card{% if endpoint == 'main.coletes_teste' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-postcard"></i></span>
+        <span class="fdq-menu-card-text">Coletes [TESTE]</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
       {% else %}
       <a href="{{ url_for('main.locais_horarios') }}" class="fdq-menu-card{% if endpoint == 'main.locais_horarios' %} is-active{% endif %}">
         <span class="fdq-menu-card-icon"><i class="bi bi-calendar-week"></i></span>

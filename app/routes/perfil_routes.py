@@ -1,11 +1,19 @@
 from flask import current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, logout_user
 from sqlalchemy import Float, case, cast, func
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.email_auth import EmailDeliveryError, send_email_verification_email
 from app.forms import FormEditarPerfil
-from app.models import AccountStatus, CheckinStatus, GameCheckin, PlayerPosition, User
+from app.models import (
+    AccountStatus,
+    CheckinStatus,
+    GameCheckin,
+    Pinnie,
+    PlayerPosition,
+    User,
+)
 
 from . import (
     ProfileImageUploadError,
@@ -21,6 +29,51 @@ POSITION_LABELS = {
     PlayerPosition.DEFESA: "Defesa",
     PlayerPosition.ATAQUE: "Ataque",
 }
+
+PINNIE_NAME_MAX_LENGTH = 20
+PINNIE_NUMBER_MIN = 1
+PINNIE_NUMBER_MAX = 999
+
+
+def _build_available_pinnie_numbers(current_pinnie=None):
+    occupied_numbers_query = db.session.query(Pinnie.pinnie_number)
+    if current_pinnie:
+        occupied_numbers_query = occupied_numbers_query.filter(Pinnie.id != current_pinnie.id)
+
+    occupied_numbers = {number for number, in occupied_numbers_query.all()}
+    return [
+        number
+        for number in range(PINNIE_NUMBER_MIN, PINNIE_NUMBER_MAX + 1)
+        if number not in occupied_numbers
+    ]
+
+
+def _parse_selected_pinnie_number(raw_value):
+    raw_value = (raw_value or "").strip()
+    return int(raw_value) if raw_value.isdigit() else None
+
+
+def _render_coletes_teste_page(*, current_pinnie, form_data=None, show_test_modal=True):
+    if form_data is None:
+        selected_pinnie_name = current_pinnie.pinnie_name if current_pinnie else ""
+        selected_pinnie_number = current_pinnie.pinnie_number if current_pinnie else None
+    else:
+        selected_pinnie_name = (form_data.get("pinnie_name") or "").strip()
+        selected_pinnie_number = _parse_selected_pinnie_number(form_data.get("pinnie_number"))
+
+    available_pinnie_numbers = _build_available_pinnie_numbers(current_pinnie)
+    if selected_pinnie_number not in available_pinnie_numbers:
+        selected_pinnie_number = None
+
+    return render_template(
+        "perfil/coletes_teste.html",
+        current_pinnie=current_pinnie,
+        available_pinnie_numbers=available_pinnie_numbers,
+        pinnie_name_max_length=PINNIE_NAME_MAX_LENGTH,
+        selected_pinnie_name=selected_pinnie_name,
+        selected_pinnie_number=selected_pinnie_number,
+        show_test_modal=show_test_modal,
+    )
 
 def _build_profile_stats(user_id):
     attendance_totals = (
@@ -120,6 +173,110 @@ def perfil():
         "perfil/perfil.html",
         position_label=POSITION_LABELS.get(current_user.position, "Não informada"),
         profile_stats=_build_profile_stats(current_user.id),
+    )
+
+
+@main.route("/coletes-teste", methods=["GET", "POST"])
+@login_required
+def coletes_teste():
+    current_pinnie = current_user.pinnie
+
+    if request.method == "POST":
+        pinnie_name = (request.form.get("pinnie_name") or "").strip()
+        pinnie_number = _parse_selected_pinnie_number(request.form.get("pinnie_number"))
+        has_error = False
+
+        if not pinnie_name:
+            flash(
+                "Informe o nome que será escrito no colete.",
+                "alert-danger",
+            )
+            has_error = True
+        elif len(pinnie_name) > PINNIE_NAME_MAX_LENGTH:
+            flash(
+                f"O nome do colete pode ter no máximo {PINNIE_NAME_MAX_LENGTH} caracteres.",
+                "alert-danger",
+            )
+            has_error = True
+
+        if pinnie_number is None:
+            flash(
+                "Escolha um número de colete disponível.",
+                "alert-danger",
+            )
+            has_error = True
+        elif not PINNIE_NUMBER_MIN <= pinnie_number <= PINNIE_NUMBER_MAX:
+            flash(
+                f"O número do colete deve estar entre {PINNIE_NUMBER_MIN} e {PINNIE_NUMBER_MAX}.",
+                "alert-danger",
+            )
+            has_error = True
+        else:
+            conflicting_pinnie = Pinnie.query.filter(Pinnie.pinnie_number == pinnie_number)
+            if current_pinnie:
+                conflicting_pinnie = conflicting_pinnie.filter(Pinnie.id != current_pinnie.id)
+
+            if conflicting_pinnie.first():
+                flash(
+                    "Esse número de colete não está mais disponível. Escolha outro.",
+                    "alert-danger",
+                )
+                has_error = True
+
+        if has_error:
+            return _render_coletes_teste_page(
+                current_pinnie=current_pinnie,
+                form_data=request.form,
+                show_test_modal=False,
+            )
+
+        if current_pinnie:
+            current_pinnie.pinnie_name = pinnie_name
+            current_pinnie.pinnie_number = pinnie_number
+        else:
+            db.session.add(
+                Pinnie(
+                    user_id=current_user.id,
+                    pinnie_name=pinnie_name,
+                    pinnie_number=pinnie_number,
+                )
+            )
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash(
+                "Esse número acabou de ser reservado por outra jogadora. Escolha outro e tente novamente.",
+                "alert-danger",
+            )
+            return _render_coletes_teste_page(
+                current_pinnie=current_user.pinnie,
+                form_data=request.form,
+                show_test_modal=False,
+            )
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception(
+                "Falha ao persistir solicitacao de colete para %s.",
+                current_user.id,
+            )
+            flash(
+                "Não conseguimos salvar sua solicitação de colete agora. Tente novamente em instantes.",
+                "alert-danger",
+            )
+            return _render_coletes_teste_page(
+                current_pinnie=current_user.pinnie,
+                form_data=request.form,
+                show_test_modal=False,
+            )
+
+        flash("Solicitação de colete salva com sucesso.", "alert-success")
+        return redirect(url_for("main.coletes_teste", dismiss_warning=1))
+
+    return _render_coletes_teste_page(
+        current_pinnie=current_pinnie,
+        show_test_modal=request.args.get("dismiss_warning") != "1",
     )
 
 
