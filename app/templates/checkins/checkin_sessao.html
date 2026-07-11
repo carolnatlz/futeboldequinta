@@ -3,10 +3,12 @@
 {% block body %}
 <section class="cadastro-hero admin-panel-hero">
   <div class="cadastro-card-wrap">
-    <div class="cadastro-card checkin-panel-card checkin-panel-card-wide">
-      <div class="admin-panel-head">
-        <a href="{{ url_for('main.admin_checkins') }}" class="fdq-secondary-link-btn admin-head-link">Voltar para sessões</a>
-        <h2 class="cadastro-title admin-panel-title">Sessão de {{ session.game_date.strftime('%d/%m/%Y') }}</h2>
+    <div class="checkin-page-shell signup-page-shell">
+      <div class="checkin-page-head checkin-admin-session-head">
+        <div class="checkin-admin-session-title-row">
+          <h2 class="cadastro-title generic-page-title checkin-admin-session-title">Sessão de {{ session.game_date.strftime('%d/%m/%Y') }}</h2>
+        </div>
+        <span class="section-title-divider"></span>
         <p class="checkin-panel-subtitle">
           Status: {{ session_status_labels[session.status] }}.
           Confirmadas: {{ confirmed_count }}/{{ session.max_players }}.
@@ -14,71 +16,125 @@
         </p>
       </div>
 
-      {% if checkins %}
-      <div class="admin-user-list">
-        {% for checkin in checkins %}
-        <article class="admin-user-item checkin-admin-item">
-          <div class="admin-user-row">
-            <span class="admin-user-label">Jogadora</span>
-            <span class="admin-user-value">{{ checkin.user.name }}</span>
-          </div>
-          <div class="admin-user-row">
-            <span class="admin-user-label">Tipo</span>
-            <span class="admin-user-value">{{ checkin.user.role.value|capitalize }}</span>
-          </div>
-          <div class="admin-user-row">
-            <span class="admin-user-label">Status</span>
-            <span class="admin-user-value">{{ checkin_status_labels[checkin.status] }}</span>
-          </div>
-          <div class="admin-user-row">
-            <span class="admin-user-label">Check-in</span>
-            <span class="admin-user-value admin-break">{{ checkin.checked_in_at }}</span>
-          </div>
-          {% if is_admin_view %}
-          <div class="admin-user-row">
-            <span class="admin-user-label">Último update por</span>
-            <span class="admin-user-value admin-user-value-audit">
-              {{ checkin.last_updated_by.name if checkin.last_updated_by else 'Sistema' }}
-            </span>
-          </div>
-          <div class="admin-user-row">
-            <span class="admin-user-label">Perfil update</span>
-            <span class="admin-user-value admin-user-value-audit">
-              {{ checkin.last_updated_by_role.value|capitalize if checkin.last_updated_by_role else 'Sistema' }}
-            </span>
-          </div>
-          <div class="admin-user-row">
-            <span class="admin-user-label">Origem update</span>
-            <span class="admin-user-value admin-user-value-audit">
-              {{ checkin_update_source_labels.get(checkin.last_updated_source, 'Não informado') }}
-            </span>
-          </div>
-          <div class="admin-user-row">
-            <span class="admin-user-label">Atualizado em</span>
-            <span class="admin-user-value admin-user-value-audit admin-break">
-              {{ checkin.updated_at }}
-            </span>
-          </div>
-          {% endif %}
-
-          <div class="checkin-admin-actions">
-            <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CONFIRMED') }}">
-              <button type="submit" class="btn btn-outline-info btn-sm admin-action-btn" {% if session.status.value == 'cancelled' %}disabled{% endif %}>Confirmada</button>
-            </form>
-            <button
-              type="button"
-              class="btn btn-outline-danger btn-sm admin-action-btn"
-              {% if session.status.value == 'cancelled' or checkin.status.value == 'cancelled' %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelCheckinAdminModal-{{ checkin.id }}"{% endif %}
+      <section class="signup-page-content">
+        {% if checkins %}
+        <div class="user-directory-search-card checkin-admin-search-card">
+          <label for="checkinSessionSearch" class="user-directory-search-label">Buscar por nome</label>
+          <div class="user-directory-search-input-wrap">
+            <i class="bi bi-search user-directory-search-icon" aria-hidden="true"></i>
+            <input
+              type="search"
+              id="checkinSessionSearch"
+              class="form-control user-directory-search-input"
+              placeholder="Digite um nome ou parte dele"
+              autocomplete="off"
             >
-              Cancelado
-            </button>
           </div>
-        </article>
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="admin-empty">Nenhum check-in registrado para essa sessão.</p>
-      {% endif %}
+        </div>
+
+        <div class="checkin-admin-groups">
+          {% for group in grouped_checkins %}
+          {% if group.checkins %}
+          {% set group_slug = group.status.value|lower|replace('_', '-') %}
+          <section class="signup-group checkin-admin-group" data-checkin-group data-checkin-group-total="{{ group.checkins|length }}">
+            <div class="signup-group-head checkin-admin-group-head">
+              <div class="signup-group-title checkin-admin-group-summary">
+                <h3 class="checkin-admin-group-title">{{ group.label }}</h3>
+                <span class="checkin-admin-group-count" data-checkin-group-count>{{ group.checkins|length }}</span>
+              </div>
+              <button
+                class="signup-expand-btn checkin-admin-group-toggle"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#checkinGroupCollapse-{{ group_slug }}"
+                aria-expanded="false"
+                aria-controls="checkinGroupCollapse-{{ group_slug }}"
+                data-checkin-group-toggle
+              >
+                <span data-checkin-group-toggle-label>Ver lista</span>
+                <i class="bi bi-chevron-down"></i>
+              </button>
+            </div>
+
+            <div class="collapse" id="checkinGroupCollapse-{{ group_slug }}" data-checkin-group-collapse>
+              <div class="admin-user-list checkin-admin-group-list">
+                {% for checkin in group.checkins %}
+                <article class="admin-user-item checkin-admin-item" data-checkin-user-row data-checkin-user-name="{{ checkin.user.name }}">
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Jogadora</span>
+                    <span class="admin-user-value">{{ checkin.user.name }}</span>
+                  </div>
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Tipo</span>
+                    <span class="admin-user-value">{{ checkin.user.role.value|capitalize }}</span>
+                  </div>
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Status</span>
+                    <span class="admin-user-value">{{ checkin_status_labels[checkin.status] }}</span>
+                  </div>
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Check-in</span>
+                    <span class="admin-user-value admin-break">{{ format_brt_datetime(checkin.checked_in_at) }}</span>
+                  </div>
+                  {% if is_admin_view %}
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Último update por</span>
+                    <span class="admin-user-value admin-user-value-audit">
+                      {{ checkin.last_updated_by.name if checkin.last_updated_by else 'Sistema' }}
+                    </span>
+                  </div>
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Perfil update</span>
+                    <span class="admin-user-value admin-user-value-audit">
+                      {{ checkin.last_updated_by_role.value|capitalize if checkin.last_updated_by_role else 'Sistema' }}
+                    </span>
+                  </div>
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Origem update</span>
+                    <span class="admin-user-value admin-user-value-audit">
+                      {{ checkin_update_source_labels.get(checkin.last_updated_source, 'Não informado') }}
+                    </span>
+                  </div>
+                  <div class="admin-user-row">
+                    <span class="admin-user-label">Atualizado em</span>
+                    <span class="admin-user-value admin-user-value-audit admin-break">
+                      {{ format_brt_datetime(checkin.updated_at) }}
+                    </span>
+                  </div>
+                  {% endif %}
+
+                  <div class="checkin-admin-actions">
+                    <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CONFIRMED') }}">
+                      <button type="submit" class="btn btn-outline-info btn-sm admin-action-btn" {% if session.status.value == 'cancelled' %}disabled{% endif %}>Confirmada</button>
+                    </form>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm admin-action-btn"
+                      {% if session.status.value == 'cancelled' or checkin.status.value == 'cancelled' %}disabled{% else %}data-bs-toggle="modal" data-bs-target="#cancelCheckinAdminModal-{{ checkin.id }}"{% endif %}
+                    >
+                      Cancelado
+                    </button>
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+        <p class="signup-empty checkin-admin-search-empty" id="checkinSessionSearchEmpty" hidden>
+          Nenhuma jogadora encontrada para esta busca.
+        </p>
+        {% else %}
+        <p class="admin-empty">Nenhum check-in registrado para essa sessão.</p>
+        {% endif %}
+
+        <div class="checkin-admin-session-footer">
+          <a href="{{ url_for('main.admin_checkins') }}" class="fdq-secondary-link-btn admin-head-link checkin-admin-session-footer-link">Voltar para sessões</a>
+        </div>
+      </section>
     </div>
   </div>
 </section>
@@ -108,4 +164,139 @@
     {% endif %}
   {% endfor %}
 {% endif %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("checkinSessionSearch");
+    const groupSections = Array.from(document.querySelectorAll("[data-checkin-group]"));
+    const emptyElement = document.getElementById("checkinSessionSearchEmpty");
+    let searchWasActive = false;
+
+    if (!searchInput || !groupSections.length || !emptyElement) {
+      return;
+    }
+
+    function normalizeSearchValue(value) {
+      return (value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .trim();
+    }
+
+    function updateToggleLabel(toggleButton, isExpanded) {
+      if (!toggleButton) {
+        return;
+      }
+
+      const label = toggleButton.querySelector("[data-checkin-group-toggle-label]");
+      if (label) {
+        label.textContent = isExpanded ? "Ocultar lista" : "Ver lista";
+      }
+
+      toggleButton.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+    }
+
+    function setGroupExpanded(groupSection, shouldExpand) {
+      const collapseElement = groupSection.querySelector("[data-checkin-group-collapse]");
+      const toggleButton = groupSection.querySelector("[data-checkin-group-toggle]");
+
+      if (!collapseElement || !toggleButton) {
+        return;
+      }
+
+      if (window.bootstrap && window.bootstrap.Collapse) {
+        const collapseInstance = window.bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle: false });
+        if (shouldExpand) {
+          collapseInstance.show();
+        } else {
+          collapseInstance.hide();
+        }
+      } else {
+        collapseElement.classList.toggle("show", shouldExpand);
+        updateToggleLabel(toggleButton, shouldExpand);
+      }
+    }
+
+    groupSections.forEach(function (groupSection) {
+      const collapseElement = groupSection.querySelector("[data-checkin-group-collapse]");
+      const toggleButton = groupSection.querySelector("[data-checkin-group-toggle]");
+      const isExpanded = Boolean(collapseElement && collapseElement.classList.contains("show"));
+
+      groupSection.dataset.manualExpanded = isExpanded ? "true" : "false";
+      updateToggleLabel(toggleButton, isExpanded);
+
+      if (!collapseElement) {
+        return;
+      }
+
+      collapseElement.addEventListener("shown.bs.collapse", function () {
+        updateToggleLabel(toggleButton, true);
+        if (!searchWasActive) {
+          groupSection.dataset.manualExpanded = "true";
+        }
+      });
+
+      collapseElement.addEventListener("hidden.bs.collapse", function () {
+        updateToggleLabel(toggleButton, false);
+        if (!searchWasActive) {
+          groupSection.dataset.manualExpanded = "false";
+        }
+      });
+    });
+
+    function updateVisibleUsers() {
+      const query = normalizeSearchValue(searchInput.value);
+      const isSearching = Boolean(query);
+
+      if (isSearching && !searchWasActive) {
+        groupSections.forEach(function (groupSection) {
+          const collapseElement = groupSection.querySelector("[data-checkin-group-collapse]");
+          groupSection.dataset.manualExpanded = collapseElement && collapseElement.classList.contains("show") ? "true" : "false";
+        });
+      }
+
+      searchWasActive = isSearching;
+      let visibleGroupCount = 0;
+
+      groupSections.forEach(function (groupSection) {
+        const userRows = Array.from(groupSection.querySelectorAll("[data-checkin-user-row]"));
+        const countElement = groupSection.querySelector("[data-checkin-group-count]");
+        let visibleUsersInGroup = 0;
+
+        userRows.forEach(function (userRow) {
+          const userName = normalizeSearchValue(userRow.dataset.checkinUserName);
+          const matches = !query || userName.includes(query);
+
+          userRow.hidden = !matches;
+          if (matches) {
+            visibleUsersInGroup += 1;
+          }
+        });
+
+        const totalUsersInGroup = Number(groupSection.dataset.checkinGroupTotal || userRows.length);
+        groupSection.hidden = visibleUsersInGroup === 0;
+
+        if (countElement) {
+          countElement.textContent = String(isSearching ? visibleUsersInGroup : totalUsersInGroup);
+        }
+
+        if (isSearching) {
+          setGroupExpanded(groupSection, visibleUsersInGroup > 0);
+        } else {
+          setGroupExpanded(groupSection, groupSection.dataset.manualExpanded === "true");
+        }
+
+        if (visibleUsersInGroup > 0) {
+          visibleGroupCount += 1;
+        }
+      });
+
+      emptyElement.hidden = visibleGroupCount !== 0;
+    }
+
+    searchInput.addEventListener("input", updateVisibleUsers);
+    updateVisibleUsers();
+  });
+</script>
 {% endblock %}

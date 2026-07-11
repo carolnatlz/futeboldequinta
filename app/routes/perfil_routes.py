@@ -66,7 +66,7 @@ def _render_coletes_teste_page(*, current_pinnie, form_data=None):
         selected_pinnie_number = None
 
     return render_template(
-        "perfil/coletes_teste.html",
+        "perfil/coletes.html",
         current_pinnie=current_pinnie,
         available_pinnie_numbers=available_pinnie_numbers,
         pinnie_name_max_length=PINNIE_NAME_MAX_LENGTH,

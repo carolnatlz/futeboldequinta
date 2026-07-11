@@ -54,6 +54,15 @@ CHECKIN_STATUS_LABELS = {
     CheckinStatus.ATTENDED: "Presente",
 }
 
+CHECKIN_ADMIN_GROUP_ORDER = (
+    CheckinStatus.RESERVED,
+    CheckinStatus.CONFIRMED,
+    CheckinStatus.ATTENDED,
+    CheckinStatus.WAITLIST,
+    CheckinStatus.CANCELLED,
+    CheckinStatus.NO_SHOW,
+)
+
 CHECKIN_UPDATE_SOURCE_LABELS = {
     CheckinUpdateSource.SELF_SERVICE: "Autoatendimento",
     CheckinUpdateSource.ADMIN_PANEL: "Painel admin",
@@ -289,6 +298,27 @@ def _format_time_label(dt):
     if dt.minute:
         return dt.strftime("%-Hh%M")
     return dt.strftime("%-Hh")
+
+
+def _format_brt_datetime(dt):
+    if not dt:
+        return "—"
+    return f"{dt.astimezone(BRAZIL_TZ).strftime('%d/%m/%Y %H:%M')} BRT"
+
+
+def _group_checkins_by_status(checkins):
+    grouped_checkins = {status: [] for status in CHECKIN_ADMIN_GROUP_ORDER}
+    for checkin in checkins:
+        grouped_checkins.setdefault(checkin.status, []).append(checkin)
+
+    return [
+        {
+            "status": status,
+            "label": CHECKIN_STATUS_LABELS[status],
+            "checkins": grouped_checkins.get(status, []),
+        }
+        for status in CHECKIN_ADMIN_GROUP_ORDER
+    ]
 
 
 def _session_window_label(session):
@@ -1192,12 +1222,14 @@ def admin_checkins_sessao(session_id):
         "checkins/checkin_sessao.html",
         session=session,
         checkins=checkins,
+        grouped_checkins=_group_checkins_by_status(checkins),
         confirmed_count=confirmed_count,
         waitlist_count=waitlist_count,
         is_admin_view=current_user.role == UserRole.ADMIN,
         checkin_status_labels=CHECKIN_STATUS_LABELS,
         checkin_update_source_labels=CHECKIN_UPDATE_SOURCE_LABELS,
         session_status_labels=SESSION_STATUS_LABELS,
+        format_brt_datetime=_format_brt_datetime,
     )
 
 
