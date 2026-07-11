@@ -175,7 +175,7 @@ def perfil():
     )
 
 
-@main.route("/coletes-teste", methods=["GET", "POST"])
+@main.route("/coletes", methods=["GET", "POST"])
 @login_required
 def coletes_teste():
     current_pinnie = current_user.pinnie
