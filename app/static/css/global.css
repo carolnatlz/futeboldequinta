@@ -302,16 +302,6 @@ body {
   color: #fff;
 }
 
-.fdq-modal-btn-success {
-  background: linear-gradient(120deg, #0f8f4e, #1fc96d);
-  color: #fff;
-}
-
-.fdq-modal-btn-success:hover {
-  background: linear-gradient(120deg, #12a65a, #24dd78);
-  color: #fff;
-}
-
 .modal {
   z-index: 2000;
 }
@@ -1889,8 +1879,9 @@ body {
 }
 
 .team-draw-status-btn-present.is-active {
-  background: rgba(34, 197, 94, 0.14);
-  border-color: rgba(61, 214, 156, 0.42);
+  background: rgba(34, 197, 94, 0.3);
+  border-color: rgba(61, 214, 156, 0.62);
+  color: #ffffff;
 }
 
 .team-draw-status-btn-missed {
@@ -2412,10 +2403,38 @@ body {
   margin: 0;
 }
 
-.pinnie-request-modal-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
+.pinnie-request-warning-card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  max-width: 620px;
+  margin: 18px auto 0;
+  padding: 18px 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 80, 105, 0.28);
+  background: linear-gradient(160deg, rgba(74, 13, 28, 0.78), rgba(49, 10, 21, 0.88));
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+}
+
+.pinnie-request-warning-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 61, 92, 0.16);
+  color: #ff657f;
+  font-size: 1.35rem;
+}
+
+.pinnie-request-warning-copy {
+  margin: 0;
+  color: #ffd8df;
+  line-height: 1.6;
+}
+
+.pinnie-request-warning-copy strong {
+  color: #ff8da0;
 }
 
 .signup-info-card {
@@ -2967,12 +2986,22 @@ input[type="file"] {
     font-size: 0.94rem;
   }
 
-  .pinnie-request-modal-footer {
-    flex-direction: column;
+  .pinnie-request-warning-card {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px 14px;
+    border-radius: 18px;
   }
 
-  .pinnie-request-modal-footer .fdq-modal-btn {
-    width: 100%;
+  .pinnie-request-warning-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+  }
+
+  .pinnie-request-warning-copy {
+    font-size: 0.9rem;
   }
 
   .signup-person-meta {

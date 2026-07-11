@@ -5,7 +5,7 @@
   <div class="cadastro-card-wrap">
     <div class="checkin-page-shell pinnie-request-shell">
       <div class="checkin-page-head pinnie-request-head">
-        <h2 class="cadastro-title generic-page-title">Coletes [TESTE]</h2>
+        <h2 class="cadastro-title generic-page-title">Coletes</h2>
         <span class="section-title-divider"></span>
       </div>
 
@@ -13,14 +13,14 @@
         <p class="pinnie-request-copy">
           {% if current_pinnie %}
           Olá <strong>{{ current_user.name }}</strong>, você possui um colete cadastrado com nome:
-          <strong>{{ current_pinnie.pinnie_name or "não informado" }}</strong> e colete:
+          <strong>{{ current_pinnie.pinnie_name or "não informado" }}</strong> e número:
           <strong>{{ current_pinnie.pinnie_number }}</strong>. Caso queira alterar, preencha as informações abaixo e clique para submeter.
           {% else %}
-          Olá <strong>{{ current_user.name }}</strong>, você não possui nenhum colete no seu nome. Nos campos abaixo você pode solicitar, portanto, preencha com o nome que gostaria no colete e escolha um número disponível.
+          Olá <strong>{{ current_user.name }}</strong>, você não possui nenhum colete no seu nome. Nos campos abaixo você pode solicitá-lo. Preencha com o nome que gostaria no colete e escolha um número disponível.
           {% endif %}
         </p>
 
-        <form method="POST" class="cadastro-form pinnie-request-form" id="pinnieRequestForm">
+        <form method="POST" class="cadastro-form pinnie-request-form">
           <label class="pinnie-request-label" for="pinnieName">Nome que será escrito no colete:</label>
           <div class="fdq-field-group">
             <i class="bi bi-type"></i>
@@ -53,20 +53,6 @@
             </select>
           </div>
 
-          <label class="pinnie-request-label" for="pinnieTestPassword">Senha:</label>
-          <div class="fdq-field-group">
-            <i class="bi bi-key"></i>
-            <input
-              type="password"
-              id="pinnieTestPassword"
-              class="fdq-field"
-              placeholder="Digite a senha de teste"
-              autocomplete="new-password"
-              required
-            >
-          </div>
-          <div class="fdq-error" id="pinniePasswordError" hidden>Senha inválida para esta fase de teste.</div>
-
           {% if not available_pinnie_numbers %}
           <p class="fdq-error pinnie-request-inline-error">Não existem números de colete disponíveis no momento.</p>
           {% endif %}
@@ -74,62 +60,16 @@
           <button type="submit" class="fdq-submit" {% if not available_pinnie_numbers %}disabled{% endif %}>Submeter</button>
         </form>
       </div>
+
+      <div class="pinnie-request-warning-card">
+        <span class="pinnie-request-warning-icon" aria-hidden="true">
+          <i class="bi bi-exclamation-circle-fill"></i>
+        </span>
+        <p class="pinnie-request-warning-copy">
+          <strong>Atenção:</strong> Ainda não sabemos qual será o preço exato do colete, nem como será o modelo, portanto, a reserva do número não te obriga a comprar nada, apenas garante que esse número será exclusivamente seu.
+        </p>
+      </div>
     </div>
   </div>
 </section>
-
-<div
-  class="modal fade"
-  id="pinnieTestWarningModal"
-  tabindex="-1"
-  aria-labelledby="pinnieTestWarningModalLabel"
-  aria-hidden="true"
-  data-bs-backdrop="static"
-  data-bs-keyboard="false"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content fdq-logout-modal">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="pinnieTestWarningModalLabel">Atenção</h5>
-      </div>
-      <div class="modal-body">
-        ESTA TELA TÁ SENDO TESTADA, FAVOR NÃO FAZER NADA, ESTOU DE OLHO!
-      </div>
-      <div class="modal-footer border-0 pinnie-request-modal-footer">
-        <a href="{{ url_for('main.inscricoes_nos_jogos') }}" class="btn fdq-modal-btn fdq-modal-btn-danger">opa, me tira daqui então</a>
-        <button type="button" class="btn fdq-modal-btn fdq-modal-btn-success" data-bs-dismiss="modal">estou autorizada</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const requestForm = document.getElementById("pinnieRequestForm");
-    const passwordInput = document.getElementById("pinnieTestPassword");
-    const passwordError = document.getElementById("pinniePasswordError");
-
-    if (requestForm && passwordInput && passwordError) {
-      requestForm.addEventListener("submit", function (event) {
-        if (passwordInput.value !== "anonovo") {
-          event.preventDefault();
-          passwordError.hidden = false;
-          passwordInput.focus();
-        }
-      });
-
-      passwordInput.addEventListener("input", function () {
-        passwordError.hidden = true;
-      });
-    }
-
-    {% if show_test_modal %}
-    const warningModalElement = document.getElementById("pinnieTestWarningModal");
-    if (warningModalElement && window.bootstrap) {
-      const warningModal = new bootstrap.Modal(warningModalElement);
-      warningModal.show();
-    }
-    {% endif %}
-  });
-</script>
 {% endblock %}

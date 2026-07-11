@@ -53,7 +53,7 @@ def _parse_selected_pinnie_number(raw_value):
     return int(raw_value) if raw_value.isdigit() else None
 
 
-def _render_coletes_teste_page(*, current_pinnie, form_data=None, show_test_modal=True):
+def _render_coletes_teste_page(*, current_pinnie, form_data=None):
     if form_data is None:
         selected_pinnie_name = current_pinnie.pinnie_name if current_pinnie else ""
         selected_pinnie_number = current_pinnie.pinnie_number if current_pinnie else None
@@ -72,7 +72,6 @@ def _render_coletes_teste_page(*, current_pinnie, form_data=None, show_test_moda
         pinnie_name_max_length=PINNIE_NAME_MAX_LENGTH,
         selected_pinnie_name=selected_pinnie_name,
         selected_pinnie_number=selected_pinnie_number,
-        show_test_modal=show_test_modal,
     )
 
 def _build_profile_stats(user_id):
@@ -227,7 +226,6 @@ def coletes_teste():
             return _render_coletes_teste_page(
                 current_pinnie=current_pinnie,
                 form_data=request.form,
-                show_test_modal=False,
             )
 
         if current_pinnie:
@@ -253,7 +251,6 @@ def coletes_teste():
             return _render_coletes_teste_page(
                 current_pinnie=current_user.pinnie,
                 form_data=request.form,
-                show_test_modal=False,
             )
         except Exception:
             db.session.rollback()
@@ -268,16 +265,12 @@ def coletes_teste():
             return _render_coletes_teste_page(
                 current_pinnie=current_user.pinnie,
                 form_data=request.form,
-                show_test_modal=False,
             )
 
         flash("Solicitação de colete salva com sucesso.", "alert-success")
-        return redirect(url_for("main.coletes_teste", dismiss_warning=1))
+        return redirect(url_for("main.coletes_teste"))
 
-    return _render_coletes_teste_page(
-        current_pinnie=current_pinnie,
-        show_test_modal=request.args.get("dismiss_warning") != "1",
-    )
+    return _render_coletes_teste_page(current_pinnie=current_pinnie)
 
 
 @main.route("/perfil/editar", methods=["GET", "POST"])
