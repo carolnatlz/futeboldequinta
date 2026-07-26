@@ -17,6 +17,8 @@ class Pinnie(db.Model):
     )
     pinnie_name = db.Column(db.String(120), nullable=True)
     pinnie_number = db.Column(db.Integer, unique=True, nullable=False)
+    payment_declared = db.Column(db.Boolean, nullable=True)
+    purchase_submitted_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
     user = db.relationship("User", back_populates="pinnie", lazy=True)
 

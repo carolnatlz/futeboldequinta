@@ -1,0 +1,123 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero">
+  <div class="cadastro-card-wrap">
+    <div class="checkin-page-shell signup-page-shell">
+      <div class="checkin-page-head signup-page-head">
+        <h2 class="cadastro-title generic-page-title">Gestão dos Coletes</h2>
+        <span class="section-title-divider"></span>
+      </div>
+
+      <section class="signup-page-content">
+        <div class="user-directory-search-card">
+          <label for="pinnieDirectorySearch" class="user-directory-search-label">Buscar por nome</label>
+          <div class="user-directory-search-input-wrap">
+            <i class="bi bi-search user-directory-search-icon" aria-hidden="true"></i>
+            <input
+              type="search"
+              id="pinnieDirectorySearch"
+              class="form-control user-directory-search-input"
+              placeholder="Digite um nome ou parte dele"
+              autocomplete="off"
+            >
+          </div>
+        </div>
+
+        <section class="signup-group signup-group-confirmed user-directory-group">
+          <div class="signup-group-head">
+            <div class="signup-group-title">
+              <span class="signup-group-title-icon signup-group-title-icon-confirmed">
+                <i class="bi bi-person-badge"></i>
+              </span>
+              <h4>Solicitações de colete (<span id="pinnieDirectoryCount">{{ usuarios|length }}</span>)</h4>
+            </div>
+          </div>
+
+          <div class="signup-list user-directory-list" id="pinnieDirectoryList">
+            {% for usuario in usuarios %}
+            <article class="signup-person-row user-directory-row pinnie-management-row" data-pinnie-row data-user-name="{{ usuario.name }}">
+              <span class="signup-person-avatar">
+                <img
+                  src="{{ profile_photo_url(usuario.profile_img) }}"
+                  alt="Foto de perfil de {{ usuario.name }}"
+                  class="signup-person-avatar-img"
+                >
+              </span>
+              <span class="signup-person-main user-directory-main">
+                <strong class="signup-person-name">{{ usuario.name }}</strong>
+                <span class="signup-person-position">{{ usuario.phone or "Telefone não informado" }}</span>
+              </span>
+              <span class="pinnie-management-payment">
+                <strong class="pinnie-management-payment-status{% if usuario.pinnie.payment_declared %} is-paid{% else %} is-unpaid{% endif %}">
+                  {% if usuario.pinnie.payment_declared %}Pago{% else %}Não Pagou{% endif %}
+                </strong>
+                <time
+                  class="pinnie-management-payment-date"
+                  {% if usuario.pinnie.purchase_submitted_at %}datetime="{{ usuario.pinnie.purchase_submitted_at.isoformat() }}"{% endif %}
+                >
+                  {{ format_purchase_submitted_at(usuario.pinnie.purchase_submitted_at) }}
+                </time>
+              </span>
+            </article>
+            {% endfor %}
+          </div>
+
+          <p class="signup-empty user-directory-empty" id="pinnieDirectoryEmpty"{% if usuarios %} hidden{% endif %}>
+            {% if usuarios %}
+            Nenhum usuário encontrado para esta busca.
+            {% else %}
+            Nenhuma solicitação de colete até o momento.
+            {% endif %}
+          </p>
+        </section>
+      </section>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("pinnieDirectorySearch");
+    const userRows = Array.from(document.querySelectorAll("[data-pinnie-row]"));
+    const countElement = document.getElementById("pinnieDirectoryCount");
+    const emptyElement = document.getElementById("pinnieDirectoryEmpty");
+
+    if (!searchInput || !countElement || !emptyElement) {
+      return;
+    }
+
+    function normalizeSearchValue(value) {
+      return (value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .trim();
+    }
+
+    function updateVisibleUsers() {
+      const query = normalizeSearchValue(searchInput.value);
+      let visibleCount = 0;
+
+      userRows.forEach(function (row) {
+        const userName = normalizeSearchValue(row.dataset.userName);
+        const matches = !query || userName.includes(query);
+
+        row.hidden = !matches;
+        if (matches) {
+          visibleCount += 1;
+        }
+      });
+
+      countElement.textContent = String(visibleCount);
+      emptyElement.hidden = visibleCount !== 0;
+      emptyElement.textContent = query
+        ? "Nenhum usuário encontrado para esta busca."
+        : "Nenhuma solicitação de colete até o momento.";
+    }
+
+    searchInput.addEventListener("input", updateVisibleUsers);
+    updateVisibleUsers();
+  });
+</script>
+{% endblock %}

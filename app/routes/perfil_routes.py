@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 from flask import current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, logout_user
 from sqlalchemy import Float, case, cast, func
@@ -17,6 +19,7 @@ from app.models import (
 
 from . import (
     ProfileImageUploadError,
+    feature_required,
     main,
     now_utc,
     remover_imagem,
@@ -176,6 +179,7 @@ def perfil():
 
 
 @main.route("/coletes", methods=["GET", "POST"])
+@feature_required("COLETES_ENABLED")
 @login_required
 def coletes_teste():
     current_pinnie = current_user.pinnie
@@ -271,6 +275,72 @@ def coletes_teste():
         return redirect(url_for("main.coletes_teste"))
 
     return _render_coletes_teste_page(current_pinnie=current_pinnie)
+
+
+@main.route("/comprar-colete", methods=["GET", "POST"])
+@feature_required("COMPRAR_COLETE_ENABLED")
+@login_required
+def comprar_colete():
+    current_pinnie = Pinnie.query.filter_by(user_id=current_user.id).first()
+    whatsapp_number = "".join(
+        character
+        for character in (current_app.config.get("WHATSAPP_ADMIN_NUMBER") or "")
+        if character.isdigit()
+    )
+    whatsapp_message = "Olá Carol, sobre o colete do FutdeQuinta: "
+    payment_status = request.form.get("payment_status")
+    form_error = None
+
+    if request.method == "POST" and current_pinnie:
+        if payment_status not in {"paid", "not_paid"}:
+            form_error = "Informe se você pagou o sinal de R$ 30."
+        else:
+            current_pinnie.payment_declared = payment_status == "paid"
+            current_pinnie.purchase_submitted_at = now_utc()
+
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                current_app.logger.exception(
+                    "Falha ao salvar solicitacao de compra de colete para %s.",
+                    current_user.id,
+                )
+                form_error = (
+                    "Não conseguimos salvar sua solicitação agora. "
+                    "Tente novamente em instantes."
+                )
+            else:
+                return redirect(url_for("main.comprar_colete_sucesso"))
+
+    return render_template(
+        "perfil/comprar_colete.html",
+        current_pinnie=current_pinnie,
+        payment_status=payment_status,
+        form_error=form_error,
+        whatsapp_admin_url=(
+            f"https://wa.me/{whatsapp_number}?text={quote(whatsapp_message)}"
+            if whatsapp_number
+            else None
+        ),
+    )
+
+
+@main.route("/comprar-colete/sucesso")
+@feature_required("COMPRAR_COLETE_ENABLED")
+@login_required
+def comprar_colete_sucesso():
+    current_pinnie = Pinnie.query.filter_by(user_id=current_user.id).first()
+    if not current_pinnie:
+        return render_template(
+            "perfil/comprar_colete.html",
+            current_pinnie=None,
+            payment_status=None,
+            form_error=None,
+            whatsapp_admin_url=None,
+        )
+
+    return render_template("perfil/comprar_colete_sucesso.html")
 
 
 @main.route("/perfil/editar", methods=["GET", "POST"])

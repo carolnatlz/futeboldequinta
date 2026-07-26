@@ -2336,6 +2336,38 @@ body {
   padding-top: 16px;
 }
 
+.pinnie-management-row {
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+}
+
+.pinnie-management-payment-status {
+  min-width: 86px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.pinnie-management-payment {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  text-align: right;
+}
+
+.pinnie-management-payment-date {
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.pinnie-management-payment-status.is-paid {
+  color: #22c55e;
+}
+
+.pinnie-management-payment-status.is-unpaid {
+  color: #ff657f;
+}
+
 .pinnie-request-shell {
   max-width: 760px;
 }
@@ -2435,6 +2467,189 @@ body {
 
 .pinnie-request-warning-copy strong {
   color: #ff8da0;
+}
+
+.pinnie-purchase-card {
+  display: grid;
+  gap: 20px;
+}
+
+.pinnie-purchase-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto 18px;
+}
+
+.pinnie-purchase-gallery-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1078 / 1460;
+  object-fit: contain;
+  background: #000000;
+  border: 1px solid rgba(163, 189, 255, 0.2);
+  border-radius: 18px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+}
+
+.pinnie-purchase-gallery-image-red {
+  padding: 12px 7%;
+}
+
+.pinnie-purchase-card .pinnie-request-copy {
+  margin: 0;
+}
+
+.pinnie-purchase-admin-link {
+  color: #8beeff;
+  font-weight: 700;
+}
+
+.pinnie-purchase-admin-link:hover {
+  color: #ffffff;
+}
+
+.pinnie-purchase-admin-link.is-unavailable {
+  color: #aebbd9;
+  cursor: not-allowed;
+  text-decoration: underline;
+}
+
+.pinnie-purchase-data {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid rgba(163, 189, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(4, 16, 51, 0.5);
+}
+
+.pinnie-purchase-data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #b9c8ea;
+}
+
+.pinnie-purchase-data-row strong {
+  color: #ffffff;
+  text-align: right;
+}
+
+.pinnie-purchase-empty {
+  margin: 0;
+  color: #b9c8ea;
+}
+
+.pinnie-purchase-blocked-message {
+  margin: 0;
+  color: #dce6ff;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.pinnie-purchase-payment {
+  display: grid;
+  gap: 14px;
+}
+
+.pinnie-purchase-price {
+  color: #ff657f !important;
+  font-size: 1.08em;
+}
+
+.pinnie-purchase-pix-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pinnie-purchase-pix-email {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.pinnie-purchase-copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #dce6ff;
+  font-size: 0.78rem;
+}
+
+.pinnie-purchase-copy-button:hover,
+.pinnie-purchase-copy-button.is-copied {
+  border-color: rgba(139, 238, 255, 0.42);
+  background: rgba(139, 238, 255, 0.12);
+  color: #8beeff;
+}
+
+.pinnie-purchase-form {
+  margin-top: 0;
+}
+
+.pinnie-purchase-payment-confirmation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pinnie-purchase-payment-confirmation legend {
+  width: 100%;
+  margin: 0;
+  color: #dce6ff;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.pinnie-purchase-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.pinnie-purchase-radio input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #ff3d5c;
+}
+
+.pinnie-purchase-success-card {
+  display: block;
+}
+
+.pinnie-purchase-success-message {
+  margin: 0;
+  color: #dce6ff;
+  font-size: 1rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.pinnie-purchase-success-message strong {
+  color: #22c55e;
 }
 
 .signup-info-card {
@@ -3079,6 +3294,19 @@ input[type="file"] {
     gap: 10px;
     min-height: 64px;
     padding: 10px 0;
+  }
+
+  .pinnie-management-row {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+
+  .pinnie-management-payment-status {
+    min-width: 72px;
+    font-size: 0.74rem;
+  }
+
+  .pinnie-management-payment-date {
+    font-size: 0.62rem;
   }
 
   .pinnie-request-card {

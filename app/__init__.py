@@ -2,7 +2,7 @@ import os
 import uuid
 
 from dotenv import load_dotenv
-from flask import Flask, url_for
+from flask import Flask, render_template, url_for
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -17,6 +17,15 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 migrate = Migrate()
 login_manager = LoginManager()
+
+
+def _env_flag(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
 
 # =========================
 # Application Factory
@@ -49,6 +58,20 @@ def create_app():
     app.config["RESEND_REPLY_TO"] = os.environ.get("RESEND_REPLY_TO")
     app.config["RESEND_TIMEOUT"] = int(os.environ.get("RESEND_TIMEOUT", 10))
     app.config["PUBLIC_BASE_URL"] = os.environ.get("PUBLIC_BASE_URL")
+    app.config["WHATSAPP_ADMIN_NUMBER"] = "5521995971902"
+    # A rota de coletes fica disponível por padrão, mas seu botão permanece
+    # oculto no menu para que o acesso aconteça somente pela URL direta.
+    app.config["COLETES_ENABLED"] = _env_flag("COLETES_ENABLED", default=True)
+    app.config["COLETES_MENU_ENABLED"] = _env_flag(
+        "COLETES_MENU_ENABLED",
+        default=False,
+    )
+    # Fluxo de compra disponível por padrão.
+    # Para desativar, defina COMPRAR_COLETE_ENABLED=false no ambiente.
+    app.config["COMPRAR_COLETE_ENABLED"] = _env_flag(
+        "COMPRAR_COLETE_ENABLED",
+        default=True,
+    )
     app.config["CLOUDINARY_CLOUD_NAME"] = os.environ.get("CLOUDINARY_CLOUD_NAME")
     app.config["CLOUDINARY_API_KEY"] = os.environ.get("CLOUDINARY_API_KEY")
     app.config["CLOUDINARY_API_SECRET"] = os.environ.get("CLOUDINARY_API_SECRET")
@@ -145,5 +168,9 @@ def create_app():
     # =========================
     from app.routes import main
     app.register_blueprint(main)
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template("errors/failure.html"), 404
 
     return app

@@ -1,0 +1,156 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero pinnie-request-page">
+  <div class="cadastro-card-wrap">
+    <div class="checkin-page-shell pinnie-request-shell">
+      <div class="checkin-page-head pinnie-request-head">
+        <h2 class="cadastro-title generic-page-title">Comprar Colete</h2>
+        <span class="section-title-divider"></span>
+      </div>
+
+      <div class="pinnie-purchase-gallery" aria-label="Modelos do colete">
+        <img
+          src="{{ asset_url('img/colete-vermelho-frente.png') }}"
+          alt="Parte da frente do modelo vermelho do colete do Futebol de Quinta"
+          class="pinnie-purchase-gallery-image pinnie-purchase-gallery-image-red"
+        >
+        <img
+          src="{{ asset_url('img/colete-azul-costas.png') }}"
+          alt="Parte de trás do modelo azul do colete do Futebol de Quinta"
+          class="pinnie-purchase-gallery-image"
+        >
+      </div>
+
+      <div class="cadastro-card pinnie-request-card pinnie-purchase-card">
+        {% if not current_pinnie %}
+        <p class="pinnie-purchase-blocked-message">
+          Ops, você não tem nenhum colete vinculado ao seu usuário!<br>
+          Clique <a class="pinnie-purchase-admin-link" href="{{ url_for('main.coletes_teste') }}">aqui</a>
+          para escolher um nome e número.
+        </p>
+        {% else %}
+        <p class="pinnie-request-copy">
+          Gostou do colete? Primeiro confira abaixo o nome e número
+          que serão escritos no seu colete. Caso você queira mudar ou pedir algo específico entre em contato com a admin
+          {% if whatsapp_admin_url %}
+          <a class="pinnie-purchase-admin-link" href="{{ whatsapp_admin_url }}" target="_blank" rel="noopener noreferrer">por esse link</a>.
+          {% else %}
+          <span class="pinnie-purchase-admin-link is-unavailable" title="Número do WhatsApp ainda não configurado">por esse link</span>.
+          {% endif %}
+        </p>
+
+        <div class="pinnie-purchase-data" aria-label="Dados do colete">
+          <div class="pinnie-purchase-data-row">
+            <span>Nome do Colete:</span>
+            <strong>{{ current_pinnie.pinnie_name or "Não informado" }}</strong>
+          </div>
+          <div class="pinnie-purchase-data-row">
+            <span>Número do Colete:</span>
+            <strong>{{ current_pinnie.pinnie_number }}</strong>
+          </div>
+        </div>
+
+        <div class="pinnie-purchase-payment">
+          <p class="pinnie-request-copy">
+            O valor total do colete será <strong class="pinnie-purchase-price">R$ 60</strong>
+            e, nesse momento, pediremos apenas o sinal de R$ 30. Portanto, faça um
+            <strong class="pinnie-purchase-price">Pix de 30 reais</strong> para a seguinte chave pix:
+          </p>
+
+          <div class="pinnie-purchase-pix-row">
+            <span id="pinniePixEmail" class="pinnie-purchase-pix-email">uniformes@futeboldequinta.com.br</span>
+            <button
+              type="button"
+              class="pinnie-purchase-copy-button"
+              id="pinniePixCopyButton"
+              aria-label="Copiar chave Pix"
+            >
+              <i class="bi bi-copy" aria-hidden="true"></i>
+              <span>clique para copiar</span>
+            </button>
+          </div>
+        </div>
+
+        <form method="POST" class="cadastro-form pinnie-request-form pinnie-purchase-form">
+          <fieldset class="pinnie-purchase-payment-confirmation">
+            <legend>Confirma que pagou os 30 reais?</legend>
+            <label class="pinnie-purchase-radio">
+              <input type="radio" name="payment_status" value="paid" {% if payment_status == "paid" %}checked{% endif %} required>
+              <span>Paguei</span>
+            </label>
+            <label class="pinnie-purchase-radio">
+              <input type="radio" name="payment_status" value="not_paid" {% if payment_status == "not_paid" %}checked{% endif %} required>
+              <span>Não Paguei</span>
+            </label>
+          </fieldset>
+
+          {% if form_error %}
+          <p class="fdq-error pinnie-request-inline-error">{{ form_error }}</p>
+          {% endif %}
+
+          <button type="submit" class="fdq-submit">Submeter</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const copyButton = document.getElementById("pinniePixCopyButton");
+    const pixEmail = document.getElementById("pinniePixEmail");
+
+    if (!copyButton || !pixEmail) {
+      return;
+    }
+
+    const copyIcon = copyButton.querySelector("i");
+    const copyLabel = copyButton.querySelector("span");
+
+    const showCopyFeedback = function () {
+      copyButton.classList.add("is-copied");
+      copyIcon.classList.replace("bi-copy", "bi-check2");
+      copyLabel.textContent = "copiado";
+
+      window.setTimeout(function () {
+        copyButton.classList.remove("is-copied");
+        copyIcon.classList.replace("bi-check2", "bi-copy");
+        copyLabel.textContent = "clique para copiar";
+      }, 1800);
+    };
+
+    const fallbackCopy = function () {
+      const temporaryInput = document.createElement("textarea");
+      temporaryInput.value = pixEmail.textContent.trim();
+      temporaryInput.setAttribute("readonly", "");
+      temporaryInput.style.position = "fixed";
+      temporaryInput.style.left = "-9999px";
+      document.body.appendChild(temporaryInput);
+      temporaryInput.select();
+      const copied = document.execCommand("copy");
+      temporaryInput.remove();
+      return copied;
+    };
+
+    copyButton.addEventListener("click", async function () {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(pixEmail.textContent.trim());
+          showCopyFeedback();
+          return;
+        }
+
+        if (fallbackCopy()) {
+          showCopyFeedback();
+        }
+      } catch (error) {
+        if (fallbackCopy()) {
+          showCopyFeedback();
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from functools import wraps
 
-from flask import Blueprint, flash, redirect, request, url_for
+from flask import Blueprint, abort, current_app, flash, redirect, request, url_for
 from flask_login import current_user
 
 from app.profile_images import (
@@ -12,6 +12,20 @@ from app.profile_images import (
 )
 
 main = Blueprint("main", __name__)
+
+
+def feature_required(config_key):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if not current_app.config.get(config_key, False):
+                abort(404)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def roles_required(*allowed_roles):
