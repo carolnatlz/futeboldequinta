@@ -2447,11 +2447,6 @@ body {
   letter-spacing: -0.02em;
 }
 
-.pinnie-current-batch-value {
-  color: #5fe0f4;
-  font-size: 0.9rem;
-}
-
 .pinnie-current-batch-hint {
   color: rgba(208, 220, 248, 0.72);
   font-size: 0.76rem;
@@ -2683,6 +2678,10 @@ body {
   border-bottom: none;
 }
 
+.pinnie-control-row.is-readonly {
+  grid-template-columns: minmax(220px, 1fr) minmax(330px, 1.45fr);
+}
+
 .pinnie-control-person {
   min-width: 0;
   display: grid;
@@ -2840,8 +2839,7 @@ body {
 
 .pinnie-flow-primary-action,
 .pinnie-flow-undo-action,
-.pinnie-flow-completed-label,
-.pinnie-flow-readonly-label {
+.pinnie-flow-completed-label {
   width: 100%;
   min-height: 36px;
   display: inline-flex;
@@ -2912,12 +2910,6 @@ body {
   border: 1px solid rgba(34, 197, 94, 0.34);
   background: rgba(34, 197, 94, 0.12);
   color: #9df2bc;
-}
-
-.pinnie-flow-readonly-label {
-  border: 1px solid rgba(154, 183, 255, 0.2);
-  background: rgba(255, 255, 255, 0.035);
-  color: rgba(208, 220, 248, 0.72);
 }
 
 .pinnie-request-shell {
@@ -4017,6 +4009,10 @@ input[type="file"] {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
     padding: 16px 0;
+  }
+
+  .pinnie-control-row.is-readonly {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pinnie-control-person {

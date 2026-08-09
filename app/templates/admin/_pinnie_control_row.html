@@ -12,7 +12,7 @@
   else none
 ) %}
 <article
-  class="pinnie-control-row"
+  class="pinnie-control-row{% if not is_admin_view %} is-readonly{% endif %}"
   data-pinnie-control-row
   data-pinnie-id="{{ pinnie.id }}"
   data-user-name="{{ usuario.name }}"
@@ -92,8 +92,8 @@
     </div>
   </div>
 
+  {% if is_admin_view %}
   <div class="pinnie-flow-actions">
-    {% if is_admin_view %}
       {% if current_stage != 'concluido' %}
       <form
         method="POST"
@@ -153,11 +153,6 @@
         </button>
       </form>
       {% endif %}
-    {% else %}
-    <span class="pinnie-flow-readonly-label">
-      <i class="bi bi-eye" aria-hidden="true"></i>
-      Somente leitura
-    </span>
-    {% endif %}
   </div>
+  {% endif %}
 </article>
