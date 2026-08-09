@@ -73,6 +73,12 @@
       </a>
       {% endif %}
 
+      <a href="{{ url_for('main.tamanho_colete') }}" class="fdq-menu-card{% if endpoint == 'main.tamanho_colete' %} is-active{% endif %}">
+        <span class="fdq-menu-card-icon"><i class="bi bi-rulers"></i></span>
+        <span class="fdq-menu-card-text">Tamanho do Colete</span>
+        <i class="bi bi-chevron-right fdq-menu-card-arrow"></i>
+      </a>
+
       {% if config["COLETES_MENU_ENABLED"] %}
       <a href="{{ url_for('main.coletes_teste') }}" class="fdq-menu-card{% if endpoint == 'main.coletes_teste' %} is-active{% endif %}">
         <span class="fdq-menu-card-icon"><i class="bi bi-person-badge"></i></span>

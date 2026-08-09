@@ -1,0 +1,92 @@
+{% extends 'components/base.html' %}
+
+{% block body %}
+<section class="cadastro-hero admin-panel-hero pinnie-request-page">
+  <div class="cadastro-card-wrap">
+    <div class="checkin-page-shell pinnie-size-shell">
+      <div class="checkin-page-head pinnie-size-head">
+        <h2 class="cadastro-title generic-page-title">Tamanho do Colete</h2>
+        <span class="section-title-divider"></span>
+      </div>
+
+      <div class="cadastro-card pinnie-size-card">
+        {% if not has_submitted_purchase %}
+        <p class="pinnie-size-blocked-message">
+          Ops, você não reservou um colete! Entre em contato com a
+          {% if whatsapp_admin_url %}
+          <a class="pinnie-purchase-admin-link" href="{{ whatsapp_admin_url }}" target="_blank" rel="noopener noreferrer">admin</a>.
+          {% else %}
+          <span class="pinnie-purchase-admin-link is-unavailable" title="Número do WhatsApp ainda não configurado">admin</span>.
+          {% endif %}
+        </p>
+        {% else %}
+        <div class="pinnie-size-table-wrap">
+          <table class="pinnie-size-table">
+            <caption>Medidas colete feminino</caption>
+            <thead>
+              <tr>
+                <th scope="col">Medida</th>
+                <th scope="col">PP</th>
+                <th scope="col">P</th>
+                <th scope="col">M</th>
+                <th scope="col">G</th>
+                <th scope="col">GG</th>
+                <th scope="col">XGG</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Largura cava</th>
+                <td>45</td>
+                <td>48</td>
+                <td>51</td>
+                <td>54</td>
+                <td>57</td>
+                <td>60</td>
+              </tr>
+              <tr>
+                <th scope="row">Largura barra</th>
+                <td>53</td>
+                <td>56</td>
+                <td>59</td>
+                <td>62</td>
+                <td>65</td>
+                <td>68</td>
+              </tr>
+              <tr>
+                <th scope="row">Altura</th>
+                <td>66,5</td>
+                <td>68</td>
+                <td>69,5</td>
+                <td>71</td>
+                <td>72,5</td>
+                <td>74</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <form method="POST" class="cadastro-form pinnie-request-form pinnie-size-form">
+          <label class="pinnie-request-label" for="pinnieSize">Escolha o tamanho do seu colete</label>
+          <div class="fdq-field-group pinnie-request-select-wrap">
+            <i class="bi bi-rulers" aria-hidden="true"></i>
+            <select class="fdq-field pinnie-request-select" id="pinnieSize" name="pinnie_size" required>
+              <option value="" disabled {% if not selected_pinnie_size %}selected{% endif %}>Selecione um tamanho</option>
+              {% for pinnie_size in pinnie_sizes %}
+              <option value="{{ pinnie_size.value }}" {% if selected_pinnie_size == pinnie_size.value %}selected{% endif %}>{{ pinnie_size.value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          {% if form_error %}
+          <p class="fdq-error pinnie-request-inline-error">{{ form_error }}</p>
+          {% endif %}
+
+          <button type="submit" class="fdq-submit">Submeter</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

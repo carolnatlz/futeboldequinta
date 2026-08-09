@@ -13,6 +13,7 @@ from app.models import (
     CheckinStatus,
     GameCheckin,
     Pinnie,
+    PinnieSize,
     PlayerPosition,
     User,
 )
@@ -36,6 +37,19 @@ POSITION_LABELS = {
 PINNIE_NAME_MAX_LENGTH = 20
 PINNIE_NUMBER_MIN = 1
 PINNIE_NUMBER_MAX = 999
+
+
+def _build_pinnie_admin_whatsapp_url():
+    whatsapp_number = "".join(
+        character
+        for character in (current_app.config.get("WHATSAPP_ADMIN_NUMBER") or "")
+        if character.isdigit()
+    )
+    if not whatsapp_number:
+        return None
+
+    whatsapp_message = "Olá Carol, sobre o colete do FutdeQuinta: "
+    return f"https://wa.me/{whatsapp_number}?text={quote(whatsapp_message)}"
 
 
 def _build_available_pinnie_numbers(current_pinnie=None):
@@ -282,12 +296,6 @@ def coletes_teste():
 @login_required
 def comprar_colete():
     current_pinnie = Pinnie.query.filter_by(user_id=current_user.id).first()
-    whatsapp_number = "".join(
-        character
-        for character in (current_app.config.get("WHATSAPP_ADMIN_NUMBER") or "")
-        if character.isdigit()
-    )
-    whatsapp_message = "Olá Carol, sobre o colete do FutdeQuinta: "
     payment_status = request.form.get("payment_status")
     form_error = None
 
@@ -318,11 +326,7 @@ def comprar_colete():
         current_pinnie=current_pinnie,
         payment_status=payment_status,
         form_error=form_error,
-        whatsapp_admin_url=(
-            f"https://wa.me/{whatsapp_number}?text={quote(whatsapp_message)}"
-            if whatsapp_number
-            else None
-        ),
+        whatsapp_admin_url=_build_pinnie_admin_whatsapp_url(),
     )
 
 
@@ -341,6 +345,57 @@ def comprar_colete_sucesso():
         )
 
     return render_template("perfil/comprar_colete_sucesso.html")
+
+
+@main.route("/tamanho-colete", methods=["GET", "POST"])
+@login_required
+def tamanho_colete():
+    current_pinnie = Pinnie.query.filter_by(user_id=current_user.id).first()
+    has_submitted_purchase = bool(
+        current_pinnie and current_pinnie.purchase_submitted_at is not None
+    )
+    selected_pinnie_size = (
+        current_pinnie.pinnie_size.value
+        if has_submitted_purchase and current_pinnie.pinnie_size
+        else ""
+    )
+    form_error = None
+
+    if request.method == "POST" and has_submitted_purchase:
+        selected_pinnie_size = (request.form.get("pinnie_size") or "").strip()
+
+        try:
+            pinnie_size = PinnieSize(selected_pinnie_size)
+        except ValueError:
+            form_error = "Escolha um tamanho de colete válido."
+        else:
+            current_pinnie.pinnie_size = pinnie_size
+
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                current_app.logger.exception(
+                    "Falha ao salvar tamanho do colete para %s.",
+                    current_user.id,
+                )
+                form_error = (
+                    "Não conseguimos salvar o tamanho agora. "
+                    "Tente novamente em instantes."
+                )
+            else:
+                flash("Tamanho do colete salvo com sucesso.", "alert-success")
+                return redirect(url_for("main.tamanho_colete"))
+
+    return render_template(
+        "perfil/tamanho_colete.html",
+        current_pinnie=current_pinnie,
+        has_submitted_purchase=has_submitted_purchase,
+        pinnie_sizes=list(PinnieSize),
+        selected_pinnie_size=selected_pinnie_size,
+        form_error=form_error,
+        whatsapp_admin_url=_build_pinnie_admin_whatsapp_url(),
+    )
 
 
 @main.route("/perfil/editar", methods=["GET", "POST"])
