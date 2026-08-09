@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import case, func
 
@@ -1126,20 +1126,40 @@ def admin_update_manual_team_player(session_id, assignment_id):
 @login_required
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
 def admin_update_team_draw_attendance(session_id, assignment_id, status_name):
+    is_async_present_request = (
+        status_name == CheckinStatus.ATTENDED.name
+        and request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    )
+
     session = GameSession.query.get_or_404(session_id)
     _sync_sessions_and_organizers([session])
     session = GameSession.query.get_or_404(session_id)
 
     if session.status == GameSessionStatus.CANCELLED:
+        if is_async_present_request:
+            return jsonify(
+                success=False,
+                message="Sessões canceladas não permitem alterações nos times.",
+            ), 409
         flash("Sessões canceladas não permitem alterações nos times.", "alert-warning")
         return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
     if session.status not in TEAM_DRAW_ATTENDANCE_ALLOWED_STATUSES:
+        if is_async_present_request:
+            return jsonify(
+                success=False,
+                message="A marcação de presença fica disponível quando a sessão estiver em andamento ou finalizada.",
+            ), 409
         flash("A marcação de presença fica disponível quando a sessão estiver em andamento ou finalizada.", "alert-warning")
         return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
     assignment = GameTeamAssignment.query.get_or_404(assignment_id)
     if assignment.game_session_id != session.id:
+        if is_async_present_request:
+            return jsonify(
+                success=False,
+                message="Jogadora inválida para esta sessão.",
+            ), 400
         flash("Jogadora inválida para esta sessão.", "alert-danger")
         return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
@@ -1161,6 +1181,11 @@ def admin_update_team_draw_attendance(session_id, assignment_id, status_name):
             user_id=assignment.user_id,
         ).first()
         if not checkin:
+            if is_async_present_request:
+                return jsonify(
+                    success=False,
+                    message="Não foi possível localizar o check-in dessa jogadora.",
+                ), 404
             flash("Não foi possível localizar o check-in dessa jogadora.", "alert-danger")
             return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
@@ -1175,16 +1200,25 @@ def admin_update_team_draw_attendance(session_id, assignment_id, status_name):
         if new_status == CheckinStatus.NO_SHOW:
             db.session.delete(assignment)
             flash(f"{player_name} foi marcada como faltou e removida do time.", "alert-warning")
-        else:
+        elif not is_async_present_request:
             flash(f"{player_name} foi marcada como presente.", "alert-success")
     else:
         if new_status == CheckinStatus.NO_SHOW:
             db.session.delete(assignment)
             flash(f"{player_name} foi removida do time como faltou.", "alert-warning")
-        else:
+        elif not is_async_present_request:
             flash(f"{player_name} foi mantida como presente no time.", "alert-success")
 
     db.session.commit()
+
+    if is_async_present_request:
+        return jsonify(
+            success=True,
+            assignment_id=str(assignment.id),
+            status=new_status.name,
+            message=f"{player_name} foi marcada como presente.",
+        )
+
     return redirect(url_for("main.admin_team_draw_session", session_id=session.id))
 
 

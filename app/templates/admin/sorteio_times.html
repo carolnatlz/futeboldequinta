@@ -146,9 +146,10 @@
                 {% if attendance_controls_enabled or player.is_manual %}
                 <div class="team-draw-player-actions">
                   {% if attendance_controls_enabled %}
-                  <form method="POST" action="{{ url_for('main.admin_update_team_draw_attendance', session_id=session.id, assignment_id=player.assignment.id, status_name='ATTENDED') }}" class="team-draw-status-form">
+                  <form method="POST" action="{{ url_for('main.admin_update_team_draw_attendance', session_id=session.id, assignment_id=player.assignment.id, status_name='ATTENDED') }}" class="team-draw-status-form" data-async-present-form>
                     <button type="submit" class="btn team-draw-status-btn team-draw-status-btn-present {% if player.checkin_status_value == 'attended' %}is-active{% endif %}">
-                      Presente
+                      <span data-present-label>Presente</span>
+                      <span class="spinner-border spinner-border-sm" data-present-spinner role="status" aria-hidden="true" hidden></span>
                     </button>
                   </form>
                   <form method="POST" action="{{ url_for('main.admin_update_team_draw_attendance', session_id=session.id, assignment_id=player.assignment.id, status_name='NO_SHOW') }}" class="team-draw-status-form">
@@ -302,6 +303,67 @@
 {% endfor %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    const presentForms = document.querySelectorAll("[data-async-present-form]");
+
+    presentForms.forEach(function (form) {
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const row = form.closest(".team-draw-player-row");
+        const presentButton = form.querySelector(".team-draw-status-btn-present");
+
+        if (!row || !presentButton || row.dataset.attendancePending === "true") {
+          return;
+        }
+
+        const label = presentButton.querySelector("[data-present-label]");
+        const spinner = presentButton.querySelector("[data-present-spinner]");
+        const rowButtons = row.querySelectorAll(".team-draw-status-btn");
+
+        row.dataset.attendancePending = "true";
+        rowButtons.forEach(function (button) {
+          button.disabled = true;
+        });
+        presentButton.setAttribute("aria-busy", "true");
+        label.hidden = true;
+        spinner.hidden = false;
+
+        try {
+          const response = await fetch(form.action, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Accept": "application/json",
+              "X-Requested-With": "XMLHttpRequest"
+            }
+          });
+          const contentType = response.headers.get("content-type") || "";
+
+          if (!contentType.includes("application/json")) {
+            throw new Error("O servidor não retornou uma resposta válida.");
+          }
+
+          const result = await response.json();
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || "Não foi possível marcar a presença.");
+          }
+
+          presentButton.classList.add("is-active");
+        } catch (error) {
+          window.alert(error.message || "Não foi possível marcar a presença.");
+        } finally {
+          label.hidden = false;
+          spinner.hidden = true;
+          presentButton.removeAttribute("aria-busy");
+          rowButtons.forEach(function (button) {
+            button.disabled = false;
+          });
+          delete row.dataset.attendancePending;
+        }
+      });
+    });
+
     const copyButton = document.getElementById("teamDrawCopyButton");
     const copySource = document.getElementById("teamDrawCopySource");
 
