@@ -2336,8 +2336,193 @@ body {
   padding-top: 16px;
 }
 
+.pinnie-collapsible-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: #ffffff;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pinnie-collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.pinnie-collapsible-summary::marker {
+  content: "";
+}
+
+.pinnie-collapsible-chevron {
+  color: rgba(208, 220, 248, 0.7);
+  font-size: 0.88rem;
+  transition: transform 0.2s ease;
+}
+
+.pinnie-collapsible[open] > .pinnie-collapsible-summary .pinnie-collapsible-chevron {
+  transform: rotate(180deg);
+}
+
+.pinnie-collapsible:not([open]) > .pinnie-collapsible-body {
+  display: none;
+}
+
+.pinnie-requests-collapsible {
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(110, 138, 220, 0.18);
+  background: rgba(7, 19, 53, 0.34);
+}
+
+.user-directory-group .pinnie-requests-summary {
+  margin-bottom: 0;
+}
+
+.pinnie-requests-summary {
+  min-height: 42px;
+}
+
+.pinnie-requests-summary .signup-group-title {
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.pinnie-requests-summary .signup-group-title h4 {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  font-size: clamp(0.88rem, 4vw, 1.3rem);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.pinnie-requests-summary .pinnie-collapsible-chevron {
+  flex-shrink: 0;
+}
+
+.pinnie-requests-body {
+  margin-top: 10px;
+}
+
+.pinnie-requests-search {
+  margin-bottom: 12px;
+}
+
+.pinnie-current-batch-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(95, 224, 244, 0.22);
+  background: linear-gradient(135deg, rgba(16, 44, 91, 0.92), rgba(7, 24, 62, 0.94));
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+}
+
+.pinnie-current-batch-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: rgba(95, 224, 244, 0.12);
+  color: #5fe0f4;
+  font-size: 1.18rem;
+}
+
+.pinnie-current-batch-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.pinnie-current-batch-label {
+  color: #ffffff;
+  font-size: clamp(0.88rem, 4vw, 1.3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pinnie-current-batch-value {
+  color: #5fe0f4;
+  font-size: 0.9rem;
+}
+
+.pinnie-current-batch-hint {
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.76rem;
+}
+
+.pinnie-current-batch-form {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin: 0;
+}
+
+.pinnie-current-batch-input.form-control {
+  width: 76px;
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(120, 150, 226, 0.3);
+  background: rgba(4, 16, 49, 0.82);
+  color: #ffffff;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: none;
+}
+
+.pinnie-current-batch-input.form-control:focus {
+  border-color: rgba(95, 224, 244, 0.62);
+  background: rgba(4, 16, 49, 0.94);
+  color: #ffffff;
+  box-shadow: 0 0 0 0.18rem rgba(95, 224, 244, 0.12);
+}
+
+.pinnie-current-batch-submit {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(95, 224, 244, 0.34);
+  border-radius: 12px;
+  background: rgba(95, 224, 244, 0.14);
+  color: #dffbff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.pinnie-current-batch-submit:hover {
+  background: rgba(95, 224, 244, 0.22);
+}
+
+.pinnie-current-batch-readonly {
+  min-width: 64px;
+  min-height: 48px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  border: 1px solid rgba(95, 224, 244, 0.22);
+  background: rgba(95, 224, 244, 0.1);
+  color: #5fe0f4;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
 .pinnie-management-row {
   grid-template-columns: 56px minmax(0, 1fr) auto;
+}
+
+.pinnie-management-column-label {
+  color: rgba(208, 220, 248, 0.56);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .pinnie-management-payment-status {
@@ -2366,6 +2551,373 @@ body {
 
 .pinnie-management-payment-status.is-unpaid {
   color: #ff657f;
+}
+
+.pinnie-management-fulfillment {
+  min-width: 154px;
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+}
+
+.pinnie-management-batch {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 183, 255, 0.18);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(208, 220, 248, 0.68);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.pinnie-management-batch.is-assigned {
+  border-color: rgba(95, 224, 244, 0.28);
+  background: rgba(95, 224, 244, 0.1);
+  color: #9bf2ff;
+}
+
+.pinnie-management-completed-date {
+  color: rgba(208, 220, 248, 0.72);
+  font-size: 0.62rem;
+  white-space: nowrap;
+}
+
+.pinnie-management-completion-form {
+  margin: 0;
+}
+
+.pinnie-management-completion-button {
+  min-height: 32px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(95, 224, 244, 0.3);
+  background: rgba(95, 224, 244, 0.1);
+  color: #bff7ff;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.pinnie-management-completion-button:hover {
+  background: rgba(95, 224, 244, 0.18);
+}
+
+.pinnie-management-completion-button.is-completed {
+  border-color: rgba(34, 197, 94, 0.34);
+  background: rgba(34, 197, 94, 0.12);
+  color: #9df2bc;
+}
+
+.pinnie-management-completion-button.is-completed:hover {
+  border-color: rgba(255, 101, 127, 0.38);
+  background: rgba(255, 101, 127, 0.1);
+  color: #ffb0be;
+}
+
+.pinnie-control-list {
+  display: grid;
+  gap: 0;
+}
+
+.pinnie-control-panels {
+  display: grid;
+  gap: 18px;
+}
+
+.pinnie-control-panels .signup-group + .signup-group {
+  padding-top: 16px;
+  border-top: 1px solid rgba(110, 138, 220, 0.18);
+}
+
+.pinnie-async-feedback {
+  display: none;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid rgba(154, 183, 255, 0.22);
+  border-radius: 14px;
+  background: rgba(9, 27, 68, 0.96);
+  color: #dce6ff;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.pinnie-async-feedback.is-visible {
+  display: flex;
+}
+
+.pinnie-async-feedback.alert-success {
+  border-color: rgba(34, 197, 94, 0.36);
+  color: #9df2bc;
+}
+
+.pinnie-async-feedback.alert-warning {
+  border-color: rgba(250, 204, 21, 0.34);
+  color: #fde68a;
+}
+
+.pinnie-async-feedback.alert-danger {
+  border-color: rgba(255, 101, 127, 0.4);
+  color: #ffb0be;
+}
+
+.pinnie-control-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(330px, 1.45fr) minmax(140px, auto);
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(120, 150, 226, 0.16);
+}
+
+.pinnie-control-row:last-child {
+  border-bottom: none;
+}
+
+.pinnie-control-person {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.pinnie-control-person .signup-person-avatar {
+  width: 48px;
+  height: 48px;
+}
+
+.pinnie-control-person-copy {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pinnie-control-person-copy .signup-person-name {
+  flex: 1;
+}
+
+.pinnie-control-phone {
+  flex-shrink: 0;
+  color: rgba(208, 220, 248, 0.68);
+  font-size: 0.7rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pinnie-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  min-width: 0;
+}
+
+.pinnie-flow-step {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.pinnie-flow-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 14px;
+  left: calc(50% + 17px);
+  right: calc(-50% + 17px);
+  height: 2px;
+  background: rgba(154, 183, 255, 0.18);
+}
+
+.pinnie-flow-step.is-completed:not(:last-child)::after {
+  background: rgba(34, 197, 94, 0.58);
+}
+
+.pinnie-flow-step-marker {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(154, 183, 255, 0.26);
+  border-radius: 50%;
+  background: #0a1c48;
+  color: rgba(208, 220, 248, 0.5);
+  font-size: 0.52rem;
+}
+
+.pinnie-flow-step.is-current .pinnie-flow-step-marker {
+  border-color: rgba(95, 224, 244, 0.78);
+  color: #5fe0f4;
+  box-shadow: 0 0 0 4px rgba(95, 224, 244, 0.1);
+}
+
+.pinnie-flow-step.is-completed .pinnie-flow-step-marker {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.2);
+  color: #b8f7ce;
+  font-size: 0.78rem;
+}
+
+.pinnie-flow-step-copy {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+}
+
+.pinnie-flow-step-copy strong {
+  color: rgba(224, 233, 255, 0.72);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pinnie-flow-step.is-current .pinnie-flow-step-copy strong {
+  color: #8beeff;
+}
+
+.pinnie-flow-step.is-completed .pinnie-flow-step-copy strong {
+  color: #9df2bc;
+}
+
+.pinnie-flow-step-copy time,
+.pinnie-flow-step-copy small {
+  max-width: 118px;
+  color: rgba(208, 220, 248, 0.64);
+  font-size: 0.58rem;
+  line-height: 1.3;
+}
+
+.pinnie-flow-step.is-current .pinnie-flow-step-copy small {
+  color: #8beeff;
+  font-weight: 700;
+}
+
+.pinnie-flow-batch {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(95, 224, 244, 0.24);
+  background: rgba(95, 224, 244, 0.08);
+  color: #9bf2ff;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.pinnie-flow-actions {
+  min-width: 140px;
+  display: grid;
+  gap: 6px;
+  justify-items: stretch;
+}
+
+.pinnie-flow-action-form {
+  width: 100%;
+  margin: 0;
+}
+
+.pinnie-flow-primary-action,
+.pinnie-flow-undo-action,
+.pinnie-flow-completed-label,
+.pinnie-flow-readonly-label {
+  width: 100%;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border-radius: 11px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.pinnie-flow-primary-action,
+.pinnie-flow-undo-action {
+  position: relative;
+}
+
+.pinnie-flow-action-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: none;
+  width: 1rem;
+  height: 1rem;
+  margin: -0.5rem 0 0 -0.5rem;
+}
+
+.pinnie-flow-primary-action.is-loading [data-pinnie-action-label],
+.pinnie-flow-undo-action.is-loading [data-pinnie-action-label] {
+  visibility: hidden;
+}
+
+.pinnie-flow-primary-action.is-loading .pinnie-flow-action-spinner,
+.pinnie-flow-undo-action.is-loading .pinnie-flow-action-spinner {
+  display: inline-block;
+}
+
+.pinnie-flow-primary-action:disabled,
+.pinnie-flow-undo-action:disabled {
+  cursor: wait;
+  opacity: 1;
+}
+
+.pinnie-flow-primary-action {
+  border: 1px solid rgba(95, 224, 244, 0.38);
+  background: rgba(95, 224, 244, 0.13);
+  color: #c8f9ff;
+}
+
+.pinnie-flow-primary-action:hover {
+  background: rgba(95, 224, 244, 0.22);
+}
+
+.pinnie-flow-undo-action {
+  min-height: 30px;
+  border: none;
+  background: transparent;
+  color: rgba(208, 220, 248, 0.66);
+  font-size: 0.6rem;
+}
+
+.pinnie-flow-undo-action:hover {
+  color: #ff9aad;
+}
+
+.pinnie-flow-completed-label {
+  border: 1px solid rgba(34, 197, 94, 0.34);
+  background: rgba(34, 197, 94, 0.12);
+  color: #9df2bc;
+}
+
+.pinnie-flow-readonly-label {
+  border: 1px solid rgba(154, 183, 255, 0.2);
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(208, 220, 248, 0.72);
 }
 
 .pinnie-request-shell {
@@ -3296,8 +3848,114 @@ input[type="file"] {
     padding: 10px 0;
   }
 
+  .pinnie-current-batch-card {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 6px;
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .pinnie-current-batch-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    font-size: 0.82rem;
+  }
+
+  .pinnie-current-batch-form {
+    display: flex;
+    gap: 4px;
+  }
+
+  .pinnie-current-batch-input.form-control {
+    width: 46px;
+    min-height: 34px;
+    padding: 4px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+  }
+
+  .pinnie-current-batch-submit {
+    min-height: 34px;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+  }
+
+  .pinnie-current-batch-label {
+    white-space: nowrap;
+  }
+
+  .pinnie-current-batch-readonly {
+    min-width: 46px;
+    min-height: 34px;
+    padding: 0 10px;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+
+  .pinnie-requests-collapsible {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .pinnie-requests-summary .signup-group-title {
+    gap: 10px;
+  }
+
+  .pinnie-requests-summary .signup-group-title-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .pinnie-control-panels .signup-group + .signup-group {
+    padding-top: 14px;
+  }
+
   .pinnie-management-row {
     grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+
+  .pinnie-control-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px 0;
+  }
+
+  .pinnie-control-person {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .pinnie-control-person .signup-person-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pinnie-control-person-copy {
+    gap: 8px;
+  }
+
+  .pinnie-control-phone {
+    max-width: 52%;
+    overflow: hidden;
+    font-size: 0.64rem;
+    text-overflow: ellipsis;
+  }
+
+  .pinnie-flow-step-copy time,
+  .pinnie-flow-step-copy small {
+    max-width: 88px;
+    font-size: 0.54rem;
+  }
+
+  .pinnie-flow-actions {
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pinnie-flow-actions > :only-child {
+    grid-column: 1 / -1;
   }
 
   .pinnie-management-payment-status {

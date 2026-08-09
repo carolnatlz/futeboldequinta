@@ -59,18 +59,22 @@ def create_app():
     app.config["RESEND_TIMEOUT"] = int(os.environ.get("RESEND_TIMEOUT", 10))
     app.config["PUBLIC_BASE_URL"] = os.environ.get("PUBLIC_BASE_URL")
     app.config["WHATSAPP_ADMIN_NUMBER"] = "5521995971902"
-    # A rota de coletes fica disponível por padrão, mas seu botão permanece
-    # oculto no menu para que o acesso aconteça somente pela URL direta.
-    app.config["COLETES_ENABLED"] = _env_flag("COLETES_ENABLED", default=True)
+    # Rotas e opções de menu dos coletes
+    app.config["COLETES_ENABLED"] = _env_flag(
+        "COLETES_ENABLED",
+        default=True
+    )
     app.config["COLETES_MENU_ENABLED"] = _env_flag(
         "COLETES_MENU_ENABLED",
         default=False,
     )
-    # Fluxo de compra disponível por padrão.
-    # Para desativar, defina COMPRAR_COLETE_ENABLED=false no ambiente.
     app.config["COMPRAR_COLETE_ENABLED"] = _env_flag(
         "COMPRAR_COLETE_ENABLED",
         default=True,
+    )
+    app.config["COMPRAR_COLETE_MENU_ENABLED"] = _env_flag(
+        "COMPRAR_COLETE_MENU_ENABLED",
+        default=False,
     )
     app.config["CLOUDINARY_CLOUD_NAME"] = os.environ.get("CLOUDINARY_CLOUD_NAME")
     app.config["CLOUDINARY_API_KEY"] = os.environ.get("CLOUDINARY_API_KEY")

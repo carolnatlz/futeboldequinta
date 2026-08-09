@@ -1,5 +1,39 @@
 {% extends 'components/base.html' %}
 
+{% macro pinnie_control_box(element_id, group_name, title, icon, group_users, empty_message, is_admin_view, format_purchase_submitted_at) %}
+<details
+  class="signup-group signup-group-confirmed pinnie-collapsible pinnie-requests-collapsible pinnie-control-collapsible"
+  id="{{ element_id }}"
+  data-pinnie-control-group="{{ group_name }}"
+>
+  <summary class="signup-group-head pinnie-collapsible-summary pinnie-requests-summary">
+    <div class="signup-group-title">
+      <span class="signup-group-title-icon signup-group-title-icon-confirmed">
+        <i class="bi {{ icon }}"></i>
+      </span>
+      <h4>{{ title }} (<span data-pinnie-control-count>{{ group_users|length }}</span>)</h4>
+    </div>
+    <i class="bi bi-chevron-down pinnie-collapsible-chevron" aria-hidden="true"></i>
+  </summary>
+
+  <div class="pinnie-collapsible-body pinnie-requests-body">
+    <div class="pinnie-control-list" data-pinnie-control-list="{{ group_name }}">
+      {% for usuario in group_users %}
+        {% include 'admin/_pinnie_control_row.html' %}
+      {% endfor %}
+    </div>
+
+    <p
+      class="signup-empty user-directory-empty"
+      data-pinnie-control-empty
+      {% if group_users %}hidden{% endif %}
+    >
+      {{ empty_message }}
+    </p>
+  </div>
+</details>
+{% endmacro %}
+
 {% block body %}
 <section class="cadastro-hero admin-panel-hero">
   <div class="cadastro-card-wrap">
@@ -10,67 +44,151 @@
       </div>
 
       <section class="signup-page-content">
-        <div class="user-directory-search-card">
-          <label for="pinnieDirectorySearch" class="user-directory-search-label">Buscar por nome</label>
-          <div class="user-directory-search-input-wrap">
-            <i class="bi bi-search user-directory-search-icon" aria-hidden="true"></i>
-            <input
-              type="search"
-              id="pinnieDirectorySearch"
-              class="form-control user-directory-search-input"
-              placeholder="Digite um nome ou parte dele"
-              autocomplete="off"
-            >
+        <section class="pinnie-current-batch-card" aria-labelledby="pinnieCurrentBatchTitle">
+          <span class="pinnie-current-batch-icon" aria-hidden="true">
+            <i class="bi bi-box-seam"></i>
+          </span>
+          <div class="pinnie-current-batch-copy">
+            <span class="pinnie-current-batch-label" id="pinnieCurrentBatchTitle">Remessa atual</span>
+            {% if not is_admin_view %}
+            <strong class="pinnie-current-batch-value">Remessa {{ current_batch_number }}</strong>
+            <span class="pinnie-current-batch-hint">Somente administradoras podem alterar este número.</span>
+            {% endif %}
           </div>
-        </div>
 
-        <section class="signup-group signup-group-confirmed user-directory-group">
-          <div class="signup-group-head">
+          {% if is_admin_view %}
+          <form
+            method="POST"
+            action="{{ url_for('main.admin_atualizar_remessa_atual') }}"
+            class="pinnie-current-batch-form"
+          >
+            <label class="visually-hidden" for="currentBatchNumber">Número da remessa atual</label>
+            <input
+              type="number"
+              id="currentBatchNumber"
+              name="current_batch_number"
+              class="form-control pinnie-current-batch-input"
+              value="{{ current_batch_number }}"
+              min="1"
+              max="2147483647"
+              inputmode="numeric"
+              required
+            >
+            <button type="submit" class="pinnie-current-batch-submit">Salvar</button>
+          </form>
+          {% else %}
+          <span class="pinnie-current-batch-readonly" aria-label="Remessa atual {{ current_batch_number }}">
+            {{ current_batch_number }}
+          </span>
+          {% endif %}
+        </section>
+
+        <details
+          class="signup-group signup-group-confirmed user-directory-group pinnie-collapsible pinnie-requests-collapsible"
+          id="pinnieRequestsDetails"
+        >
+          <summary class="signup-group-head pinnie-collapsible-summary pinnie-requests-summary">
             <div class="signup-group-title">
               <span class="signup-group-title-icon signup-group-title-icon-confirmed">
                 <i class="bi bi-person-badge"></i>
               </span>
               <h4>Solicitações de colete (<span id="pinnieDirectoryCount">{{ usuarios|length }}</span>)</h4>
             </div>
-          </div>
+            <i class="bi bi-chevron-down pinnie-collapsible-chevron" aria-hidden="true"></i>
+          </summary>
 
-          <div class="signup-list user-directory-list" id="pinnieDirectoryList">
-            {% for usuario in usuarios %}
-            <article class="signup-person-row user-directory-row pinnie-management-row" data-pinnie-row data-user-name="{{ usuario.name }}">
-              <span class="signup-person-avatar">
-                <img
-                  src="{{ profile_photo_url(usuario.profile_img) }}"
-                  alt="Foto de perfil de {{ usuario.name }}"
-                  class="signup-person-avatar-img"
+          <div class="pinnie-collapsible-body pinnie-requests-body">
+            <div class="pinnie-requests-search">
+              <label for="pinnieDirectorySearch" class="visually-hidden">Buscar por nome</label>
+              <div class="user-directory-search-input-wrap">
+                <i class="bi bi-search user-directory-search-icon" aria-hidden="true"></i>
+                <input
+                  type="search"
+                  id="pinnieDirectorySearch"
+                  class="form-control user-directory-search-input"
+                  placeholder="Digite um nome ou parte dele"
+                  autocomplete="off"
                 >
-              </span>
-              <span class="signup-person-main user-directory-main">
-                <strong class="signup-person-name">{{ usuario.name }}</strong>
-                <span class="signup-person-position">{{ usuario.phone or "Telefone não informado" }}</span>
-              </span>
-              <span class="pinnie-management-payment">
-                <strong class="pinnie-management-payment-status{% if usuario.pinnie.payment_declared %} is-paid{% else %} is-unpaid{% endif %}">
-                  {% if usuario.pinnie.payment_declared %}Pago{% else %}Não Pagou{% endif %}
-                </strong>
-                <time
-                  class="pinnie-management-payment-date"
-                  {% if usuario.pinnie.purchase_submitted_at %}datetime="{{ usuario.pinnie.purchase_submitted_at.isoformat() }}"{% endif %}
-                >
-                  {{ format_purchase_submitted_at(usuario.pinnie.purchase_submitted_at) }}
-                </time>
-              </span>
-            </article>
-            {% endfor %}
-          </div>
+              </div>
+            </div>
 
-          <p class="signup-empty user-directory-empty" id="pinnieDirectoryEmpty"{% if usuarios %} hidden{% endif %}>
-            {% if usuarios %}
-            Nenhum usuário encontrado para esta busca.
-            {% else %}
-            Nenhuma solicitação de colete até o momento.
-            {% endif %}
-          </p>
-        </section>
+            <div class="signup-list user-directory-list" id="pinnieDirectoryList">
+              {% for usuario in usuarios %}
+              <article class="signup-person-row user-directory-row pinnie-management-row" data-pinnie-row data-user-name="{{ usuario.name }}">
+                <span class="signup-person-avatar">
+                  <img
+                    src="{{ profile_photo_url(usuario.profile_img) }}"
+                    alt="Foto de perfil de {{ usuario.name }}"
+                    class="signup-person-avatar-img"
+                  >
+                </span>
+                <span class="signup-person-main user-directory-main">
+                  <strong class="signup-person-name">{{ usuario.name }}</strong>
+                  <span class="signup-person-position">{{ usuario.phone or "Telefone não informado" }}</span>
+                </span>
+                <span class="pinnie-management-payment">
+                  <strong class="pinnie-management-payment-status is-paid">Submetido</strong>
+                  <time
+                    class="pinnie-management-payment-date"
+                    {% if usuario.pinnie.purchase_submitted_at %}datetime="{{ usuario.pinnie.purchase_submitted_at.isoformat() }}"{% endif %}
+                  >
+                    {{ format_purchase_submitted_at(usuario.pinnie.purchase_submitted_at) }}
+                  </time>
+                </span>
+              </article>
+              {% endfor %}
+            </div>
+
+            <p class="signup-empty user-directory-empty" id="pinnieDirectoryEmpty"{% if usuarios %} hidden{% endif %}>
+              {% if usuarios %}
+              Nenhum usuário encontrado para esta busca.
+              {% else %}
+              Nenhuma solicitação de colete até o momento.
+              {% endif %}
+            </p>
+          </div>
+        </details>
+
+        <div
+          class="pinnie-async-feedback"
+          id="pinnieAsyncFeedback"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
+
+        <div class="pinnie-control-panels" id="pinnieControlPanels">
+          {{ pinnie_control_box(
+            'pinniePaymentsDetails',
+            'pagamentos',
+            'Controle de pagamentos',
+            'bi-cash-stack',
+            usuarios_pagamentos,
+            'Nenhum pagamento aguardando confirmação.',
+            is_admin_view,
+            format_purchase_submitted_at
+          ) }}
+          {{ pinnie_control_box(
+            'pinnieDeliveryDetails',
+            'entrega',
+            'Controle de entrega',
+            'bi-box-seam',
+            usuarios_entrega,
+            'Nenhum colete aguardando entrega.',
+            is_admin_view,
+            format_purchase_submitted_at
+          ) }}
+          {{ pinnie_control_box(
+            'pinnieFinishedDetails',
+            'finalizados',
+            'Finalizado',
+            'bi-check-circle',
+            usuarios_finalizados,
+            'Nenhum pedido finalizado até o momento.',
+            is_admin_view,
+            format_purchase_submitted_at
+          ) }}
+        </div>
       </section>
     </div>
   </div>
@@ -82,10 +200,10 @@
     const userRows = Array.from(document.querySelectorAll("[data-pinnie-row]"));
     const countElement = document.getElementById("pinnieDirectoryCount");
     const emptyElement = document.getElementById("pinnieDirectoryEmpty");
-
-    if (!searchInput || !countElement || !emptyElement) {
-      return;
-    }
+    const requestsDetails = document.getElementById("pinnieRequestsDetails");
+    const controlPanels = document.getElementById("pinnieControlPanels");
+    const asyncFeedback = document.getElementById("pinnieAsyncFeedback");
+    let feedbackTimer = null;
 
     function normalizeSearchValue(value) {
       return (value || "")
@@ -96,8 +214,16 @@
     }
 
     function updateVisibleUsers() {
+      if (!searchInput || !countElement || !emptyElement) {
+        return;
+      }
+
       const query = normalizeSearchValue(searchInput.value);
       let visibleCount = 0;
+
+      if (query && requestsDetails) {
+        requestsDetails.open = true;
+      }
 
       userRows.forEach(function (row) {
         const userName = normalizeSearchValue(row.dataset.userName);
@@ -116,8 +242,159 @@
         : "Nenhuma solicitação de colete até o momento.";
     }
 
-    searchInput.addEventListener("input", updateVisibleUsers);
-    updateVisibleUsers();
+    function updateControlGroup(groupName) {
+      const details = document.querySelector(`[data-pinnie-control-group="${groupName}"]`);
+      if (!details) {
+        return;
+      }
+
+      const rows = details.querySelectorAll("[data-pinnie-control-row]");
+      const count = details.querySelector("[data-pinnie-control-count]");
+      const empty = details.querySelector("[data-pinnie-control-empty]");
+
+      if (count) {
+        count.textContent = String(rows.length);
+      }
+      if (empty) {
+        empty.hidden = rows.length !== 0;
+      }
+    }
+
+    function insertControlRowSorted(list, row) {
+      const rows = Array.from(list.querySelectorAll("[data-pinnie-control-row]"));
+      rows.push(row);
+      rows.sort(function (first, second) {
+        return (first.dataset.userName || "").localeCompare(
+          second.dataset.userName || "",
+          "pt-BR",
+          { sensitivity: "base" }
+        );
+      });
+      rows.forEach(function (sortedRow) {
+        list.appendChild(sortedRow);
+      });
+    }
+
+    function showAsyncFeedback(message, category) {
+      if (!asyncFeedback) {
+        return;
+      }
+
+      window.clearTimeout(feedbackTimer);
+      asyncFeedback.textContent = message;
+      asyncFeedback.className = `pinnie-async-feedback is-visible ${category || "alert-info"}`;
+      asyncFeedback.hidden = false;
+      feedbackTimer = window.setTimeout(function () {
+        asyncFeedback.classList.remove("is-visible");
+        asyncFeedback.hidden = true;
+      }, 4500);
+    }
+
+    async function submitStageForm(form) {
+      const confirmationMessage = form.dataset.confirmMessage;
+      if (confirmationMessage && !window.confirm(confirmationMessage)) {
+        return;
+      }
+
+      const button = form.querySelector("[data-pinnie-action-button]");
+      const currentRow = form.closest("[data-pinnie-control-row]");
+      const rowButtons = currentRow
+        ? Array.from(currentRow.querySelectorAll("[data-pinnie-action-button]"))
+        : [];
+      const sourceDetails = form.closest("[data-pinnie-control-group]");
+      const sourceGroup = sourceDetails ? sourceDetails.dataset.pinnieControlGroup : null;
+
+      rowButtons.forEach(function (rowButton) {
+        rowButton.disabled = true;
+      });
+      if (button) {
+        button.classList.add("is-loading");
+        button.setAttribute("aria-busy", "true");
+      }
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          body: new FormData(form)
+        });
+        const data = await response.json();
+        let rowWasReplaced = false;
+
+        if (data.row_html && currentRow && data.target_group) {
+          const targetDetails = document.querySelector(
+            `[data-pinnie-control-group="${data.target_group}"]`
+          );
+          const targetList = targetDetails
+            ? targetDetails.querySelector("[data-pinnie-control-list]")
+            : null;
+
+          if (targetDetails && targetList) {
+            const template = document.createElement("template");
+            template.innerHTML = data.row_html.trim();
+            const updatedRow = template.content.firstElementChild;
+
+            if (updatedRow) {
+              currentRow.remove();
+              insertControlRowSorted(targetList, updatedRow);
+              rowWasReplaced = true;
+              if (sourceGroup) {
+                updateControlGroup(sourceGroup);
+              }
+              updateControlGroup(data.target_group);
+
+              if (sourceGroup !== data.target_group) {
+                targetDetails.open = true;
+              }
+            }
+          }
+        }
+
+        if (!rowWasReplaced) {
+          rowButtons.forEach(function (rowButton) {
+            rowButton.disabled = false;
+          });
+          if (button) {
+            button.classList.remove("is-loading");
+            button.removeAttribute("aria-busy");
+          }
+        }
+
+        showAsyncFeedback(data.message || "Etapa atualizada.", data.category);
+      } catch (error) {
+        rowButtons.forEach(function (rowButton) {
+          rowButton.disabled = false;
+        });
+        if (button) {
+          button.classList.remove("is-loading");
+          button.removeAttribute("aria-busy");
+        }
+        showAsyncFeedback(
+          "Não foi possível atualizar esta etapa agora. Tente novamente.",
+          "alert-danger"
+        );
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener("input", updateVisibleUsers);
+      updateVisibleUsers();
+    }
+
+    if (controlPanels) {
+      controlPanels.addEventListener("submit", function (event) {
+        const form = event.target.closest("[data-pinnie-stage-form]");
+        if (!form) {
+          return;
+        }
+
+        event.preventDefault();
+        submitStageForm(form);
+      });
+    }
   });
 </script>
 {% endblock %}

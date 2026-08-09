@@ -1,0 +1,163 @@
+{% set pinnie = usuario.pinnie %}
+{% set current_stage = (
+  'sinal' if not pinnie.deposit_paid_at
+  else 'quitacao' if not pinnie.payment_completed_at
+  else 'entrega' if not pinnie.pinnie_delivered_at
+  else 'concluido'
+) %}
+{% set last_stage = (
+  'entrega' if pinnie.pinnie_delivered_at
+  else 'quitacao' if pinnie.payment_completed_at
+  else 'sinal' if pinnie.deposit_paid_at
+  else none
+) %}
+<article
+  class="pinnie-control-row"
+  data-pinnie-control-row
+  data-pinnie-id="{{ pinnie.id }}"
+  data-user-name="{{ usuario.name }}"
+>
+  <div class="pinnie-control-person">
+    <span class="signup-person-avatar">
+      <img
+        src="{{ profile_photo_url(usuario.profile_img) }}"
+        alt="Foto de perfil de {{ usuario.name }}"
+        class="signup-person-avatar-img"
+      >
+    </span>
+    <span class="pinnie-control-person-copy">
+      <strong class="signup-person-name">{{ usuario.name }}</strong>
+      <span class="signup-person-position pinnie-control-phone">
+        {{ usuario.phone or "Telefone não informado" }}
+      </span>
+    </span>
+  </div>
+
+  <div class="pinnie-flow-steps" aria-label="Etapas do pedido de {{ usuario.name }}">
+    <div class="pinnie-flow-step{% if pinnie.deposit_paid_at %} is-completed{% elif current_stage == 'sinal' %} is-current{% endif %}">
+      <span class="pinnie-flow-step-marker" aria-hidden="true">
+        <i class="bi {% if pinnie.deposit_paid_at %}bi-check-lg{% else %}bi-circle-fill{% endif %}"></i>
+      </span>
+      <span class="pinnie-flow-step-copy">
+        <strong>Sinal</strong>
+        {% if pinnie.deposit_paid_at %}
+        <time datetime="{{ pinnie.deposit_paid_at.isoformat() }}">
+          {{ format_purchase_submitted_at(pinnie.deposit_paid_at) }}
+        </time>
+        {% elif current_stage == 'sinal' %}
+        <small>Próxima etapa</small>
+        {% else %}
+        <small>Pendente</small>
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="pinnie-flow-step{% if pinnie.payment_completed_at %} is-completed{% elif current_stage == 'quitacao' %} is-current{% endif %}">
+      <span class="pinnie-flow-step-marker" aria-hidden="true">
+        <i class="bi {% if pinnie.payment_completed_at %}bi-check-lg{% else %}bi-circle-fill{% endif %}"></i>
+      </span>
+      <span class="pinnie-flow-step-copy">
+        <strong>Quitação</strong>
+        {% if pinnie.payment_completed_at %}
+        <time datetime="{{ pinnie.payment_completed_at.isoformat() }}">
+          {{ format_purchase_submitted_at(pinnie.payment_completed_at) }}
+        </time>
+        {% elif current_stage == 'quitacao' %}
+        <small>Próxima etapa</small>
+        {% else %}
+        <small>Pendente</small>
+        {% endif %}
+        {% if pinnie.pinnie_batch_number %}
+        <span class="pinnie-flow-batch">Remessa {{ pinnie.pinnie_batch_number }}</span>
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="pinnie-flow-step{% if pinnie.pinnie_delivered_at %} is-completed{% elif current_stage == 'entrega' %} is-current{% endif %}">
+      <span class="pinnie-flow-step-marker" aria-hidden="true">
+        <i class="bi {% if pinnie.pinnie_delivered_at %}bi-check-lg{% else %}bi-circle-fill{% endif %}"></i>
+      </span>
+      <span class="pinnie-flow-step-copy">
+        <strong>Entrega</strong>
+        {% if pinnie.pinnie_delivered_at %}
+        <time datetime="{{ pinnie.pinnie_delivered_at.isoformat() }}">
+          {{ format_purchase_submitted_at(pinnie.pinnie_delivered_at) }}
+        </time>
+        {% elif current_stage == 'entrega' %}
+        <small>Próxima etapa</small>
+        {% else %}
+        <small>Pendente</small>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+
+  <div class="pinnie-flow-actions">
+    {% if is_admin_view %}
+      {% if current_stage != 'concluido' %}
+      <form
+        method="POST"
+        action="{{ url_for(
+          'main.admin_atualizar_etapa_colete',
+          pinnie_id=pinnie.id,
+          action='confirmar',
+          stage=current_stage
+        ) }}"
+        class="pinnie-flow-action-form"
+        data-pinnie-stage-form
+      >
+        <button type="submit" class="pinnie-flow-primary-action" data-pinnie-action-button>
+          <span data-pinnie-action-label>
+            {% if current_stage == 'sinal' %}
+            Confirmar sinal
+            {% elif current_stage == 'quitacao' %}
+            Confirmar quitação
+            {% else %}
+            Confirmar entrega
+            {% endif %}
+          </span>
+          <span
+            class="spinner-border spinner-border-sm pinnie-flow-action-spinner"
+            role="status"
+            aria-label="Salvando"
+          ></span>
+        </button>
+      </form>
+      {% else %}
+      <span class="pinnie-flow-completed-label">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        Processo concluído
+      </span>
+      {% endif %}
+
+      {% if last_stage %}
+      <form
+        method="POST"
+        action="{{ url_for(
+          'main.admin_atualizar_etapa_colete',
+          pinnie_id=pinnie.id,
+          action='desfazer',
+          stage=last_stage
+        ) }}"
+        class="pinnie-flow-action-form"
+        data-pinnie-stage-form
+        data-confirm-message="Desfazer a última etapa deste pedido?"
+      >
+        <button type="submit" class="pinnie-flow-undo-action" data-pinnie-action-button>
+          <span data-pinnie-action-label>Desfazer última etapa</span>
+          <span
+            class="spinner-border spinner-border-sm pinnie-flow-action-spinner"
+            role="status"
+            aria-label="Salvando"
+          ></span>
+        </button>
+      </form>
+      {% endif %}
+    {% else %}
+    <span class="pinnie-flow-readonly-label">
+      <i class="bi bi-eye" aria-hidden="true"></i>
+      Somente leitura
+    </span>
+    {% endif %}
+  </div>
+</article>

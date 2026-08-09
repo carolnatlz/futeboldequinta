@@ -1,4 +1,4 @@
-from .pinnies import Pinnie
+from .pinnies import Pinnie, PinnieSettings, PinnieSize
 from .users import AccountStatus, AuthProvider, PlayerPosition, User, UserRole
 from .game_sessions import (
     CheckinUpdateSource,
@@ -15,6 +15,8 @@ __all__ = [
     "AccountStatus",
     "AuthProvider",
     "Pinnie",
+    "PinnieSettings",
+    "PinnieSize",
     "PlayerPosition",
     "User",
     "UserRole",

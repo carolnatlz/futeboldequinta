@@ -173,17 +173,20 @@ class GameCheckin(db.Model):
         UUID(as_uuid=True),
         db.ForeignKey("game_sessions.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     user_id = db.Column(
         UUID(as_uuid=True),
         db.ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     status = db.Column(
         db.Enum(CheckinStatus, name="checkin_status_enum"),
         nullable=False,
         default=CheckinStatus.CONFIRMED,
         server_default=CheckinStatus.CONFIRMED.name,
+        index=True,
     )
     checked_in_at = db.Column(
         db.DateTime(timezone=True),
