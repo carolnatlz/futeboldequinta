@@ -62,7 +62,7 @@ def create_app():
     # Rotas e opções de menu dos coletes
     app.config["COLETES_ENABLED"] = _env_flag(
         "COLETES_ENABLED",
-        default=True
+        default=False,
     )
     app.config["COLETES_MENU_ENABLED"] = _env_flag(
         "COLETES_MENU_ENABLED",
@@ -70,7 +70,7 @@ def create_app():
     )
     app.config["COMPRAR_COLETE_ENABLED"] = _env_flag(
         "COMPRAR_COLETE_ENABLED",
-        default=True,
+        default=False,
     )
     app.config["COMPRAR_COLETE_MENU_ENABLED"] = _env_flag(
         "COMPRAR_COLETE_MENU_ENABLED",
