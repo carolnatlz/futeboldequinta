@@ -1,12 +1,22 @@
 {% extends 'components/base.html' %}
 
-{% block body %}
-<div class="container d-flex justify-content-center align-items-center mt-5">
-    <div class="card text-center p-4" style="height: fit-content;">
-        <h1>404</h1>
-        <p class="mb-0">A página que você procura não foi encontrada.</p>
-    </div>
-</div>
-
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ asset_url('css/errors.css') }}">
 {% endblock %}
 
+{% block body %}
+<main class="error-page" aria-labelledby="errorPageDescription">
+  <div class="error-page-content">
+    <img
+      src="{{ asset_url('img/erro-404.png') }}"
+      alt="Erro 404. Essa bola foi parar fora do campo. A página que você procura não existe ou mudou de endereço."
+      class="error-page-image"
+      id="errorPageDescription"
+    >
+
+    <a href="{{ url_for('main.nossa_historia') }}" class="error-page-home-button">
+      Voltar pro Início
+    </a>
+  </div>
+</main>
+{% endblock %}
