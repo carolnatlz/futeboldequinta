@@ -1,7 +1,7 @@
 from flask import render_template
 from flask_login import login_required
 from app.models.users import UserRole
-from app.routes import main, roles_required
+from app.routes import feature_required, main, roles_required
 
 SEQUENCIA_DOS_JOGOS = [
     {"rodada": 1, "jogos": ["A x B", "C x D", "E x F"]},
@@ -33,6 +33,7 @@ def sequencia_dos_jogos():
 
 
 @main.route("/quem-ta-jogando-agora")
+@feature_required("MEU_TIME_ENABLED")
 @login_required
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
 def quem_ta_jogando_agora():

@@ -76,6 +76,22 @@ def create_app():
         "COMPRAR_COLETE_MENU_ENABLED",
         default=False,
     )
+    app.config["TAMANHO_COLETE_ENABLED"] = _env_flag(
+        "TAMANHO_COLETE_ENABLED",
+        default=False,
+    )
+    app.config["TAMANHO_COLETE_MENU_ENABLED"] = _env_flag(
+        "TAMANHO_COLETE_MENU_ENABLED",
+        default=False,
+    )
+    app.config["MEU_TIME_ENABLED"] = _env_flag(
+        "MEU_TIME_ENABLED",
+        default=False,
+    )
+    app.config["MEU_TIME_MENU_ENABLED"] = _env_flag(
+        "MEU_TIME_MENU_ENABLED",
+        default=False,
+    )
     app.config["CLOUDINARY_CLOUD_NAME"] = os.environ.get("CLOUDINARY_CLOUD_NAME")
     app.config["CLOUDINARY_API_KEY"] = os.environ.get("CLOUDINARY_API_KEY")
     app.config["CLOUDINARY_API_SECRET"] = os.environ.get("CLOUDINARY_API_SECRET")

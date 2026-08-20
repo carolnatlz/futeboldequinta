@@ -348,6 +348,7 @@ def comprar_colete_sucesso():
 
 
 @main.route("/tamanho-colete", methods=["GET", "POST"])
+@feature_required("TAMANHO_COLETE_ENABLED")
 @login_required
 def tamanho_colete():
     current_pinnie = Pinnie.query.filter_by(user_id=current_user.id).first()
