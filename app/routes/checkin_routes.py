@@ -473,7 +473,13 @@ def _confirmed_checkins_for_team_draw(session_id):
     return (
         GameCheckin.query.filter(
             GameCheckin.game_session_id == session_id,
-            GameCheckin.status.in_(OCCUPIED_CHECKIN_STATUSES),
+            GameCheckin.status.in_(
+                (
+                    CheckinStatus.RESERVED,
+                    CheckinStatus.CONFIRMED,
+                    CheckinStatus.ATTENDED,
+                )
+            ),
         )
         .join(User, User.id == GameCheckin.user_id)
         .order_by(GameCheckin.checked_in_at.asc(), User.name.asc())
@@ -1266,10 +1272,10 @@ def admin_checkins_sessao(session_id):
     )
 
 
-@main.route("/admin/check-ins/<uuid:checkin_id>/status/<status_name>", methods=["POST"])
+@main.route("/admin/check-ins/<uuid:checkin_id>/cancelar", methods=["POST"])
 @login_required
 @roles_required(UserRole.ADMIN, UserRole.ORGANIZER)
-def admin_atualizar_status_checkin(checkin_id, status_name):
+def admin_cancelar_checkin(checkin_id):
     checkin = GameCheckin.query.get_or_404(checkin_id)
     session = GameSession.query.get_or_404(checkin.game_session_id)
     previous_status = checkin.status
@@ -1278,65 +1284,40 @@ def admin_atualizar_status_checkin(checkin_id, status_name):
         flash("Sessões canceladas não permitem alterações nos check-ins.", "alert-warning")
         return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))
 
-    try:
-        new_status = CheckinStatus[status_name]
-    except KeyError:
-        flash("Status inválido para atualização.", "alert-danger")
-        return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))
-
-    if new_status not in {
+    was_occupying_slot = previous_status in {
+        CheckinStatus.RESERVED,
         CheckinStatus.CONFIRMED,
-        CheckinStatus.CANCELLED,
+        CheckinStatus.ATTENDED,
+    }
+    checkin.status = CheckinStatus.CANCELLED
+    checkin.cancelled_at = now_utc()
+    _stamp_checkin_audit(
+        checkin,
+        acting_user=current_user,
+        source=CheckinUpdateSource.ADMIN_PANEL,
+    )
+    GameTeamAssignment.query.filter_by(
+        game_session_id=session.id,
+        user_id=checkin.user_id,
+    ).delete(synchronize_session=False)
+
+    promoted = None
+    if was_occupying_slot and _should_promote_waitlist(session):
+        promoted = _promote_waitlist(checkin.game_session_id)
+
+    if promoted:
+        flash("Jogadora removida da lista e a primeira da fila foi promovida automaticamente.", "alert-info")
+    elif was_occupying_slot and session.status in {
+        GameSessionStatus.CLOSED,
+        GameSessionStatus.IN_PROGRESS,
+        GameSessionStatus.FINISHED,
     }:
-        flash("Esse status não pode ser ajustado manualmente nessa tela.", "alert-danger")
-        return redirect(url_for("main.admin_checkins_sessao", session_id=checkin.game_session_id))
-
-    if new_status == CheckinStatus.CANCELLED:
-        checkin.status = CheckinStatus.CANCELLED
-        checkin.cancelled_at = now_utc()
-        _stamp_checkin_audit(
-            checkin,
-            acting_user=current_user,
-            source=CheckinUpdateSource.ADMIN_PANEL,
+        flash(
+            "Jogadora removida da lista oficial. A fila de espera foi congelada para esta sessão.",
+            "alert-info",
         )
-        promoted = None
-        if previous_status in OCCUPIED_CHECKIN_STATUSES and _should_promote_waitlist(session):
-            promoted = _promote_waitlist(checkin.game_session_id)
-
-        if promoted:
-            flash("Jogadora removida da lista e a primeira da fila foi promovida automaticamente.", "alert-info")
-        elif previous_status in OCCUPIED_CHECKIN_STATUSES and session.status in {
-            GameSessionStatus.CLOSED,
-            GameSessionStatus.IN_PROGRESS,
-            GameSessionStatus.FINISHED,
-        }:
-            flash(
-                "Jogadora removida da lista oficial. A fila de espera foi congelada para esta sessão.",
-                "alert-info",
-            )
-        else:
-            flash("Jogadora removida da lista com sucesso.", "alert-success")
     else:
-        occupied_count = _occupied_count(session.id)
-        if previous_status in OCCUPIED_CHECKIN_STATUSES:
-            occupied_count = max(occupied_count - 1, 0)
-
-        checkin.status = (
-            CheckinStatus.CONFIRMED
-            if occupied_count < session.max_players
-            else CheckinStatus.WAITLIST
-        )
-        checkin.checked_in_at = now_utc()
-        checkin.cancelled_at = None
-        _stamp_checkin_audit(
-            checkin,
-            acting_user=current_user,
-            source=CheckinUpdateSource.ADMIN_PANEL,
-        )
-        if checkin.status == CheckinStatus.CONFIRMED:
-            flash("Jogadora reinserida na lista de confirmadas.", "alert-success")
-        else:
-            flash("A lista estava cheia; jogadora reinserida na fila de espera.", "alert-warning")
+        flash("Jogadora removida da lista com sucesso.", "alert-success")
 
     db.session.commit()
 

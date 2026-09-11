@@ -104,9 +104,6 @@
                   {% endif %}
 
                   <div class="checkin-admin-actions">
-                    <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CONFIRMED') }}">
-                      <button type="submit" class="btn btn-outline-info btn-sm admin-action-btn" {% if session.status.value == 'cancelled' %}disabled{% endif %}>Confirmada</button>
-                    </form>
                     <button
                       type="button"
                       class="btn btn-outline-danger btn-sm admin-action-btn"
@@ -154,7 +151,7 @@
           </div>
           <div class="modal-footer border-0">
             <button type="button" class="btn fdq-modal-btn fdq-modal-btn-secondary" data-bs-dismiss="modal">Não</button>
-            <form method="POST" action="{{ url_for('main.admin_atualizar_status_checkin', checkin_id=checkin.id, status_name='CANCELLED') }}" class="m-0">
+            <form method="POST" action="{{ url_for('main.admin_cancelar_checkin', checkin_id=checkin.id) }}" class="m-0">
               <button type="submit" class="btn fdq-modal-btn fdq-modal-btn-danger">Sim, remover</button>
             </form>
           </div>
