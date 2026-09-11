@@ -41,7 +41,6 @@ OCCUPIED_CHECKIN_STATUSES = (
 )
 
 AUTO_RESERVED_ROLES = (
-    UserRole.ADMIN,
     UserRole.ORGANIZER,
 )
 
